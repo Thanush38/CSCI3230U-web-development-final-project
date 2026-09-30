@@ -101,13 +101,13 @@ Each member owns one page of the app and everything related to it: its component
 
 **Nabeel: Recommended builds (`/recommended`)**
 - **UI:** The user picks a physique or fitness goal (e.g. calisthenics, bigger back, bigger chest, pull-up target) and gets a generated workout build, with a short explanation of why each exercise fits the goal.
+- **Neglected muscles:** Based on the planned workout, the planner shows which muscle groups are not being trained, so users can see what they are missing.
 - **State / data:** The generated build uses exercises from the API chosen by their target muscles and body parts. The goal descriptions and explanations are our own written content. A custom hook saves the chosen goal and builds to `localStorage`.
 - **Integration:** An "Apply to planner" button sends a build to the workout planner.
 - **Tests / a11y:** Tests for the build generator and the `localStorage` hook. Goal options are labelled controls, and the results are announced to screen readers.
 
 **Kharintirasakar: Workout planner (`/planner`)**
 - **UI:** A controlled form with dropdowns to add exercises with sets and time. There is a table of the planned workout, add and undo buttons, and prebuilt workouts to start from.
-- **Neglected muscles:** Based on the planned workout, the planner shows which muscle groups are not being trained, so users can see what they are missing.
 - **State / data:** The plan is kept in React state. Exercises for the dropdowns come from the API, and saved or applied builds come from the recommended page.
 - **Stretch goals:** Estimated calories burned (the API has no calorie data, so this would be our own estimate) and a chart of the plan.
 - **Integration:** A "Start workout" button sends the plan to the workout timer.
@@ -134,6 +134,9 @@ All vertical slices will use the same API: **Base URL:** `https://oss.exercisedb
 **Workout Planner**
 
 ![Workout planner wireframe](img/WorkoutPlanner.png)
+
+**Recommended Builds**
+[Recommended Builds wireframe] (img/)
 
 **Workout Timer**
 
