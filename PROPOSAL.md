@@ -1,4 +1,5 @@
 # CSCI 3230U - Final Project
+WorkOnSite
 
 
 ### Team Members:
@@ -8,7 +9,7 @@
 - Kharintirasakar
 
 #### Topic:
-We will be making a web application that allows users to view different exercises and their details. The application will provide a list of exercises, and users can click on an exercise to view more information about it, such as the muscle groups it targets, equipment needed, instructions and visual images of it. This is for new gym beginners that are unsure what exercise hits what muscle and to give detailed images and instructions on how to perform it. Along with it we will have the option to filter the exercises based on muscle groups, equipment. Users can also build their own workout plan in the planner, or pick a goal on the recommended page and have the application generate a plan for them. Once they have a plan, the workout timer walks them through it with a countdown for each exercise and rest breaks in between.
+We will be making a web application that allows users to view different exercises and their details. Our website is WorkOnSite. The application will provide a list of exercises, and users can click on an exercise to view more information about it, such as the muscle groups it targets, equipment needed, instructions and visual images of it. This is for new gym beginners that are unsure what exercise hits what muscle and to give detailed images and instructions on how to perform it. Along with it we will have the option to filter the exercises based on muscle groups, equipment. Users can also build their own workout plan in the planner, or pick a goal on the recommended page and have the application generate a plan for them. Once they have a plan, the workout timer walks them through it with a countdown for each exercise and rest breaks in between.
 
 #### Data Source:
 
@@ -108,7 +109,7 @@ Each member owns one page of the app and everything related to it: its component
 
 **Kharintirasakar: Workout planner (`/planner`)**
 - **UI:** A controlled form with dropdowns to add exercises with sets and time. There is a table of the planned workout, add and undo buttons, and prebuilt workouts to start from.
-- **State / data:** The plan is kept in React state. Exercises for the dropdowns come from the API, and saved or applied builds come from the recommended page.
+- **State / data:** The plan is kept in React state. Exercises for the dropdowns come from the API, and saved or applied builds come from the recommended page
 - **Stretch goals:** Estimated calories burned (the API has no calorie data, so this would be our own estimate) and a chart of the plan.
 - **Integration:** A "Start workout" button sends the plan to the workout timer.
 - **Tests / a11y:** Tests for the plan logic (add, undo, neglected-muscle check) and the form. Every input is labelled, and the table uses proper headers.
