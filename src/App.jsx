@@ -5,7 +5,7 @@ import './App.css'
 function App() {
 
   return (
-    <body>
+    <div className='body'>
       <header>
         <Link className='logo' to="/">
             <img src="/dumbbell.png" alt="WorkOnSite logo" />
@@ -24,7 +24,7 @@ function App() {
       <main>
         <Outlet />
       </main>
-    </body>
+    </div>
   )
 }
 

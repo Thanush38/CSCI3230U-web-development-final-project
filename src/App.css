@@ -5,7 +5,7 @@
     box-sizing: border-box;
 }
 
-body {
+.body {
     margin: 0;
     font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
     background: #f4f6f8;
@@ -73,13 +73,7 @@ main {
     }
 }
 
-
-
-
-
-
-
-
+/* Left this here idk what to do with it */
 
 /* Phones */
 @media (max-width: 600px) {
