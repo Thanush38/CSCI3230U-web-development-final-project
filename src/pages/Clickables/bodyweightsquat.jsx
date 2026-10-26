@@ -1,4 +1,4 @@
-function bodyweightsquat(props) {
+function BodyWeightSquat(props) {
     return <>
     <h2>Bodyweight Squat</h2>
         <p class="muscle-group">
@@ -7,7 +7,7 @@ function bodyweightsquat(props) {
                 <span><b>Target Muscles:</b> Upper Back</span>
                 <span><b>Equipment:</b> Bodyweight</span>
             </span>
-            <img src="../workout-placeholder.svg" alt="Bodyweight Squat demonstration"></img>
+            <img src="/exercises/bodyweightsquat.gif" alt="Bodyweight Squat demonstration"></img>
         </p>
         <h2>Instructions</h2>
         <p>Step 1: Stand with your feet shoulder-width apart, with your hands either extended straight out in front of you, crossed over your chest, or placed behind your head.</p>
@@ -18,4 +18,4 @@ function bodyweightsquat(props) {
     </>
 }
 
-export default bodyweightsquat
+export default BodyWeightSquat

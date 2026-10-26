@@ -1,4 +1,4 @@
-function bicepcurl(props) {
+function BicepCurl(props) {
     return <>
     <h2>Bicep Curl</h2>
         <p class="muscle-group">
@@ -7,7 +7,7 @@ function bicepcurl(props) {
                 <span><b>Target Muscles:</b> Biceps</span>
                 <span><b>Equipment:</b> Dumbbell</span>
             </span>
-            <img src="../workout-placeholder.svg" alt="Bicep Curl demonstration"></img>
+            <img src="/exercises/bicepcurl.gif" alt="Bicep Curl demonstration"></img>
         </p>
         <h2>Instructions</h2>
         <p>Step 1: Stand up straight with a dumbbell in each hand, palms facing forward and arms fully extended.</p>
@@ -19,4 +19,4 @@ function bicepcurl(props) {
     </>
 }
 
-export default bicepcurl
+export default BicepCurl

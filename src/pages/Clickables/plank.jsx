@@ -1,4 +1,4 @@
-function plank(props) {
+function Plank(props) {
     return <>
     <h2>Plank</h2>
         <p class="muscle-group">
@@ -7,7 +7,7 @@ function plank(props) {
                 <span><b>Target Muscles:</b> Abs</span>
                 <span><b>Equipment:</b> Bodyweight</span>
             </span>
-            <img src="../workout-placeholder.svg" alt="Plank demonstration"></img>
+            <img src="/exercises/plank.gif" alt="Plank demonstration"></img>
         </p>
         <h2>Instructions</h2>
         <p>Step 1: Start in a push-up position with your hands shoulder-width apart and your body straight.</p>
@@ -18,4 +18,4 @@ function plank(props) {
     </>
 }
 
-export default plank
+export default Plank

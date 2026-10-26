@@ -1,4 +1,4 @@
-function bentoverrow(props) {
+function BentOverRow(props) {
     return <>
     <h2>Bent-Over Row</h2>
         <p class="muscle-group">
@@ -7,7 +7,7 @@ function bentoverrow(props) {
                 <span><b>Target Muscles:</b> Upper Back</span>
                 <span><b>Equipment:</b> Dumbbell</span>
             </span>
-            <img src="../workout-placeholder.svg" alt="Bent-Over Row demonstration"></img>
+            <img src="/exercises/bentoverrow.gif" alt="Bent-Over Row demonstration"></img>
         </p>
         <h2>Instructions</h2>
         <p>Step 1: Stand with your feet shoulder-width apart, knees slightly bent, and hold a dumbbell in each hand with your palms facing your body.</p>
@@ -19,4 +19,4 @@ function bentoverrow(props) {
     </>
 }
 
-export default bentoverrow
+export default BentOverRow

@@ -1,4 +1,4 @@
-function overheadpress(props) {
+function OverheadPress(props) {
     return <>
     <h2>Overhead Press</h2>
         <p class="muscle-group">
@@ -7,7 +7,7 @@ function overheadpress(props) {
                 <span><b>Target Muscles:</b> Delts</span>
                 <span><b>Equipment:</b> Dumbbell</span>
             </span>
-            <img src="../workout-placeholder.svg" alt="Overhead Press demonstration"></img>
+            <img src="/exercises/overheadpress.gif" alt="Overhead Press demonstration"></img>
         </p>
         <h2>Instructions</h2>
         <p>Step 1: Stand with your feet shoulder-width apart, holding a dumbbell in each hand at shoulder level with your palms facing forward.</p>
@@ -17,4 +17,4 @@ function overheadpress(props) {
     </>
 }
 
-export default overheadpress
+export default OverheadPress

@@ -1,4 +1,4 @@
-function deadlift(props) {
+function Deadlift(props) {
     return <>
     <h2>Deadlift</h2>
         <p class="muscle-group">
@@ -7,7 +7,7 @@ function deadlift(props) {
                 <span><b>Target Muscles:</b> Glutes</span>
                 <span><b>Equipment:</b> Barbell</span>
             </span>
-            <img src="../workout-placeholder.svg" alt="Deadlift demonstration"></img>
+            <img src="/exercises/deadlift.gif" alt="Deadlift demonstration"></img>
         </p>
         <h2>Instructions</h2>
         <p>Step 1: Stand with your feet shoulder-width apart and the barbell on the ground in front of you.</p>
@@ -19,4 +19,4 @@ function deadlift(props) {
     </>
 }
 
-export default deadlift
+export default Deadlift

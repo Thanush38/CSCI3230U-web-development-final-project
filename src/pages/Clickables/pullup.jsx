@@ -1,4 +1,4 @@
-function pullup(props) {
+function PullUp(props) {
     return <>
     <h2>Pull-Up</h2>
         <p class="muscle-group">
@@ -7,7 +7,7 @@ function pullup(props) {
                 <span><b>Target Muscles:</b> Lats</span>
                 <span><b>Equipment:</b> Bodyweight</span>
             </span>
-            <img src="../workout-placeholder.svg" alt="Pull-Up demonstration"></img>
+            <img src="/exercises/pullup.gif" alt="Pull-Up demonstration"></img>
         </p>
         <h2>Instructions</h2>
         <p>Step 1: Hang from a pull-up bar with a neutral grip (palms facing each other) and your arms fully extended.</p>
@@ -19,4 +19,4 @@ function pullup(props) {
     </>
 }
 
-export default pullup
+export default PullUp

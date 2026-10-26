@@ -1,4 +1,4 @@
-function tricepdips(props) {
+function TricepDips(props) {
     return <>
         <h2>Tricep Dips</h2>
         <p class="muscle-group">
@@ -7,7 +7,7 @@ function tricepdips(props) {
                 <span><b>Target Muscles:</b> Triceps</span>
                 <span><b>Equipment:</b> Bodyweight</span>
              </span>
-             <img src="../workout-placeholder.svg" alt="Tricep Dips demonstration"></img>
+             <img src="/exercises/tricepdips.gif" alt="Tricep Dips demonstration"></img>
         </p>
         <h2>Instructions</h2>
         <p>Step 1: Sit on the edge of a bench with your hands gripping the edge, fingers pointing forward.</p>
@@ -18,4 +18,4 @@ function tricepdips(props) {
     </>
 }
 
-export default tricepdips
+export default TricepDips

@@ -1,4 +1,4 @@
-function pushup(props) {
+function PushUp(props) {
     return <>
         <h2>Push-Up</h2>
         <p className="muscle-group">
@@ -7,7 +7,7 @@ function pushup(props) {
                 <span><b>Target Muscles:</b> Triceps</span>
                 <span><b>Equipment:</b> Bodyweight</span>
             </span>
-            <img src="../workout-placeholder.svg" alt="Push-Up demonstration"></img>
+            <img src="/exercises/pushup.gif" alt="Push-Up demonstration"></img>
         </p>
         <h2>Instructions</h2>
         <p>Step 1: Start in a plank position with your forearms on the ground and elbows directly below your shoulders.</p>
@@ -18,4 +18,4 @@ function pushup(props) {
     </>
 }
 
-export default pushup
+export default PushUp

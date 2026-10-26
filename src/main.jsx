@@ -8,16 +8,16 @@ import Planner from './pages/planner/Planner.jsx';
 import Recommended from './pages/recommended/Recommended.jsx';
 import Timer from './pages/timer/Timer.jsx';
 import Goals from './pages/goals/Goals.jsx';
-import PushUp from './pages/Clickables/pushup.jsx';
-import Benchpress from './pages/Clickables/benchpress.jsx';
-import Bentoverrow from './pages/Clickables/bentoverrow.jsx';
-import Bicepcurl from './pages/Clickables/bicepcurl.jsx';
-import Bodyweightsquat from './pages/Clickables/bodyweightsquat.jsx';
-import Deadlift from './pages/Clickables/deadlift.jsx';
-import Overheadpress from './pages/Clickables/overheadpress.jsx';
-import Plank from './pages/Clickables/plank.jsx';
-import Pullup from './pages/Clickables/pullup.jsx';
-import Tricepdips from './pages/Clickables/tricepdips.jsx';
+import PushUp from './pages/Clickables/PushUp.jsx';
+import Benchpress from './pages/Clickables/BenchPress.jsx';
+import Bentoverrow from './pages/Clickables/BentOverRow.jsx';
+import Bicepcurl from './pages/Clickables/BicepCurl.jsx';
+import Bodyweightsquat from './pages/Clickables/BodyWeightSquat.jsx';
+import Deadlift from './pages/Clickables/Deadlift.jsx';
+import Overheadpress from './pages/Clickables/OverheadPress.jsx';
+import Plank from './pages/Clickables/Plank.jsx';
+import Pullup from './pages/Clickables/PullUp.jsx';
+import Tricepdips from './pages/Clickables/TricepDips.jsx';
 
 
 const router = createBrowserRouter([
