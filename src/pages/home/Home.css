@@ -1,0 +1,129 @@
+/* Search and filter */
+#search-section {
+    margin-bottom: 32px;
+}
+
+form {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: end;
+    gap: 12px 16px;
+    padding: 16px;
+    background: #ffffff;
+    border: 1px solid #d9e0e7;
+    border-radius: 8px;
+}
+
+form label {
+    display: block;
+    margin-bottom: 4px;
+    font-size: 0.85rem;
+    color: #616e7c;
+}
+
+form input,
+form select {
+    padding: 8px 10px;
+    font: inherit;
+    border: 1px solid #d9e0e7;
+    border-radius: 6px;
+    background: #ffffff;
+}
+
+form input[type="search"] {
+    min-width: 220px;
+}
+
+button {
+    padding: 8px 16px;
+    font: inherit;
+    font-weight: 500;
+    color: #fff;
+    background: #2563eb;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+button:hover {
+    background: #1d4ed8;
+}
+
+/* Exercise cards */
+#exercises,
+.exercise-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 20px;
+}
+
+.exercise-grid + .exercise-grid {
+    margin-top: 40px;
+}
+
+#exercises h2,
+.exercise-grid h2 {
+    grid-column: 1 / -1;
+    margin-bottom: 0;
+}
+
+.card {
+    display: flex;
+    flex-direction: column;
+    padding: 16px;
+    background: #ffffff;
+    border: 1px solid #d9e0e7;
+    border-radius: 8px;
+}
+
+.card img {
+    width: 100%;
+    height: auto;
+    margin-bottom: 12px;
+    border-radius: 6px;
+}
+
+.card h3 {
+    margin: 0 0 8px;
+}
+
+.card p {
+    margin: 0 0 6px;
+    font-size: 0.9rem;
+    color: #616e7c;
+}
+
+.card p:nth-of-type(2) {
+    margin-bottom: 0;
+    color: #1f2933;
+}
+
+.exercise-link {
+    text-decoration: none;
+    color: inherit;
+}
+
+.exercise-link:hover {
+    .card {
+        background: #dcdcdc;
+    }
+}
+
+.muscle-group {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+}
+
+.exercise-info span {
+    display: block;
+    margin-bottom: 20px;
+}
+
+.muscle-group img {
+    width: 300px;
+    max-width: 100%;
+    height: auto;
+}

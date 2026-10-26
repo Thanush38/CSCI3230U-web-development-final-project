@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>WorkOnSite</title>
+        <link rel="stylesheet" href="style.css">
+    </head>
+
+    <body>
+        <header>
+            <a class="logo" href="homePage.html">
+                <img src="img/dumbbell.png" alt="WorkOnSite logo">
+                WorkOnSite
+            </a>
+            <h1>Goals</h1>
+            <nav>
+                <a href="homePage.html">Home</a>
+                <a href="workoutPlanner.html">Workout Planner</a>
+                <a href="recommendedBuilds.html">Recommended Builds</a>
+                <a href="workoutTimer.html">Workout Timer</a>
+            </nav>
+        </header>
+
+        <main>
+            <section id="streak-tracker">
+                <label for="streak">Streak: </label>
+                <output id="streak">10 Weeks</output>
+            </section>
+
+            <section id="set-goals">
+                <form>
+                    <label for="name-area">Goal Name:</label>
+                    <input id="name-area" type="text">
+
+                    <label for="goal-type">Goal Type:</label>
+                    <select name="goal-type" id="goal-type">
+                        <option value="Numerical">Numerical</option>
+                        <option value="Percent">Percent</option>
+                        <option value="Achievement">Achievement</option>
+                    </select>
+
+                    <button>Add Goal</button>
+                </form>
+            </section>
+
+            <section id="tracking-goals">
+                <ul>
+                    <li>
+                        <article>
+                            <h3>Goal</h3>
+                            <progress max="100" value="66"></progress>
+                        </article>
+                    </li>
+                </ul>
+            </section>
+        </main>
+    </body>
+</html>

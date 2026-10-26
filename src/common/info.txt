@@ -1,0 +1,1 @@
+any components that seem to show up everywhere can be added to this folder to reduce copying
