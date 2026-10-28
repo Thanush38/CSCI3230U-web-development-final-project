@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import PreBuildControls from './PreBuildControls';
 import WorkoutSection from './WorkoutSection';
 import WorkoutRegime from './WorkoutRegime';
@@ -6,6 +7,8 @@ import PlannerResults from './PlannerResults';
 import './Planner.css';
 
 function Planner(props) {
+    const navigate = useNavigate();
+
     useEffect(() => {
         let storedPreBuilts = JSON.parse(localStorage.getItem("savedPreBuiltWorkouts")) || {};
         const legacyDefaults = ["Full Body Beginner", "Push / Pull / Legs", "Upper / Lower Split"];
@@ -241,6 +244,13 @@ function Planner(props) {
             };
         }
 
+        const startTimerBtn = document.getElementById("startTimerBtn");
+        if (startTimerBtn) {
+            startTimerBtn.onclick = () => {
+                navigate('/timer');
+            };
+        }
+
         const addButtons = document.querySelectorAll(".workout-input .add-btn");
         addButtons.forEach(button => {
             button.onclick = () => {
@@ -400,7 +410,7 @@ function Planner(props) {
         }
 
         attachCheckboxListeners();
-    }, []);
+    }, [navigate]);
 
     return (
         <>
