@@ -91,8 +91,8 @@ export default function Goal({goal, index, goals, setGoals}) {
         <button className='log-button' onClick={() => setShowlogs(!showLogs)}>Logs</button>
         <div className='logs' hidden={!showLogs} >
             {
-            goal.logs.map((log, id) => <Log
-            key={id}
+            goal.logs.map((log) => <Log
+            key={log.id}
             log={log}
             />)
             }

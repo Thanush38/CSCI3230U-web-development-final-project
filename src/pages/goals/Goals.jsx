@@ -18,6 +18,7 @@ function Goals(props) {
             max: 100,
             current: 33,
             logs: [{
+                id: 1,
                 date: "Tue October 27 2026",
                 current: 33,
                 message: "Goal Started"

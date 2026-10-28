@@ -10,7 +10,7 @@ export default function GoalList({goals, setGoals}) {
         {
         goals.map((goal, index) => {
             return <Goal 
-            key={index} 
+            key={goal.id} 
             goal={goal}
             index={index}
             goals={goals}
