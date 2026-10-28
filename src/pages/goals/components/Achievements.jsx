@@ -22,7 +22,7 @@ export default function Achievements(props) {
                     </div>
                 </div>
                 <div id='streak-week'>
-                    <p id='streak-progress' >{weekHours} / {goalWeekHours} Hours ({Math.round((weekHours/goalWeekHours)*100)}%)</p>
+                    <p id='streak-progress' >Weekly Goal: {weekHours} / {goalWeekHours} Hours ({Math.round((weekHours/goalWeekHours)*100)}%)</p>
                     <progress max={goalWeekHours} value={weekHours} />
                     <p>{goalWeekHours-weekHours} more workout hours left until you hit your goal!</p>
                 </div>

@@ -18,20 +18,17 @@ export function buildGoal(formData) {
         logs: []
     }
 
-    newGoal.logs.add(buildLogManual(0, 'Goal Started'))
-
     // replace with defaults if info omitted
     if (current === '') {
         newGoal.current = newGoal.min   
     }
 
+    newGoal.logs.push(buildLogManual(newGoal.current, 'Goal Started'))
+
     // check data compliance
     if (min > max || min > current || max < current) {
         return
-    }
-
-    console.log(newGoal);
-    
+    }    
 
     return newGoal
 }
