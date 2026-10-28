@@ -1,8 +1,10 @@
 import React, { useEffect } from 'react';
+import WorkoutSection from './WorkoutSection';
 import './Planner.css';
 
 function Planner(props) {
     useEffect(() => {
+        // --- 1. Initialize Pre-built Workouts in localStorage if not already present ---
         const defaultPreBuiltWorkouts = {
             "Full Body Beginner": [
                 { name: "Push-up", sets: "3", time: "10" },
@@ -25,6 +27,7 @@ function Planner(props) {
             localStorage.setItem("savedPreBuiltWorkouts", JSON.stringify(defaultPreBuiltWorkouts));
         }
 
+        // --- 2. Load saved pre-built workouts into the dropdown on page load ---
         const preBuildSelect = document.getElementById('pre-buildInput');
         function populatePreBuiltDropdown() {
             if (!preBuildSelect) return;
@@ -40,6 +43,7 @@ function Planner(props) {
         }
         populatePreBuiltDropdown();
 
+        // --- 3. Data Mappings for Recommended Builds ---
         const workoutBuilds = {
             "Calisthenics": [
                 { name: "Push-up", sets: "4", time: "15" },
@@ -78,6 +82,7 @@ function Planner(props) {
 
         if (regimeTbody) regimeTbody.innerHTML = "";
 
+        // --- 4. Undo History Stack ---
         let undoHistory = [];
 
         function saveStateSnapshot() {
@@ -112,15 +117,11 @@ function Planner(props) {
             return tr;
         }
 
+        // --- 5. Load Workouts Function ---
         function loadWorkoutBuild(buildName, isPreBuilt = false) {
-            let buildWorkouts = null;
-
-            if (isPreBuilt) {
-                const storedPreBuilts = JSON.parse(localStorage.getItem("savedPreBuiltWorkouts")) || {};
-                buildWorkouts = storedPreBuilts[buildName];
-            } else {
-                buildWorkouts = workoutBuilds[buildName];
-            }
+            let buildWorkouts = isPreBuilt 
+                ? (JSON.parse(localStorage.getItem("savedPreBuiltWorkouts")) || {})[buildName] 
+                : workoutBuilds[buildName];
 
             if (!buildWorkouts) {
                 alert("Selected build not found.");
@@ -211,6 +212,7 @@ function Planner(props) {
             alert(`Loaded "${buildName}" into your workout planner and regime!`);
         }
 
+        // --- Event Listeners ---
         const preBuildAddBtn = document.getElementById("preBuildAddBtn");
         if (preBuildAddBtn) {
             preBuildAddBtn.onclick = () => {
@@ -234,6 +236,7 @@ function Planner(props) {
             };
         }
 
+        // Dynamic Row Add Buttons
         const addButtons = document.querySelectorAll(".workout-input .add-btn");
         addButtons.forEach(button => {
             button.onclick = () => {
@@ -282,6 +285,7 @@ function Planner(props) {
             };
         });
 
+        // Back / Undo Button
         const backBtn = document.getElementById("backBtn");
         if (backBtn) {
             backBtn.onclick = () => {
@@ -305,6 +309,7 @@ function Planner(props) {
             };
         }
 
+        // Save Build Button
         const saveBuildBtn = document.getElementById('saveBuildBtn');
         if (saveBuildBtn) {
             saveBuildBtn.onclick = () => {
@@ -405,9 +410,7 @@ function Planner(props) {
                 <section className="workout-input pre-build">
                     <div className="control-group">
                         <label htmlFor="pre-buildInput">Pre-built Workout</label>
-                        <select id="pre-buildInput" name="PreBuild Activity">
-                            {/* Dynamically populated */}
-                        </select>
+                        <select id="pre-buildInput" name="PreBuild Activity"></select>
                         <button type="button" id="preBuildAddBtn">Add</button>
                     </div>
                     
@@ -435,189 +438,13 @@ function Planner(props) {
                     </div>
                 </section>
 
-                {/* Chest Section */}
-                <section className="workout-input">
-                    <h2 id="chest-input">Chest</h2>
-                    <div>
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>Workout</th>
-                                    <th>Total Work Outs</th>
-                                    <th>Time?</th> 
-                                    <th></th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>
-                                        <select name="chestActivity" aria-label="Chest Exercise">
-                                            <option value="Push-up">Push-up</option>
-                                            <option value="Bench Press">Bench Press</option>
-                                        </select>
-                                    </td>
-                                    <td><input type="text" name="chestSets" placeholder="Sets" aria-label="Chest sets" /></td>
-                                    <td><input type="text" name="chestTime" placeholder="Minutes" aria-label="Chest time" /></td>
-                                    <td><img className="imgPlaceholder" src="/workout-placeholder.svg" alt="Workout demonstration" /></td>
-                                </tr>
-                            </tbody>
-                        </table>
-                        <button type="button" className="add-btn">Add</button>
-                    </div>
-                </section>
-
-                {/* Back Section */}
-                <section className="workout-input">
-                    <h2 id="back-input">Back</h2>
-                    <div>
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>Workout</th>
-                                    <th>Total Work Outs</th>
-                                    <th>Time?</th>
-                                    <th></th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>
-                                        <select name="backActivity" aria-label="Back Exercise">
-                                            <option value="Pull-up">Pull-up</option>
-                                            <option value="Bent-Over Row">Bent-Over Row</option>
-                                        </select>
-                                    </td>
-                                    <td><input type="text" name="backSets" placeholder="Sets" aria-label="Back sets" /></td>
-                                    <td><input type="text" name="backTime" placeholder="Minutes" aria-label="Back time" /></td>
-                                    <td><img className="imgPlaceholder" src="/workout-placeholder.svg" alt="Workout demonstration" /></td>
-                                </tr>
-                            </tbody>
-                        </table>
-                        <button type="button" className="add-btn">Add</button>
-                    </div>
-                </section>
-
-                {/* Leg Section */}
-                <section className="workout-input">
-                    <h2 id="leg-input">Leg</h2>
-                    <div>
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>Workout</th>
-                                    <th>Total Work Outs</th>
-                                    <th>Time?</th>
-                                    <th></th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>
-                                        <select name="legActivity" aria-label="Leg Exercise">
-                                            <option value="Bodyweight Squat">Bodyweight Squat</option>
-                                            <option value="Deadlift">Deadlift</option>
-                                        </select>
-                                    </td>
-                                    <td><input type="text" name="legSets" placeholder="Sets" aria-label="Leg sets" /></td>
-                                    <td><input type="text" name="legTime" placeholder="Minutes" aria-label="Leg time" /></td>
-                                    <td><img className="imgPlaceholder" src="/workout-placeholder.svg" alt="Workout demonstration" /></td>
-                                </tr>
-                            </tbody>
-                        </table>
-                        <button type="button" className="add-btn">Add</button>
-                    </div>
-                </section>
-
-                {/* Shoulder Section */}
-                <section className="workout-input">
-                    <h2 id="shoulder-input">Shoulder</h2>
-                    <div>
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>Workout</th>
-                                    <th>Total Work Outs</th>
-                                    <th>Time?</th>
-                                    <th></th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>
-                                        <select name="shoulderActivity" aria-label="Shoulder Exercise">
-                                            <option value="Overhead Press">Overhead Press</option>
-                                        </select>
-                                    </td>
-                                    <td><input type="text" name="shoulderSets" placeholder="Sets" aria-label="Shoulder sets" /></td>
-                                    <td><input type="text" name="shoulderTime" placeholder="Minutes" aria-label="Shoulder time" /></td>
-                                    <td><img className="imgPlaceholder" src="/workout-placeholder.svg" alt="Workout demonstration" /></td>
-                                </tr>
-                            </tbody>
-                        </table>
-                        <button type="button" className="add-btn">Add</button>
-                    </div>
-                </section>
-
-                {/* Arm Section */}
-                <section className="workout-input">
-                    <h2 id="arm-input">Arm</h2>
-                    <div>
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>Workout</th>
-                                    <th>Total Work Outs</th>
-                                    <th>Time?</th>
-                                    <th></th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>
-                                        <select name="armActivity" aria-label="Arm Exercise">
-                                            <option value="Bicep Curl">Bicep Curl</option>
-                                            <option value="Tricep Dip">Tricep Dip</option>
-                                        </select>
-                                    </td>
-                                    <td><input type="text" name="armSets" placeholder="Sets" aria-label="Arm sets" /></td>
-                                    <td><input type="text" name="armTime" placeholder="Minutes" aria-label="Arm time" /></td>
-                                    <td><img className="imgPlaceholder" src="/workout-placeholder.svg" alt="Workout demonstration" /></td>
-                                </tr>
-                            </tbody>
-                        </table>
-                        <button type="button" className="add-btn">Add</button>
-                    </div>
-                </section>
-
-                {/* Core Section */}
-                <section className="workout-input">
-                    <h2 id="core-input">Core</h2>
-                    <div>
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>Workout</th>
-                                    <th>Total Work Outs</th>
-                                    <th>Time?</th>
-                                    <th></th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>
-                                        <select name="coreActivity" aria-label="Core Exercise">
-                                            <option value="Plank">Plank</option>
-                                        </select>
-                                    </td>
-                                    <td><input type="text" name="coreSets" placeholder="Sets" aria-label="Core sets" /></td>
-                                    <td><input type="text" name="coreTime" placeholder="Minutes" aria-label="Core time" /></td>
-                                    <td><img className="imgPlaceholder" src="/workout-placeholder.svg" alt="Workout demonstration" /></td>
-                                </tr>
-                            </tbody>
-                        </table>
-                        <button type="button" className="add-btn">Add</button>
-                    </div>
-                </section>
+                {/* Decomposed Workout Components */}
+                <WorkoutSection title="Chest" id="chest-input" options={["Push-up", "Bench Press"]} namePrefix="chest" />
+                <WorkoutSection title="Back" id="back-input" options={["Pull-up", "Bent-Over Row"]} namePrefix="back" />
+                <WorkoutSection title="Leg" id="leg-input" options={["Bodyweight Squat", "Deadlift"]} namePrefix="leg" />
+                <WorkoutSection title="Shoulder" id="shoulder-input" options={["Overhead Press"]} namePrefix="shoulder" />
+                <WorkoutSection title="Arm" id="arm-input" options={["Bicep Curl", "Tricep Dip"]} namePrefix="arm" />
+                <WorkoutSection title="Core" id="core-input" options={["Plank"]} namePrefix="core" />
 
                 <section className="workout-input">
                     <h2 id="workout-regime">Workout Regime</h2>
@@ -634,9 +461,7 @@ function Planner(props) {
                                     <th>Complete</th>
                                 </tr>
                             </thead>
-                            <tbody>
-                                {/* Dynamically populated */}
-                            </tbody>
+                            <tbody></tbody>
                         </table>
                         <div className="regime-actions">
                             <button type="button" id="backBtn">Back</button>
