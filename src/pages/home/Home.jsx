@@ -7,61 +7,71 @@ const exercises = [
         name: 'Push-Up',
         muscle: 'chest',
         description: 'A bodyweight press that works the chest, shoulders, and triceps.',
-        path: '/pushup'
+        path: '/pushup',
+        img: "/exercises/pushup.jpg"
     },
     {
         name: 'Bench Press',
         muscle: 'chest',
         description: 'A barbell press performed lying on a bench to build chest strength.',
-        path: '/benchpress'
+        path: '/benchpress',
+        img: "/exercises/benchpress.jpg"
     },
     {
         name: 'Pull-Up',
         muscle: 'back',
         description: 'Hang from a bar and pull your chin over it to target the lats.',
-        path: '/pullup'
+        path: '/pullup',
+        img: "/exercises/pullup.jpg"
     },
     {
         name: 'Bent-Over Row',
         muscle: 'back',
         description: 'Hinge at the hips and row a barbell toward your torso.',
-        path: '/bentoverrow'
+        path: '/bentoverrow',
+        img: "/exercises/bentoverrow.jpg"
     },
     {
         name: 'Bodyweight Squat',
         muscle: 'legs',
         description: 'A foundational lower-body move for quads, glutes, and hamstrings.',
-        path: '/bodyweightsquat'
+        path: '/bodyweightsquat',
+        img: "/exercises/bodyweightsquat.jpg"
     },
     {
         name: 'Deadlift',
         muscle: 'legs',
         description: 'Lift a loaded barbell from the floor using your hips and legs.',
-        path: '/deadlift'
+        path: '/deadlift',
+        img: "/exercises/deadlift.jpg"
     },
     {
         name: 'Overhead Press',
         muscle: 'shoulders',
         description: 'Press a barbell or dumbbells overhead to build strong shoulders.',
-        path: '/overheadpress'
+        path: '/overheadpress',
+        img: "/exercises/overheadpress.jpg"
     },
     {
         name: 'Bicep Curl',
         muscle: 'arms',
         description: 'Curl a pair of dumbbells to isolate the biceps.',
-        path: '/bicepcurl'
+        path: '/bicepcurl',
+        img: "/exercises/bicepcurl.jpg"
     },
     {
         name: 'Tricep Dips',
         muscle: 'arms',
         description: 'Lower and raise your body between parallel bars or a bench.',
-        path: '/tricepdips'
+        path: '/tricepdips',
+        img: "/exercises/tricepdips.jpg"
     },
     {
         name: 'Plank',
         muscle: 'core',
         description: 'Hold a straight-body position to build core stability.',
-        path: '/plank'
+        path: '/plank',
+        img: '/exercises/Plank.jpg'
     }
 ]
 
@@ -69,7 +79,7 @@ function ExerciseCard(props) {
   return (
     <Link className='page-link' to={props.path}>
         <article className='card'>
-            <img src="workout-placeholder.svg" alt="Placeholder workout image"></img>
+            <img src={props.img} alt="workout-placeholder.svg"></img>
             <h3>{props.name}</h3>
             <p>Muscle Group: {props.muscle}</p>
             <p>{props.description}</p>
@@ -89,6 +99,7 @@ function ExerciseList({ exercises }) {
           muscle={exercise.muscle} 
           description={exercise.description} 
           path = {exercise.path}
+          img = {exercise.img}
           />
       ))}
     </>
@@ -142,17 +153,17 @@ function Home(props) {
         </section>
 
         <section id="browse-group" className="exercise-grid">
-            <h2>Browse by Group</h2>
+            <h2>Search Results:</h2>
             <ExerciseList exercises={filteredExercises}/>
         </section>
 
         <section id="popular-exercises" className="exercise-grid">
             <h2>Popular Exercises</h2>
-            <ExerciseCard name="Deadlift" muscle="Legs" description="Lift a loaded barbell from the floor using your hips and legs." path = "/deadlift"/>
-            <ExerciseCard name="Overhead Press" muscle="Shoulders" description="Press a barbell or dumbbells overhead to build strong shoulders." path = "/overheadpress"/>
-            <ExerciseCard name="Bicep Curl" muscle="Arms" description="Curl a pair of dumbbells to isolate the biceps." path = "/bicepcurl"/>
-            <ExerciseCard name="Tricep Dips" muscle="Arms" description="Lower and raise your body between parallel bars or a bench." path = "/tricepdips"/>
-            <ExerciseCard name="Plank" muscle="Core" description="Hold a straight-body position to build core stability." path = "/plank"/>
+            <ExerciseCard name="Deadlift" muscle="Legs" description="Lift a loaded barbell from the floor using your hips and legs." path = "/deadlift" img = "/exercises/deadlift.jpg"/>
+            <ExerciseCard name="Overhead Press" muscle="Shoulders" description="Press a barbell or dumbbells overhead to build strong shoulders." path = "/overheadpress" img = "/exercises/overheadpress.jpg"/>
+            <ExerciseCard name="Bicep Curl" muscle="Arms" description="Curl a pair of dumbbells to isolate the biceps." path = "/bicepcurl" img = "/exercises/bicepcurl.jpg"/>
+            <ExerciseCard name="Tricep Dips" muscle="Arms" description="Lower and raise your body between parallel bars or a bench." path = "/tricepdips" img = "/exercises/tricepdips.jpg"/>
+            <ExerciseCard name="Plank" muscle="Core" description="Hold a straight-body position to build core stability." path = "/plank" img = '/exercises/Plank.jpg'/>
         </section>
     </>
 }
