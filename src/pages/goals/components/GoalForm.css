@@ -1,0 +1,60 @@
+
+
+#goal-form {
+    & form {
+        display: block;
+    }
+
+    & #main-content {
+        display: flex;
+
+        & label {
+            margin: 0.5rem 0.3rem;
+
+            font-size: large;
+            color: black;
+            font-weight: 500;
+        }
+
+        & input {
+            flex-grow: 2;
+        }
+
+        & select {
+            flex-grow: 1;
+        }
+
+        & button {
+            flex-grow: 1;
+
+            margin: 0 1rem
+        }
+    }
+
+    & #info-content {
+        & label {
+            margin: 0.5rem 0.3rem;
+
+            font-size: large;
+            color: black;
+            font-weight: 500;
+        }
+
+        & textarea {
+            max-width: 100%;
+            min-width: 100%;
+            width: 100%;
+            height: 3rem;
+        }
+    }
+
+    & #data-content {
+        display: flex;
+
+        & .value-field {
+            flex: 1;
+
+            margin: 10px;
+        }
+    }
+}

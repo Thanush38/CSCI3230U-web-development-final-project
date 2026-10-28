@@ -1,0 +1,21 @@
+
+#goals {
+    display: block;
+
+    & h2 {
+        font-size: 2rem;
+    }
+
+    & h3 {
+        font-size: 1.5rem;
+        margin: 1rem;
+    }
+
+    & section {
+        background-color: white;
+        padding: 10px;
+        margin-top: 10px;
+        border-radius: 10px;
+        border: 1px solid lightgrey;
+    }
+}
