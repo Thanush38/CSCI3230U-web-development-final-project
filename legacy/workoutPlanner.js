@@ -1,7 +1,5 @@
 document.addEventListener("DOMContentLoaded", () => {
-    // --- Data Mappings for Pre-built and Recommended Workouts ---
     const workoutBuilds = {
-        // Pre-built workouts
         "Full Body Beginner": [
             { name: "Push-up", sets: "3", time: "10" },
             { name: "Bodyweight Squat", sets: "3", time: "10" },
@@ -17,7 +15,6 @@ document.addEventListener("DOMContentLoaded", () => {
             { name: "Bicep Curl", sets: "3", time: "10" },
             { name: "Bodyweight Squat", sets: "4", time: "15" }
         ],
-        // Recommended builds
         "Calisthenics": [
             { name: "Push-up", sets: "4", time: "15" },
             { name: "Pull-up", sets: "3", time: "12" },
@@ -37,7 +34,6 @@ document.addEventListener("DOMContentLoaded", () => {
         ]
     };
 
-    // Map every exercise to its form input names and section category
     const exerciseMap = {
         "Push-up": { setsInput: "chestSets", timeInput: "chestTime" },
         "Bench Press": { setsInput: "chestSets", timeInput: "chestTime" },
@@ -54,7 +50,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const regimeTbody = document.querySelector(".workout-regime tbody");
     const resultsSection = document.querySelector(".Results");
 
-    // --- Helper function to load builds into category inputs and regime table ---
     function loadWorkoutBuild(buildName) {
         let buildWorkouts = workoutBuilds[buildName];
 
@@ -63,7 +58,6 @@ document.addEventListener("DOMContentLoaded", () => {
             return;
         }
 
-        // 1. Reset all category input fields first
         Object.values(exerciseMap).forEach(mapping => {
             const setsInput = document.querySelector(`input[name="${mapping.setsInput}"]`);
             const timeInput = document.querySelector(`input[name="${mapping.timeInput}"]`);
@@ -71,7 +65,6 @@ document.addEventListener("DOMContentLoaded", () => {
             if (timeInput) timeInput.value = "";
         });
 
-        // Clear any dynamically added extra rows (keeping index 0 as header, index 1 as the default input row)
         document.querySelectorAll(".workout-input table").forEach(table => {
             if (table.classList.contains("workout-regime")) return;
             const rows = table.querySelectorAll("tr");
@@ -80,10 +73,8 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         });
 
-        // Track which category tables already used their default row
         const populatedTables = new Set();
 
-        // 2. Populate the tables/inputs for the selected build
         buildWorkouts.forEach(item => {
             const mapping = exerciseMap[item.name];
             if (mapping) {
@@ -117,7 +108,6 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         });
 
-        // 3. Clear and update the Full Workout Regime table tbody
         if (regimeTbody) {
             regimeTbody.innerHTML = ""; // Clear existing rows
 
@@ -138,7 +128,6 @@ document.addEventListener("DOMContentLoaded", () => {
         alert(`Loaded "${buildName}" into your workout planner and regime!`);
     }
 
-    // --- Event Listeners for Pre-built & Recommended Add Buttons ---
     const preBuildAddBtn = document.getElementById("preBuildAddBtn");
     if (preBuildAddBtn) {
         preBuildAddBtn.addEventListener("click", () => {
@@ -163,7 +152,6 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // --- Individual Muscle Section Dynamic Row Addition ---
     const addButtons = document.querySelectorAll(".workout-input .add-btn");
     addButtons.forEach(button => {
         button.addEventListener("click", () => {
@@ -186,7 +174,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 return;
             }
 
-            // Create a new row for the muscle section table
             const newRow = document.createElement("tr");
             newRow.innerHTML = `
                 <td>${exerciseName}</td>
@@ -196,7 +183,6 @@ document.addEventListener("DOMContentLoaded", () => {
             `;
             table.appendChild(newRow);
 
-            // Also append to Workout Regime table for unified tracking
             if (regimeTbody) {
                 const regimeRow = document.createElement("tr");
                 regimeRow.innerHTML = `
@@ -209,13 +195,11 @@ document.addEventListener("DOMContentLoaded", () => {
                 attachCheckboxListeners();
             }
 
-            // Reset the input fields
             textInputs[0].value = "";
             textInputs[1].value = "";
         });
     });
 
-    // --- Calorie Calculation & Results Update ---
     function attachCheckboxListeners() {
         const checkboxes = document.querySelectorAll(".regime-checkbox");
         checkboxes.forEach(checkbox => {
@@ -256,7 +240,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
     attachCheckboxListeners();
 
-    // --- Timer Button Action ---
     const startTimerBtn = document.getElementById("startTimerBtn");
     if (startTimerBtn) {
         startTimerBtn.addEventListener("click", () => {
