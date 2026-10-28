@@ -1,0 +1,13 @@
+
+.badge {
+
+    height: 120px;
+    aspect-ratio: 1 / 1;
+
+    margin: 10px;
+
+    & p {
+        margin: auto;
+        text-align: center;
+    }
+}
