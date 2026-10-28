@@ -1,5 +1,6 @@
 document.addEventListener("DOMContentLoaded", () => {
-    const workoutBuilds = {
+    
+    const defaultPreBuiltWorkouts = {
         "Full Body Beginner": [
             { name: "Push-up", sets: "3", time: "10" },
             { name: "Bodyweight Squat", sets: "3", time: "10" },
@@ -14,7 +15,29 @@ document.addEventListener("DOMContentLoaded", () => {
             { name: "Overhead Press", sets: "3", time: "10" },
             { name: "Bicep Curl", sets: "3", time: "10" },
             { name: "Bodyweight Squat", sets: "4", time: "15" }
-        ],
+        ]
+    };
+
+    if (!localStorage.getItem("savedPreBuiltWorkouts")) {
+        localStorage.setItem("savedPreBuiltWorkouts", JSON.stringify(defaultPreBuiltWorkouts));
+    }
+
+    const preBuildSelect = document.getElementById('pre-buildInput');
+    function populatePreBuiltDropdown() {
+        if (!preBuildSelect) return;
+        preBuildSelect.innerHTML = '<option value="" selected disabled>Select a pre-built workout</option>';
+        
+        const storedPreBuilts = JSON.parse(localStorage.getItem("savedPreBuiltWorkouts")) || {};
+        Object.keys(storedPreBuilts).forEach(buildName => {
+            const option = document.createElement('option');
+            option.value = buildName;
+            option.textContent = buildName;
+            preBuildSelect.appendChild(option);
+        });
+    }
+    populatePreBuiltDropdown();
+
+    const workoutBuilds = {
         "Calisthenics": [
             { name: "Push-up", sets: "4", time: "15" },
             { name: "Pull-up", sets: "3", time: "12" },
@@ -50,30 +73,77 @@ document.addEventListener("DOMContentLoaded", () => {
     const regimeTbody = document.querySelector(".workout-regime tbody");
     const resultsSection = document.querySelector(".Results");
 
-    function loadWorkoutBuild(buildName) {
-        let buildWorkouts = workoutBuilds[buildName];
+    let undoHistory = [];
+
+    function saveStateSnapshot() {
+        const snapshot = {
+            muscleTables: [],
+            regimeHtml: regimeTbody ? regimeTbody.innerHTML : ""
+        };
+
+        document.querySelectorAll(".workout-input table").forEach(table => {
+            if (table.classList.contains("workout-regime")) return;
+            snapshot.muscleTables.push({
+                tableElement: table,
+                html: table.innerHTML
+            });
+        });
+
+        undoHistory.push(snapshot);
+    }
+
+    if (regimeTbody) regimeTbody.innerHTML = "";
+
+    function createEmptyRow(selectOptionsHtml) {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+            <td>
+                <select name="activity" aria-label="Exercise selection">
+                    ${selectOptionsHtml}
+                </select>
+            </td>
+            <td><input type="text" name="sets" placeholder="Sets" aria-label="Sets"></td>
+            <td><input type="text" name="time" placeholder="Minutes" aria-label="Minutes"></td>
+            <td><img class="imgPlaceholder" src="img/workout-placeholder.svg" alt="demonstration"></td>
+        `;
+        return tr;
+    }
+
+    function loadWorkoutBuild(buildName, isPreBuilt = false) {
+        let buildWorkouts = null;
+
+        if (isPreBuilt) {
+            const storedPreBuilts = JSON.parse(localStorage.getItem("savedPreBuiltWorkouts")) || {};
+            buildWorkouts = storedPreBuilts[buildName];
+        } else {
+            buildWorkouts = workoutBuilds[buildName];
+        }
 
         if (!buildWorkouts) {
             alert("Selected build not found.");
             return;
         }
 
-        Object.values(exerciseMap).forEach(mapping => {
-            const setsInput = document.querySelector(`input[name="${mapping.setsInput}"]`);
-            const timeInput = document.querySelector(`input[name="${mapping.timeInput}"]`);
-            if (setsInput) setsInput.value = "";
-            if (timeInput) timeInput.value = "";
-        });
+        saveStateSnapshot();
 
         document.querySelectorAll(".workout-input table").forEach(table => {
             if (table.classList.contains("workout-regime")) return;
+            
             const rows = table.querySelectorAll("tr");
             for (let i = 2; i < rows.length; i++) {
                 rows[i].remove();
             }
+
+            const topInputs = rows[1]?.querySelectorAll("input[type='text']");
+            if (topInputs) {
+                topInputs[0].value = "";
+                topInputs[0].removeAttribute("readonly");
+                topInputs[1].value = "";
+                topInputs[1].removeAttribute("readonly");
+            }
         });
 
-        const populatedTables = new Set();
+        const updatedTables = new Set();
 
         buildWorkouts.forEach(item => {
             const mapping = exerciseMap[item.name];
@@ -83,23 +153,28 @@ document.addEventListener("DOMContentLoaded", () => {
 
                 if (setsInput && timeInput) {
                     const table = setsInput.closest("table");
-                    
-                    // If this table hasn't used its default row yet, fill it out
-                    if (table && !populatedTables.has(table)) {
+
+                    if (table && !updatedTables.has(table)) {
                         setsInput.value = item.sets;
                         timeInput.value = item.time;
+                        setsInput.setAttribute("readonly", true);
+                        timeInput.setAttribute("readonly", true);
+
                         const row = setsInput.closest("tr");
-                        if (row && row.cells[0]) {
-                            row.cells[0].textContent = item.name;
-                        }
-                        populatedTables.add(table);
+                        const selectEl = row ? row.querySelector("select") : null;
+                        if (selectEl) selectEl.value = item.name;
+
+                        updatedTables.add(table);
                     } else if (table) {
-                        // If the default row is already taken, append a new row to that table
                         const newRow = document.createElement("tr");
                         newRow.innerHTML = `
-                            <td>${item.name}</td>
-                            <td><input type="text" name="sets" value="${item.sets}" aria-label="${item.name} sets"></td>
-                            <td><input type="text" name="time" value="${item.time}" aria-label="${item.name} time"></td>
+                            <td>
+                                <select name="activity" aria-label="Exercise selection">
+                                    <option value="${item.name}">${item.name}</option>
+                                </select>
+                            </td>
+                            <td><input type="text" name="sets" value="${item.sets}" aria-label="${item.name} sets" readonly></td>
+                            <td><input type="text" name="time" value="${item.time}" aria-label="${item.name} time" readonly></td>
                             <td><img class="imgPlaceholder" src="img/workout-placeholder.svg" alt="${item.name} demonstration"></td>
                         `;
                         table.appendChild(newRow);
@@ -108,9 +183,14 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         });
 
-        if (regimeTbody) {
-            regimeTbody.innerHTML = ""; // Clear existing rows
+        updatedTables.forEach(table => {
+            const defaultSelect = table.querySelector("tr:nth-child(2) select");
+            const selectOptionsHtml = defaultSelect ? defaultSelect.innerHTML : `<option value="Workout">Workout</option>`;
+            table.appendChild(createEmptyRow(selectOptionsHtml));
+        });
 
+        if (regimeTbody) {
+            regimeTbody.innerHTML = "";
             buildWorkouts.forEach(item => {
                 const row = document.createElement('tr');
                 row.innerHTML = `
@@ -131,12 +211,11 @@ document.addEventListener("DOMContentLoaded", () => {
     const preBuildAddBtn = document.getElementById("preBuildAddBtn");
     if (preBuildAddBtn) {
         preBuildAddBtn.addEventListener("click", () => {
-            const selectElem = document.getElementById("pre-buildInput");
-            if (!selectElem || !selectElem.value) {
+            if (!preBuildSelect || !preBuildSelect.value) {
                 alert("Please select a pre-built workout first.");
                 return;
             }
-            loadWorkoutBuild(selectElem.value);
+            loadWorkoutBuild(preBuildSelect.value, true);
         });
     }
 
@@ -148,7 +227,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 alert("Please select a recommended build first.");
                 return;
             }
-            loadWorkoutBuild(selectElem.value);
+            loadWorkoutBuild(selectElem.value, false);
         });
     }
 
@@ -158,13 +237,16 @@ document.addEventListener("DOMContentLoaded", () => {
             const section = button.closest(".workout-input");
             if (!section) return;
 
-            const selectEl = section.querySelector("select");
             const table = section.querySelector("table");
-            if (!selectEl || !table) return;
+            if (!table) return;
 
-            const exerciseName = selectEl.value;
-            const textInputs = table.querySelectorAll("input[type='text']");
-            if (textInputs.length < 2) return;
+            const rows = table.querySelectorAll("tr");
+            const lastRow = rows[rows.length - 1];
+            if (!lastRow) return;
+
+            const selectEl = lastRow.querySelector("select");
+            const textInputs = lastRow.querySelectorAll("input[type='text']");
+            if (!selectEl || textInputs.length < 2) return;
 
             const setsVal = textInputs[0].value.trim();
             const timeVal = textInputs[1].value.trim();
@@ -174,14 +256,11 @@ document.addEventListener("DOMContentLoaded", () => {
                 return;
             }
 
-            const newRow = document.createElement("tr");
-            newRow.innerHTML = `
-                <td>${exerciseName}</td>
-                <td><input type="text" name="sets" value="${setsVal}" aria-label="${exerciseName} sets"></td>
-                <td><input type="text" name="time" value="${timeVal}" aria-label="${exerciseName} time"></td>
-                <td><img class="imgPlaceholder" src="img/workout-placeholder.svg" alt="${exerciseName} demonstration"></td>
-            `;
-            table.appendChild(newRow);
+            saveStateSnapshot();
+
+            const exerciseName = selectEl.value;
+            textInputs[0].setAttribute("readonly", true);
+            textInputs[1].setAttribute("readonly", true);
 
             if (regimeTbody) {
                 const regimeRow = document.createElement("tr");
@@ -195,10 +274,76 @@ document.addEventListener("DOMContentLoaded", () => {
                 attachCheckboxListeners();
             }
 
-            textInputs[0].value = "";
-            textInputs[1].value = "";
+            table.appendChild(createEmptyRow(selectEl.innerHTML));
+            updateResults();
         });
     });
+
+    const backBtn = document.getElementById("backBtn");
+    if (backBtn) {
+        backBtn.addEventListener("click", () => {
+            if (undoHistory.length === 0) {
+                alert("Nothing to undo!");
+                return;
+            }
+
+            const previousState = undoHistory.pop();
+
+            previousState.muscleTables.forEach(item => {
+                item.tableElement.innerHTML = item.html;
+            });
+
+            if (regimeTbody) {
+                regimeTbody.innerHTML = previousState.regimeHtml;
+                attachCheckboxListeners();
+            }
+
+            updateResults();
+            alert("Successfully undone last action!");
+        });
+    }
+
+    const saveBuildBtn = document.getElementById('saveBuildBtn');
+    if (saveBuildBtn) {
+        saveBuildBtn.addEventListener('click', () => {
+            const buildName = prompt("Enter a name for your saved workout build:");
+            
+            if (!buildName || buildName.trim() === "") {
+                alert("Build name cannot be empty.");
+                return;
+            }
+
+            const regimeRows = document.querySelectorAll('.workout-regime tbody tr');
+            const workouts = [];
+
+            regimeRows.forEach(row => {
+                const cells = row.querySelectorAll('td');
+                if (cells.length >= 3) {
+                    const setsMatch = cells[1].textContent.match(/(\d+)/);
+                    const timeMatch = cells[2].textContent.match(/(\d+)/);
+
+                    workouts.push({
+                        name: cells[0].textContent.trim(),
+                        sets: setsMatch ? setsMatch[1] : "3",
+                        time: timeMatch ? timeMatch[1] : "10"
+                    });
+                }
+            });
+
+            if (workouts.length === 0) {
+                alert("Your workout regime is empty! Add some workouts first.");
+                return;
+            }
+
+            const storedPreBuilts = JSON.parse(localStorage.getItem("savedPreBuiltWorkouts")) || {};
+            storedPreBuilts[buildName.trim()] = workouts;
+            localStorage.setItem("savedPreBuiltWorkouts", JSON.stringify(storedPreBuilts));
+
+            populatePreBuiltDropdown();
+
+            alert(`Successfully saved "${buildName.trim()}" to your pre-built workouts!`);
+        });
+    }
 
     function attachCheckboxListeners() {
         const checkboxes = document.querySelectorAll(".regime-checkbox");

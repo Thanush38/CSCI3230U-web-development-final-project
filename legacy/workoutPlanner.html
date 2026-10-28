@@ -28,10 +28,7 @@
     <div class="control-group">
         <label for="pre-buildInput">Pre-built Workout</label>
         <select id="pre-buildInput" name="PreBuild Activity">
-            <option value="" selected disabled>Select a pre-built workout</option>
-            <option value="Full Body Beginner">Full Body Beginner</option>
-            <option value="Push / Pull / Legs">Push / Pull / Legs</option>
-            <option value="Upper / Lower Split">Upper / Lower Split</option>
+            
         </select>
         <button type="button" id="preBuildAddBtn">Add</button>
     </div>
@@ -59,173 +56,165 @@
                     <a href="#workout-regime">Workout Regime</a>
                 </div>
             </section>
+<!-- Chest Section -->
+        <section class="workout-input">
+            <h2 id="chest-input">Chest</h2>
+            <div>
+                <table>
+                    <tr>
+                        <th>Workout</th>
+                        <th>Total Work Outs</th>
+                        <th>Time?</th> 
+                        <th></th>
+                    </tr>
+                    <tr>
+                        <td>
+                            <select name="chestActivity" aria-label="Chest Exercise">
+                                <option value="Push-up">Push-up</option>
+                                <option value="Bench Press">Bench Press</option>
+                            </select>
+                        </td>
+                        <td><input type="text" name="chestSets" placeholder="Sets" aria-label="Chest sets"></td>
+                        <td><input type="text" name="chestTime" placeholder="Minutes" aria-label="Chest time"></td>
+                        <td><img class="imgPlaceholder" src="img/workout-placeholder.svg" alt="Workout demonstration"></td>
+                    </tr>
+                </table>
+                <button type="button" class="add-btn">Add</button>
+            </div>
+        </section>
 
-            <section class="workout-input">
-                <h2 id="chest-input">Chest</h2>
-                <div>
-                    <p class="workout-layout">
-                        <label for="chestInput">Chest</label>
-                        <select id="chestInput" name="Chest Activity">
-                            <option>Push-up</option>
-                            <option>Bench Press</option>
-                        </select>
-                    </p>
-                    <table>
-                        <tr>
-                            <th>Workout</th>
-                            <th>Total Work Outs</th>
-                            <th>Time?</th> 
-                            <th></th>
-                        </tr>
-                        <tr>
-                            <td>Push-up</td>
-                            <td><input type="text" name="chestSets" placeholder="Sets" aria-label="Push-up sets"></td>
-                            <td><input type="text" name="chestTime" placeholder="Minutes" aria-label="Push-up time"></td>
-                            <td><img class="imgPlaceholder" src="img/workout-placeholder.svg" alt="Push-up demonstration"></td>
-                        </tr>
-                    </table>
-                    <button type="button" class="add-btn">Add</button>
-                </div>
-            </section>
+        <!-- Back Section -->
+        <section class="workout-input">
+            <h2 id="back-input">Back</h2>
+            <div>
+                <table>
+                    <tr>
+                        <th>Workout</th>
+                        <th>Total Work Outs</th>
+                        <th>Time?</th>
+                        <th></th>
+                    </tr>
+                    <tr>
+                        <td>
+                            <select name="backActivity" aria-label="Back Exercise">
+                                <option value="Pull-up">Pull-up</option>
+                                <option value="Bent-Over Row">Bent-Over Row</option>
+                            </select>
+                        </td>
+                        <td><input type="text" name="backSets" placeholder="Sets" aria-label="Back sets"></td>
+                        <td><input type="text" name="backTime" placeholder="Minutes" aria-label="Back time"></td>
+                        <td><img class="imgPlaceholder" src="img/workout-placeholder.svg" alt="Workout demonstration"></td>
+                    </tr>
+                </table>
+                <button type="button" class="add-btn">Add</button>
+            </div>
+        </section>
 
-            <section class="workout-input">
-                <h2 id="back-input">Back</h2>
-                <div>
-                    <p class="workout-layout">
-                        <label for="backInput">Back</label>
-                        <select id="backInput" name="Back Activity">
-                            <option>Pull-up</option>
-                            <option>Bent-Over Row</option>
-                        </select>
-                    </p>
-                    <table>
-                        <tr>
-                            <th>Workout</th>
-                            <th>Total Work Outs</th>
-                            <th>Time?</th>
-                            <th></th>
-                        </tr>
-                        <tr>
-                            <td>Pull-up</td>
-                            <td><input type="text" name="backSets" placeholder="Sets" aria-label="Pull-up sets"></td>
-                            <td><input type="text" name="backTime" placeholder="Minutes" aria-label="Pull-up time"></td>
-                            <td><img class="imgPlaceholder" src="img/workout-placeholder.svg" alt="Pull-up demonstration"></td>
-                        </tr>
-                    </table>
-                    <button type="button" class="add-btn">Add</button>
-                </div>
-            </section>
+        <!-- Leg Section -->
+        <section class="workout-input">
+            <h2 id="leg-input">Leg</h2>
+            <div>
+                <table>
+                    <tr>
+                        <th>Workout</th>
+                        <th>Total Work Outs</th>
+                        <th>Time?</th>
+                        <th></th>
+                    </tr>
+                    <tr>
+                        <td>
+                            <select name="legActivity" aria-label="Leg Exercise">
+                                <option value="Bodyweight Squat">Bodyweight Squat</option>
+                                <option value="Deadlift">Deadlift</option>
+                            </select>
+                        </td>
+                        <td><input type="text" name="legSets" placeholder="Sets" aria-label="Leg sets"></td>
+                        <td><input type="text" name="legTime" placeholder="Minutes" aria-label="Leg time"></td>
+                        <td><img class="imgPlaceholder" src="img/workout-placeholder.svg" alt="Workout demonstration"></td>
+                    </tr>
+                </table>
+                <button type="button" class="add-btn">Add</button>
+            </div>
+        </section>
 
-            <section class="workout-input">
-                <h2 id="leg-input">Leg</h2>
-                <div>
-                    <p class="workout-layout">
-                        <label for="legInput">Leg</label>
-                        <select id="legInput" name="Leg Activity">
-                            <option>Bodyweight Squat</option>
-                            <option>Deadlift</option>
-                        </select>
-                    </p>
-                    <table>
-                        <tr>
-                            <th>Workout</th>
-                            <th>Total Work Outs</th>
-                            <th>Time?</th>
-                            <th></th>
-                        </tr>
-                        <tr>
-                            <td>Bodyweight Squat</td>
-                            <td><input type="text" name="legSets" placeholder="Sets" aria-label="Bodyweight Squat sets"></td>
-                            <td><input type="text" name="legTime" placeholder="Minutes" aria-label="Bodyweight Squat time"></td>
-                            <td><img class="imgPlaceholder" src="img/workout-placeholder.svg" alt="Bodyweight Squat demonstration"></td>
-                        </tr>
-                    </table>
-                    <button type="button" class="add-btn">Add</button>
-                </div>
-            </section>
+        <!-- Shoulder Section -->
+        <section class="workout-input">
+            <h2 id="shoulder-input">Shoulder</h2>
+            <div>
+                <table>
+                    <tr>
+                        <th>Workout</th>
+                        <th>Total Work Outs</th>
+                        <th>Time?</th>
+                        <th></th>
+                    </tr>
+                    <tr>
+                        <td>
+                            <select name="shoulderActivity" aria-label="Shoulder Exercise">
+                                <option value="Overhead Press">Overhead Press</option>
+                            </select>
+                        </td>
+                        <td><input type="text" name="shoulderSets" placeholder="Sets" aria-label="Shoulder sets"></td>
+                        <td><input type="text" name="shoulderTime" placeholder="Minutes" aria-label="Shoulder time"></td>
+                        <td><img class="imgPlaceholder" src="img/workout-placeholder.svg" alt="Workout demonstration"></td>
+                    </tr>
+                </table>
+                <button type="button" class="add-btn">Add</button>
+            </div>
+        </section>
 
-            <section class="workout-input">
-                <h2 id="shoulder-input">Shoulder</h2>
-                <div>
-                    <p class="workout-layout">
-                        <label for="shoulderInput">Shoulder</label>
-                        <select id="shoulderInput" name="Shoulder Activity">
-                            <option>Overhead Press</option>
-                        </select>
-                    </p>
-                    <table>
-                        <tr>
-                            <th>Workout</th>
-                            <th>Total Work Outs</th>
-                            <th>Time?</th>
-                            <th></th>
-                        </tr>
-                        <tr>
-                            <td>Overhead Press</td>
-                            <td><input type="text" name="shoulderSets" placeholder="Sets" aria-label="Overhead Press sets"></td>
-                            <td><input type="text" name="shoulderTime" placeholder="Minutes" aria-label="Overhead Press time"></td>
-                            <td><img class="imgPlaceholder" src="img/workout-placeholder.svg" alt="Overhead Press demonstration"></td>
-                        </tr>
-                    </table>
-                    <button type="button" class="add-btn">Add</button>
-                </div>
-            </section>
+        <!-- Arm Section -->
+        <section class="workout-input">
+            <h2 id="arm-input">Arm</h2>
+            <div>
+                <table>
+                    <tr>
+                        <th>Workout</th>
+                        <th>Total Work Outs</th>
+                        <th>Time?</th>
+                        <th></th>
+                    </tr>
+                    <tr>
+                        <td>
+                            <select name="armActivity" aria-label="Arm Exercise">
+                                <option value="Bicep Curl">Bicep Curl</option>
+                                <option value="Tricep Dip">Tricep Dip</option>
+                            </select>
+                        </td>
+                        <td><input type="text" name="armSets" placeholder="Sets" aria-label="Arm sets"></td>
+                        <td><input type="text" name="armTime" placeholder="Minutes" aria-label="Arm time"></td>
+                        <td><img class="imgPlaceholder" src="img/workout-placeholder.svg" alt="Workout demonstration"></td>
+                    </tr>
+                </table>
+                <button type="button" class="add-btn">Add</button>
+            </div>
+        </section>
 
-            <section class="workout-input">
-                <h2 id="arm-input">Arm</h2>
-                <div>
-                    <p class="workout-layout">
-                        <label for="armInput">Arm</label>
-                        <select id="armInput" name="Arm Activity">
-                            <option>Bicep Curl</option>
-                            <option>Tricep Dip</option>
-                        </select>
-                    </p>
-                    <table>
-                        <tr>
-                            <th>Workout</th>
-                            <th>Total Work Outs</th>
-                            <th>Time?</th>
-                            <th></th>
-                        </tr>
-                        <tr>
-                            <td>Bicep Curl</td>
-                            <td><input type="text" name="armSets" placeholder="Sets" aria-label="Bicep Curl sets"></td>
-                            <td><input type="text" name="armTime" placeholder="Minutes" aria-label="Bicep Curl time"></td>
-                            <td><img class="imgPlaceholder" src="img/workout-placeholder.svg" alt="Bicep Curl demonstration"></td>
-                        </tr>
-                    </table>
-                    <button type="button" class="add-btn">Add</button>
-                </div>
-            </section>
-
-            <section class="workout-input">
-                <h2 id="core-input">Core</h2>
-                <div>
-                    <p class="workout-layout">
-                        <label for="coreInput">Core</label>
-                        <select id="coreInput" name="Core Activity">
-                            <option>Plank</option>
-                        </select>
-                    </p>
-                    <table>
-                        <tr>
-                            <th>Workout</th>
-                            <th>Total Work Outs</th>
-                            <th>Time?</th>
-                            <th></th>
-                        </tr>
-                        <tr>
-                            <td>Plank</td>
-                            <td><input type="text" name="coreSets" placeholder="Sets" aria-label="Plank sets"></td>
-                            <td><input type="text" name="coreTime" placeholder="Minutes" aria-label="Plank time"></td>
-                            <td><img class="imgPlaceholder" src="img/workout-placeholder.svg" alt="Plank demonstration"></td>
-                        </tr>
-                    </table>
-                    <button type="button" class="add-btn">Add</button>
-                </div>
-            </section>
-
+        <!-- Core Section -->
+        <section class="workout-input">
+            <h2 id="core-input">Core</h2>
+            <div>
+                <table>
+                    <tr>
+                        <th>Workout</th>
+                        <th>Total Work Outs</th>
+                        <th>Time?</th>
+                        <th></th>
+                    </tr>
+                    <tr>
+                        <td>
+                            <select name="coreActivity" aria-label="Core Exercise">
+                                <option value="Plank">Plank</option>
+                            </select>
+                        </td>
+                        <td><input type="text" name="coreSets" placeholder="Sets" aria-label="Core sets"></td>
+                        <td><input type="text" name="coreTime" placeholder="Minutes" aria-label="Core time"></td>
+                        <td><img class="imgPlaceholder" src="img/workout-placeholder.svg" alt="Workout demonstration"></td>
+                    </tr>
+                </table>
+                <button type="button" class="add-btn">Add</button>
+            </div>
+        </section>
             <section class="workout-input">
                 <h2 id="workout-regime">Workout Regime</h2>
                 <div>
