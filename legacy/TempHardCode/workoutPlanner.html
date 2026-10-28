@@ -25,28 +25,28 @@
 
         <main>
             <section class="workout-input pre-build">
-                <form id="pre-buildForm">
-                    <label for="pre-buildInput">Pre-built Workout</label>
-                    <select id="pre-buildInput" name="PreBuild Activity" required>
-                        <option value="" selected disabled>Select a pre-built workout</option>
-                        <option>Full Body Beginner</option>
-                        <option>Push / Pull / Legs</option>
-                        <option>Upper / Lower Split</option>
-                    </select>
-                    <button type="submit">Add</button>
-                </form>
-
-                <form id="reccForm">
-                    <label for="reccInput">Recommended Build</label>
-                    <select id="reccInput" name="Recommended Activity" required>
-                        <option value="" selected disabled>Select a recommended build</option>
-                        <option>Calisthenics</option>
-                        <option>Bigger Back</option>
-                        <option>Bigger Chest</option>
-                        <option>First Pull-Up</option>
-                    </select>
-                    <button type="submit">Add</button>
-                </form>
+    <div class="control-group">
+        <label for="pre-buildInput">Pre-built Workout</label>
+        <select id="pre-buildInput" name="PreBuild Activity">
+            <option value="" selected disabled>Select a pre-built workout</option>
+            <option value="Full Body Beginner">Full Body Beginner</option>
+            <option value="Push / Pull / Legs">Push / Pull / Legs</option>
+            <option value="Upper / Lower Split">Upper / Lower Split</option>
+        </select>
+        <button type="button" id="preBuildAddBtn">Add</button>
+    </div>
+    
+    <div class="control-group">
+        <label for="reccInput">Recommended Build</label>
+        <select id="reccInput" name="Recommended Activity">
+            <option value="" selected disabled>Select a recommended build</option>
+            <option value="Calisthenics">Calisthenics</option>
+            <option value="Bigger Back">Bigger Back</option>
+            <option value="Bigger Chest">Bigger Chest</option>
+            <option value="First Pull-Up">First Pull-Up</option>
+        </select>
+        <button type="button" id="reccAddBtn">Add</button>
+    </div>
 
                 <div id="links">
                     <h2>Table of Contents</h2>
@@ -62,7 +62,7 @@
 
             <section class="workout-input">
                 <h2 id="chest-input">Chest</h2>
-                <form>
+                <div>
                     <p class="workout-layout">
                         <label for="chestInput">Chest</label>
                         <select id="chestInput" name="Chest Activity">
@@ -74,7 +74,7 @@
                         <tr>
                             <th>Workout</th>
                             <th>Total Work Outs</th>
-                            <th>Time?</th>
+                            <th>Time?</th> 
                             <th></th>
                         </tr>
                         <tr>
@@ -84,13 +84,13 @@
                             <td><img class="imgPlaceholder" src="img/workout-placeholder.svg" alt="Push-up demonstration"></td>
                         </tr>
                     </table>
-                    <button type="submit">Add</button>
-                </form>
+                    <button type="button" class="add-btn">Add</button>
+                </div>
             </section>
 
             <section class="workout-input">
                 <h2 id="back-input">Back</h2>
-                <form>
+                <div>
                     <p class="workout-layout">
                         <label for="backInput">Back</label>
                         <select id="backInput" name="Back Activity">
@@ -112,13 +112,13 @@
                             <td><img class="imgPlaceholder" src="img/workout-placeholder.svg" alt="Pull-up demonstration"></td>
                         </tr>
                     </table>
-                    <button type="submit">Add</button>
-                </form>
+                    <button type="button" class="add-btn">Add</button>
+                </div>
             </section>
 
             <section class="workout-input">
                 <h2 id="leg-input">Leg</h2>
-                <form>
+                <div>
                     <p class="workout-layout">
                         <label for="legInput">Leg</label>
                         <select id="legInput" name="Leg Activity">
@@ -140,13 +140,13 @@
                             <td><img class="imgPlaceholder" src="img/workout-placeholder.svg" alt="Bodyweight Squat demonstration"></td>
                         </tr>
                     </table>
-                    <button type="submit">Add</button>
-                </form>
+                    <button type="button" class="add-btn">Add</button>
+                </div>
             </section>
 
             <section class="workout-input">
                 <h2 id="shoulder-input">Shoulder</h2>
-                <form>
+                <div>
                     <p class="workout-layout">
                         <label for="shoulderInput">Shoulder</label>
                         <select id="shoulderInput" name="Shoulder Activity">
@@ -167,13 +167,13 @@
                             <td><img class="imgPlaceholder" src="img/workout-placeholder.svg" alt="Overhead Press demonstration"></td>
                         </tr>
                     </table>
-                    <button type="submit">Add</button>
-                </form>
+                    <button type="button" class="add-btn">Add</button>
+                </div>
             </section>
 
             <section class="workout-input">
                 <h2 id="arm-input">Arm</h2>
-                <form>
+                <div>
                     <p class="workout-layout">
                         <label for="armInput">Arm</label>
                         <select id="armInput" name="Arm Activity">
@@ -195,13 +195,13 @@
                             <td><img class="imgPlaceholder" src="img/workout-placeholder.svg" alt="Bicep Curl demonstration"></td>
                         </tr>
                     </table>
-                    <button type="submit">Add</button>
-                </form>
+                    <button type="button" class="add-btn">Add</button>
+                </div>
             </section>
 
             <section class="workout-input">
                 <h2 id="core-input">Core</h2>
-                <form>
+                <div>
                     <p class="workout-layout">
                         <label for="coreInput">Core</label>
                         <select id="coreInput" name="Core Activity">
@@ -222,13 +222,13 @@
                             <td><img class="imgPlaceholder" src="img/workout-placeholder.svg" alt="Plank demonstration"></td>
                         </tr>
                     </table>
-                    <button type="submit">Add</button>
-                </form>
+                    <button type="button" class="add-btn">Add</button>
+                </div>
             </section>
 
             <section class="workout-input">
                 <h2 id="workout-regime">Workout Regime</h2>
-                <form>
+                <div>
                     <table class="workout-regime">
                         <thead>
                             <tr>
@@ -246,28 +246,28 @@
                                 <td>Push ups</td>
                                 <td>15 sets</td>
                                 <td>30 minutes</td>
-                                <td><label><input type="checkbox" name="complete"> Complete?</label></td>
+                                <td><label><input type="checkbox" name="complete" class="regime-checkbox"> Complete?</label></td>
                             </tr>
                             <tr>
                                 <td>Planks</td>
                                 <td>10 sets</td>
                                 <td>15 minutes</td>
-                                <td><label><input type="checkbox" name="complete"> Complete?</label></td>
+                                <td><label><input type="checkbox" name="complete" class="regime-checkbox"> Complete?</label></td>
                             </tr>
                             <tr>
                                 <td>Bicep Curling</td>
                                 <td>2 sets</td>
                                 <td>20 minutes</td>
-                                <td><label><input type="checkbox" name="complete"> Complete?</label></td>
+                                <td><label><input type="checkbox" name="complete" class="regime-checkbox"> Complete?</label></td>
                             </tr>
                         </tbody>
                     </table>
-                    <div class="regime-actions">
-                        <button type="button">Back</button>
-                        <button type="submit">Start Timer</button>
-                        <label><input type="checkbox" name="save"> Save?</label>
+                   <div class="regime-actions">
+                        <button type="button" id="backBtn">Back</button>
+                        <button type="button" id="startTimerBtn">Start Timer</button>
+                        <button type="button" id="saveBuildBtn">Save Build</button>
                     </div>
-                </form>
+                </div>
             </section>
 
             <section class="workout-input">
@@ -278,5 +278,7 @@
         </main>
 
         <footer id="copyright">Copyright &copy; 2026</footer>
+
+        <script src="workoutPlanner.js"></script>
     </body>
 </html>
