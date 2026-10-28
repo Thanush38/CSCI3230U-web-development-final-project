@@ -1,6 +1,6 @@
 import { useCallback, useState } from 'react'
 import './Goal.css'
-import { buildLog, buildLogManual } from '../builders'
+import { buildGoal, buildLog, buildLogManual } from '../builders'
 
 export default function Goal({goal, index, goals, setGoals}) {    
 
@@ -14,6 +14,8 @@ export default function Goal({goal, index, goals, setGoals}) {
 
     const [editing, setEditing] = useState(false)
 
+    const [complete, setComplete] = useState(false)
+
     const updateGoal = useCallback((e) => {
         e.preventDefault()
         const form = e.target
@@ -25,18 +27,31 @@ export default function Goal({goal, index, goals, setGoals}) {
         const log = buildLog(goal, formData)
         newGoal.logs = [...newGoal.logs, log]
 
+        setComplete(newGoal.current === newGoal.max)
+
         setGoals(goals.with(index, newGoal))
 
     }, [goal, goals, setGoals, index]
     )
 
     const completeGoal = useCallback(() => {
-        const newGoal = {...goal}
-        const newLog = buildLogManual(newGoal.max, "Goal Completed")
-        newGoal.current = newGoal.max
-        newGoal.logs = [...newGoal.logs, newLog]
-        setGoals(goals.with(index, newGoal))
-    }, [goal, goals, setGoals, index]
+        if (complete) {
+            const newGoal = {...goal}
+            const newLogs = [...newGoal.logs]
+            newLogs.pop()
+            newGoal.current = newLogs[newLogs.length-1].current
+            newGoal.logs = newLogs
+            setGoals(goals.with(index, newGoal))
+        } else {
+            const newGoal = {...goal}
+            newGoal.current = newGoal.max
+            const newLogs = [...newGoal.logs]
+            newLogs.push(buildLogManual(newGoal.current, "Goal Complete"))
+            newGoal.logs = newLogs
+            setGoals(goals.with(index, newGoal))
+        }
+        setComplete(!complete)
+    }, [goal, goals, setGoals, index, complete, setComplete]
     )
 
     const removeGoal = useCallback(() => {
@@ -50,21 +65,21 @@ export default function Goal({goal, index, goals, setGoals}) {
         <div className='progress-track'>
             <div className='markers'>
                 <p>{min}</p>
-                <p>{current}</p>
+                <p className='progress'>Progress: {current}</p>
                 <p>{max}</p>
             </div>
             <meter min={min} max={max} value={current} />
         </div>
         <div className='buttons'>
             <button className='update' onClick={() => setEditing(!editing)}>{editing ? 'Cancel' : 'Update Goal'}</button>
-            <button className='complete' onClick={completeGoal} disabled={editing}>Mark As Complete</button>
+            <button className='complete' onClick={completeGoal} disabled={editing}>{complete ? 'Unmark As Complete' : 'Mark As Complete'}</button>
             <button className='delete' onClick={removeGoal} disabled={editing}>Delete Goal</button>
         </div>
         <div className='log-form' hidden={!editing}>
             <form onSubmit={updateGoal}>
                 <div className='current'>
                     <label htmlFor="current">New Value</label>
-                    <input name='current' type='number' defaultValue={current} />
+                    <input name='current' type='number' step='any' defaultValue={current} />
                 </div>
                 <div className='message'>
                     <label htmlFor="message">Log Message</label>
