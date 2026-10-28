@@ -1,83 +1,59 @@
-# Lab 03 - Project Milestone 1: Proposal & Static Prototype
+# Lab 06 - Project Milestone 2: React Foundation
 
-**Week 4 - worth 8% of your final grade - group milestone**
+**Week 7 - worth 12% of your final grade - group milestone**
 
-> This is a project lab - there is no starter repo and nothing to clone. The work happens in your **group's project repository**, over the weeks leading up to today. This session is the deadline, the demo, and a checkpoint with your TA. See `project/PROJECT.md` for the whole plan, and begin early.
-
-This is the first milestone (m1) of your group project. By now you should have a topic, an API in mind, and a team that's been meeting. Today you lock the plan and show a styled prototype of your interface - built by hand in HTML & CSS, no framework code yet.
+> A project lab - the work lives in your **group's repository**, built over weeks 5-7. Today is the deadline, the demo, and a TA checkpoint. Start early; `project/PROJECT.md` is the plan.
 
 ## What's due
 
-### Part 1 - A written proposal (`PROPOSAL.md` in your repo)
+### 1 - The prototype, rebuilt as a React SPA
 
-- **Topic** - a one-paragraph pitch of your app and who it's for
-- **Data source** - the API you'll consume: its name/URL, and a sample response (paste a trimmed JSON example) showing the fields you'll use (or, if you're building your own backend, describe its planned endpoints)
-- **Comparators** - 2–3 existing apps/sites doing something similar, and how yours differs
-- **Scaled feature plan** - the baseline features (from `project/PROJECT.md`) plus each member's vertical slice, named and assigned. Make it clear who owns what
-- **Wireframes** - sketches of your key pages (hand-drawn, Figma, anything legible), committed to the repo
+A Vite + React project (in your group's repo) where the Milestone 2 prototype is now:
+- decomposed into components (with props)
+- driven by state (`useState`)
+- handling events, and rendering the collection with `.map` + stable keys
+- interactive on local / mock data - an in-repo JSON file or array
 
-### Part 2 - A static HTML/CSS prototype
+The core experience must work: browse the collection, open an item, and toggle at least one piece of state (e.g. a favourite, a filter, an expand). It must run with `npm install && npm run dev`.
 
-- The **list page** and a **detail page** at minimum, on sample / hard-coded data
-- **Semantic HTML**, responsive layout, accessible (one `<h1>` per page, labelled controls, alt text, keyboard-reachable, AA contrast)
-- **No framework / no JavaScript app code** yet - this is a static version. It can be plain CSS or use a CSS framework
-- It should look like a real screen, not a placeholder - this is what we assess instead of a plan on paper
+### 2 - Visible individual contribution
 
-### Part 3 - A divided-up project board
+Each member's vertical slice should show real progress, and it should be provably theirs in the Git history (commits / reviewed PRs). Work on branches; merge through PRs.
 
-- GitHub **Issues** created for the planned work, divided up and assigned to members, on your project board
+### 3 - An updated project board
+
+Issues moved/closed to reflect actual progress since Milestone 2.
 
 ## How to submit
 
-1. Commit and push everything to `main`.
-2. Create an annotated tag on the commit you want graded and push it:
+1. All progress will be committed to your group's project repository (not this repo)
+2. Commit and push to `main` (don't commit `node_modules/` - add a `.gitignore`)
+3. Tag and push the graded commit:
    ```bash
-   git tag -a m1 -m "Milestone 1: proposal + static prototype"
-   git push origin m1
+   git tag -a m2 -m "Milestone 2: React foundation"
+   git push origin m2
    ```
-3. The graded state is the `m1` tag (or `main` at the start of the lab if you forget to tag).
+4. The graded state is the `m2` tag (or `main` at the start of the lab)
 
 ## In the lab session
 
-- **TA-guided checkpoint** - your TA reviews your repo, answers questions, and flags risks early
-- **Group presentation** to your lab section (your TA will assign a slot, ~ 5 min):
-  - walk through the proposal (topic, the API + its data, comparators, and the plan - who owns which slice)
-  - **demo the prototype** (desktop and a narrow screen)
-  - say what's next in the plan
+- **TA-guided checkpoint** - a chance to get unstuck on React, component structure, or state
+- **Group presentation** (~ ~5 min, slot assigned by your TA):
+  - **live-demo** the React app (run it, click through it)
+  - walk through your component structure
+  - each member presents their own slice's progress
+  - name the risks/remaining work for the final (M4)
   - **Every member must present a part.** Participation is graded
 
-> **Accessibility accommodation:** if you have a Student Accessibility Services accommodation that exempts you from presentations, arrange an alternative with your instructor in advance - you will not be penalised.
+> **Accessibility accommodation:** if a Student Accessibility Services accommodation exempts you from presentations, arrange an alternative with your instructor in advance.
 
-## How it's graded (8%)
+## How it's graded (12%)
 
-| Component | Weight |
+| | |
 |---|---|
-| **Proposal** - clear topic, a real API with its data shape, comparators, and a credible per-member plan | 2% |
-| **Prototype** - semantic, responsive, accessible, and a coherent design across the two pages | 3% |
-| **Plan & teamwork** - issues created and divided; the board reflects the plan | 1% |
-| **Presentation** - clear, all members participate | 2% |
+| **Works as a React app** - components, props, state-drives-UI, events, keyed lists; runs cleanly on mock data | 6% |
+| **Decomposition & quality** - sensible components, no mutated state, no by-hand DOM; basic security hygiene (no unsanitised `innerHTML`) | 3% |
+| **Individual contribution** - each member's slice is visible in the Git history | 2% |
+| **Presentation** - clear demo, all members participate | 1% |
 
-> **AI policy:** this milestone allows AI for learning only - explanations, error messages, no AI-generated code. See `project/ai-policy.md`.
-
-> **References**
-., J. D. (n.d.). Dumbbell clipart etsy #35672 - Free Transparent PNG Logos. Free PNG Logos. Retrieved September 28, 2026, from https://www.freepnglogos.com/images/dumbbell-35672.html#user
-
-Proposal
-=======
-
-# React + Vite (From Generated File)
-
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
-
-Currently, two official plugins are available:
-
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
-
-## React Compiler
-
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+> **AI policy:** this milestone allows AI for *learning* only. See `project/ai-policy.md`.

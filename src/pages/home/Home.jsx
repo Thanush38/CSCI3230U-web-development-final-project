@@ -1,124 +1,158 @@
+import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import './Home.css'
 
+const exercises = [
+    {
+        name: 'Push-Up',
+        muscle: 'chest',
+        description: 'A bodyweight press that works the chest, shoulders, and triceps.',
+        path: '/pushup'
+    },
+    {
+        name: 'Bench Press',
+        muscle: 'chest',
+        description: 'A barbell press performed lying on a bench to build chest strength.',
+        path: '/benchpress'
+    },
+    {
+        name: 'Pull-Up',
+        muscle: 'back',
+        description: 'Hang from a bar and pull your chin over it to target the lats.',
+        path: '/pullup'
+    },
+    {
+        name: 'Bent-Over Row',
+        muscle: 'back',
+        description: 'Hinge at the hips and row a barbell toward your torso.',
+        path: '/bentoverrow'
+    },
+    {
+        name: 'Bodyweight Squat',
+        muscle: 'legs',
+        description: 'A foundational lower-body move for quads, glutes, and hamstrings.',
+        path: '/bodyweightsquat'
+    },
+    {
+        name: 'Deadlift',
+        muscle: 'legs',
+        description: 'Lift a loaded barbell from the floor using your hips and legs.',
+        path: '/deadlift'
+    },
+    {
+        name: 'Overhead Press',
+        muscle: 'shoulders',
+        description: 'Press a barbell or dumbbells overhead to build strong shoulders.',
+        path: '/overheadpress'
+    },
+    {
+        name: 'Bicep Curl',
+        muscle: 'arms',
+        description: 'Curl a pair of dumbbells to isolate the biceps.',
+        path: '/bicepcurl'
+    },
+    {
+        name: 'Tricep Dips',
+        muscle: 'arms',
+        description: 'Lower and raise your body between parallel bars or a bench.',
+        path: '/tricepdips'
+    },
+    {
+        name: 'Plank',
+        muscle: 'core',
+        description: 'Hold a straight-body position to build core stability.',
+        path: '/plank'
+    }
+]
+
+function ExerciseCard(props) {
+  return (
+    <Link className='page-link' to={props.path}>
+        <article className='card'>
+            <img src="workout-placeholder.svg" alt="Placeholder workout image"></img>
+            <h3>{props.name}</h3>
+            <p>Muscle Group: {props.muscle}</p>
+            <p>{props.description}</p>
+        </article>
+    </Link>
+  );
+}
+
+
+function ExerciseList({ exercises }) {
+  return (
+    <>
+      {exercises.map((exercise) => (
+          <ExerciseCard
+          key={exercise.path}
+          name={exercise.name} 
+          muscle={exercise.muscle} 
+          description={exercise.description} 
+          path = {exercise.path}
+          />
+      ))}
+    </>
+  );
+}
+
 function Home(props) {
+    const [search, setSearch] = useState('');
+    const [muscle, setMuscle] = useState('');
+
+    const filteredExercises = exercises.filter((exercise) => {
+        const matchesSearch = exercise.name
+            .toLowerCase()
+            .includes(search.toLowerCase())
+
+        const matchesMuscle =
+            muscle === '' || exercise.muscle === muscle
+
+        return matchesSearch && matchesMuscle
+    })
+
     return <>
         <section id="search-section">
             <h2>Find an Exercise</h2>
-            <form>
-                <label for="search">Search</label>
-                <input type="search" id="search" name="search" placeholder="Search exercises..."></input>
-
-                <label for="muscle">Muscle Group</label>
-                <select id="muscle" name="muscle">
-                    <option value="" selected >All</option>
-                    <option value="chest">Chest</option>
-                    <option value="back">Back</option>
-                    <option value="legs">Legs</option>
-                    <option value="shoulders">Shoulders</option>
-                    <option value="arms">Arms</option>
-                    <option value="core">Core</option>
+            <form onSubmit={(event) => event.preventDefault()}>
+                <label htmlFor='search'>Search</label>
+                <input 
+                    type="search"
+                    id="search"
+                    name="search"
+                    placeholder="Search exercises..."
+                    value={search}
+                    onChange={(event) => setSearch(event.target.value)}
+                />
+                <label htmlFor='muscle'>Muscle Group</label>
+                <select 
+                    id="muscle"
+                    name="muscle"
+                    value={muscle}
+                    onChange={(event) => setMuscle(event.target.value)}
+                >
+                    <option value="">All</option>
+                    <option value="chest" >Chest</option>
+                    <option value="back" >Back</option>
+                    <option value="legs" >Legs</option>
+                    <option value="shoulders" >Shoulders</option>
+                    <option value="arms" >Arms</option>
+                    <option value="core" >Core</option>
                 </select>
-
-                <button type="submit">Search</button>
             </form>
         </section>
 
-        <section id="browse-group" class="exercise-grid">
+        <section id="browse-group" className="exercise-grid">
             <h2>Browse by Group</h2>
-            <Link className='page-link' to="/pushup">
-                <article class="card">
-                    <img src="workout-placeholder.svg" alt="Placeholder workout image"></img>
-                    <h3>Push-Up</h3>
-                    <p>Muscle Group: Chest</p>
-                    <p>A bodyweight press that works the chest, shoulders, and triceps.</p>
-                </article>
-            </Link>
-
-            <Link className='page-link' to="/benchpress">
-                <article class="card">
-                    <img src="workout-placeholder.svg" alt="Placeholder workout image"></img>
-                    <h3>Bench Press</h3>
-                    <p>Muscle Group: Chest</p>
-                    <p>A barbell press performed lying on a bench to build chest strength.</p>
-                </article>
-            </Link>
-
-            <Link className='page-link' to="/pullup">
-                <article class="card">
-                    <img src="workout-placeholder.svg" alt="Placeholder workout image"></img>
-                    <h3>Pull-Up</h3>
-                    <p>Muscle Group: Back</p>
-                    <p>Hang from a bar and pull your chin over it to target the lats.</p>
-                </article>
-            </Link>
-
-            <Link className='page-link' to="/bentoverrow">
-                <article class="card">
-                    <img src="workout-placeholder.svg" alt="Placeholder workout image"></img>
-                    <h3>Bent-Over Row</h3>
-                    <p>Muscle Group: Back</p>
-                    <p>Hinge at the hips and row a barbell toward your torso.</p>
-                </article>
-            </Link>
-
-            <Link className='page-link' to="/bodyweightsquat">
-                <article class="card">
-                    <img src="workout-placeholder.svg" alt="Placeholder workout image"></img>
-                    <h3>Bodyweight Squat</h3>
-                    <p>Muscle Group: Legs</p>
-                    <p>A foundational lower-body move for quads, glutes, and hamstrings.</p>
-                </article>
-            </Link>
+            <ExerciseList exercises={filteredExercises}/>
         </section>
 
-        <section id="popular-exercises" class="exercise-grid">
+        <section id="popular-exercises" className="exercise-grid">
             <h2>Popular Exercises</h2>
-
-            <Link className='page-link' to="/deadlift">
-                <article class="card">
-                    <img src="workout-placeholder.svg" alt="Placeholder workout image"></img>
-                    <h3>Deadlift</h3>
-                    <p>Muscle Group: Legs</p>
-                    <p>Lift a loaded barbell from the floor using your hips and legs.</p>
-                </article>
-            </Link>
-
-            <Link className='page-link' to="/overheadpress">
-                <article class="card">
-                    <img src="workout-placeholder.svg" alt="Placeholder workout image"></img>
-                    <h3>Overhead Press</h3>
-                    <p>Muscle Group: Shoulders</p>
-                    <p>Press a barbell or dumbbells overhead to build strong shoulders.</p>
-                </article>
-            </Link>
-
-            <Link className='page-link' to="/bicepcurl">
-                <article class="card">
-                    <img src="workout-placeholder.svg" alt="Placeholder workout image"></img>
-                    <h3>Bicep Curl</h3>
-                    <p>Muscle Group: Arms</p>
-                    <p>Curl a pair of dumbbells to isolate the biceps.</p>
-                </article>
-            </Link>
-
-            <Link className='page-link' to="/tricepdips">
-                <article class="card">
-                    <img src="workout-placeholder.svg" alt="Placeholder workout image"></img>
-                    <h3>Tricep Dips</h3>
-                    <p>Muscle Group: Arms</p>
-                    <p>Lower and raise your body between parallel bars or a bench.</p>
-                </article>
-            </Link>
-
-            <Link className='page-link' to="/plank">
-                <article class="card">
-                    <img src="workout-placeholder.svg" alt="Placeholder workout image"></img>
-                    <h3>Plank</h3>
-                    <p>Muscle Group: Core</p>
-                    <p>Hold a straight-body position to build core stability.</p>
-                </article>
-            </Link>
+            <ExerciseCard name="Deadlift" muscle="Legs" description="Lift a loaded barbell from the floor using your hips and legs." path = "/deadlift"/>
+            <ExerciseCard name="Overhead Press" muscle="Shoulders" description="Press a barbell or dumbbells overhead to build strong shoulders." path = "/overheadpress"/>
+            <ExerciseCard name="Bicep Curl" muscle="Arms" description="Curl a pair of dumbbells to isolate the biceps." path = "/bicepcurl"/>
+            <ExerciseCard name="Tricep Dips" muscle="Arms" description="Lower and raise your body between parallel bars or a bench." path = "/tricepdips"/>
+            <ExerciseCard name="Plank" muscle="Core" description="Hold a straight-body position to build core stability." path = "/plank"/>
         </section>
     </>
 }
