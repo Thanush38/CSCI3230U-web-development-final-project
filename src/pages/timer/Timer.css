@@ -75,14 +75,17 @@
     stroke: #d9e0e7;
 }
 
-/* About 75% of the circle left */
+/* Dash length and offset are set in Timer.jsx from the time left */
 .ring-progress {
     stroke: #2563eb;
     stroke-linecap: round;
-    stroke-dasharray: 565;
-    stroke-dashoffset: 141;
     transform: rotate(-90deg);
     transform-origin: center;
+    transition: stroke-dashoffset 0.3s linear;
+}
+
+.ring-progress.resting {
+    stroke: #16a34a;
 }
 
 .timer-ring text {
@@ -104,4 +107,52 @@
 
 .timer-controls .stop:hover {
     background: #991b1b;
+}
+
+/* Exercises in the chosen workout */
+.workout-list {
+    margin-top: 32px;
+}
+
+.workout-list ol {
+    display: grid;
+    gap: 8px;
+    padding: 0;
+    list-style: none;
+}
+
+.workout-list li {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 4px 12px;
+    padding: 12px 16px;
+    background: #ffffff;
+    border: 1px solid #d9e0e7;
+    border-radius: 6px;
+}
+
+.workout-list li span {
+    color: #616e7c;
+}
+
+.workout-list li.current {
+    border-color: #2563eb;
+    box-shadow: inset 4px 0 0 #2563eb;
+}
+
+.workout-list li.finished {
+    opacity: 0.6;
+}
+
+/* Phones */
+@media (max-width: 600px) {
+    .timer-body {
+        grid-template-columns: 1fr;
+        justify-items: center;
+    }
+
+    .timer-body img {
+        justify-self: center;
+    }
 }
