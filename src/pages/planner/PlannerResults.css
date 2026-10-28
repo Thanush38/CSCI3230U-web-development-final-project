@@ -1,0 +1,109 @@
+/* --- Workout Regime Card Container --- */
+.workout-input {
+    background: #ffffff;
+    border: 1px solid #d9e0e7;
+    border-radius: 12px;
+    padding: 24px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+}
+
+.workout-input h2 {
+    margin-top: 0;
+    margin-bottom: 20px;
+    font-size: 1.25rem;
+    color: #1f2933;
+}
+
+/* Regime Table Styling */
+.workout-regime {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+}
+
+.workout-regime th,
+.workout-regime td {
+    padding: 12px 14px;
+    text-align: left;
+}
+
+/* Regime Action Buttons & Input Group */
+.regime-actions {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    align-items: center;
+    margin-top: 20px;
+}
+
+.save-build-group {
+    display: inline-flex;
+    gap: 12px;
+    align-items: center;
+    margin-left: auto;
+}
+
+/* Modern Input Box (matching your rounded reference style) */
+.save-build-group input[type="text"] {
+    padding: 12px 16px;
+    font-size: 1rem;
+    color: #1f2933;
+    background-color: #ffffff;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px; /* Clean rounded card corners */
+    outline: none;
+    min-width: 220px;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.save-build-group input[type="text"]:focus {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+/* Buttons Styling with comfortable touch targets */
+.regime-actions button {
+    padding: 10px 20px;
+    font-size: 0.95rem;
+    font-weight: 500;
+    border-radius: 8px;
+    border: 1px solid #cbd5e1;
+    background-color: #f8fafc;
+    color: #1f2933;
+    cursor: pointer;
+    transition: background-color 0.2s, border-color 0.2s;
+}
+
+.regime-actions button:hover {
+    background-color: #f1f5f9;
+    border-color: #94a3b8;
+}
+
+/* Primary Save & Timer Buttons */
+#saveBuildBtn, #startTimerBtn {
+    background-color: #2563eb;
+    color: #ffffff;
+    border-color: #2563eb;
+}
+
+#saveBuildBtn:hover, #startTimerBtn:hover {
+    background-color: #1d4ed8;
+}
+
+/* Phone view adjustments */
+@media (max-width: 600px) {
+    .regime-actions,
+    .save-build-group {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .save-build-group {
+        margin-left: 0;
+    }
+
+    .workout-regime th,
+    .workout-regime td {
+        padding: 8px;
+    }
+}
