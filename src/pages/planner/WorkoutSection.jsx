@@ -1,5 +1,5 @@
 import React from 'react';
-import './Planner.css';
+import './WorkoutSection.css';
 
 function WorkoutSection({ title, id, options, namePrefix }) {
     return (

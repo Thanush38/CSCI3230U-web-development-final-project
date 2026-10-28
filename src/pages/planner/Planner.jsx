@@ -1,40 +1,28 @@
 import React, { useEffect } from 'react';
+import PreBuildControls from './PreBuildControls';
 import WorkoutSection from './WorkoutSection';
+import WorkoutRegime from './WorkoutRegime';
+import PlannerResults from './PlannerResults';
 import './Planner.css';
 
 function Planner(props) {
     useEffect(() => {
-        // --- 1. Initialize Pre-built Workouts in localStorage if not already present ---
-        const defaultPreBuiltWorkouts = {
-            "Full Body Beginner": [
-                { name: "Push-up", sets: "3", time: "10" },
-                { name: "Bodyweight Squat", sets: "3", time: "10" },
-                { name: "Plank", sets: "3", time: "5" }
-            ],
-            "Push / Pull / Legs": [
-                { name: "Bench Press", sets: "4", time: "15" },
-                { name: "Pull-up", sets: "4", time: "15" },
-                { name: "Deadlift", sets: "3", time: "20" }
-            ],
-            "Upper / Lower Split": [
-                { name: "Overhead Press", sets: "3", time: "10" },
-                { name: "Bicep Curl", sets: "3", time: "10" },
-                { name: "Bodyweight Squat", sets: "4", time: "15" }
-            ]
-        };
+        let storedPreBuilts = JSON.parse(localStorage.getItem("savedPreBuiltWorkouts")) || {};
+        const legacyDefaults = ["Full Body Beginner", "Push / Pull / Legs", "Upper / Lower Split"];
+        
+        legacyDefaults.forEach(def => {
+            delete storedPreBuilts[def];
+        });
+        
+        localStorage.setItem("savedPreBuiltWorkouts", JSON.stringify(storedPreBuilts));
 
-        if (!localStorage.getItem("savedPreBuiltWorkouts")) {
-            localStorage.setItem("savedPreBuiltWorkouts", JSON.stringify(defaultPreBuiltWorkouts));
-        }
-
-        // --- 2. Load saved pre-built workouts into the dropdown on page load ---
         const preBuildSelect = document.getElementById('pre-buildInput');
         function populatePreBuiltDropdown() {
             if (!preBuildSelect) return;
             preBuildSelect.innerHTML = '<option value="" selected disabled>Select a pre-built workout</option>';
             
-            const storedPreBuilts = JSON.parse(localStorage.getItem("savedPreBuiltWorkouts")) || {};
-            Object.keys(storedPreBuilts).forEach(buildName => {
+            const currentPreBuilts = JSON.parse(localStorage.getItem("savedPreBuiltWorkouts")) || {};
+            Object.keys(currentPreBuilts).forEach(buildName => {
                 const option = document.createElement('option');
                 option.value = buildName;
                 option.textContent = buildName;
@@ -43,7 +31,15 @@ function Planner(props) {
         }
         populatePreBuiltDropdown();
 
-        // --- 3. Data Mappings for Recommended Builds ---
+        const sectionOptionsMap = {
+            chest: ['Push-up', 'Bench Press'],
+            back: ['Pull-up', 'Bent-Over Row'],
+            leg: ['Bodyweight Squat', 'Deadlift'],
+            shoulder: ['Overhead Press'],
+            arm: ['Bicep Curl', 'Tricep Dip'],
+            core: ['Plank']
+        };
+
         const workoutBuilds = {
             "Calisthenics": [
                 { name: "Push-up", sets: "4", time: "15" },
@@ -65,16 +61,16 @@ function Planner(props) {
         };
 
         const exerciseMap = {
-            "Push-up": { setsInput: "chestSets", timeInput: "chestTime" },
-            "Bench Press": { setsInput: "chestSets", timeInput: "chestTime" },
-            "Pull-up": { setsInput: "backSets", timeInput: "backTime" },
-            "Bent-Over Row": { setsInput: "backSets", timeInput: "backTime" },
-            "Bodyweight Squat": { setsInput: "legSets", timeInput: "legTime" },
-            "Deadlift": { setsInput: "legSets", timeInput: "legTime" },
-            "Overhead Press": { setsInput: "shoulderSets", timeInput: "shoulderTime" },
-            "Bicep Curl": { setsInput: "armSets", timeInput: "armTime" },
-            "Tricep Dip": { setsInput: "armSets", timeInput: "armTime" },
-            "Plank": { setsInput: "coreSets", timeInput: "coreTime" }
+            "Push-up": { prefix: "chest", setsInput: "chestSets", timeInput: "chestTime" },
+            "Bench Press": { prefix: "chest", setsInput: "chestSets", timeInput: "chestTime" },
+            "Pull-up": { prefix: "back", setsInput: "backSets", timeInput: "backTime" },
+            "Bent-Over Row": { prefix: "back", setsInput: "backSets", timeInput: "backTime" },
+            "Bodyweight Squat": { prefix: "leg", setsInput: "legSets", timeInput: "legTime" },
+            "Deadlift": { prefix: "leg", setsInput: "legSets", timeInput: "legTime" },
+            "Overhead Press": { prefix: "shoulder", setsInput: "shoulderSets", timeInput: "shoulderTime" },
+            "Bicep Curl": { prefix: "arm", setsInput: "armSets", timeInput: "armTime" },
+            "Tricep Dip": { prefix: "arm", setsInput: "armSets", timeInput: "armTime" },
+            "Plank": { prefix: "core", setsInput: "coreSets", timeInput: "coreTime" }
         };
 
         const regimeTbody = document.querySelector(".workout-regime tbody");
@@ -82,7 +78,6 @@ function Planner(props) {
 
         if (regimeTbody) regimeTbody.innerHTML = "";
 
-        // --- 4. Undo History Stack ---
         let undoHistory = [];
 
         function saveStateSnapshot() {
@@ -102,6 +97,11 @@ function Planner(props) {
             undoHistory.push(snapshot);
         }
 
+        function getOptionsHtmlForPrefix(prefix) {
+            const options = sectionOptionsMap[prefix] || ['Workout'];
+            return options.map(opt => `<option value="${opt}">${opt}</option>`).join('');
+        }
+
         function createEmptyRow(selectOptionsHtml) {
             const tr = document.createElement("tr");
             tr.innerHTML = `
@@ -117,7 +117,6 @@ function Planner(props) {
             return tr;
         }
 
-        // --- 5. Load Workouts Function ---
         function loadWorkoutBuild(buildName, isPreBuilt = false) {
             let buildWorkouts = isPreBuilt 
                 ? (JSON.parse(localStorage.getItem("savedPreBuiltWorkouts")) || {})[buildName] 
@@ -170,11 +169,13 @@ function Planner(props) {
 
                             updatedTables.add(table);
                         } else if (table) {
+                            const selectOptionsHtml = getOptionsHtmlForPrefix(mapping.prefix);
+
                             const newRow = document.createElement("tr");
                             newRow.innerHTML = `
                                 <td>
                                     <select name="activity" aria-label="Exercise selection">
-                                        <option value="${item.name}">${item.name}</option>
+                                        ${selectOptionsHtml}
                                     </select>
                                 </td>
                                 <td><input type="text" name="sets" value="${item.sets}" aria-label="${item.name} sets" readonly></td>
@@ -188,8 +189,13 @@ function Planner(props) {
             });
 
             updatedTables.forEach(table => {
-                const defaultSelect = table.querySelector("tr:nth-child(2) select");
-                const selectOptionsHtml = defaultSelect ? defaultSelect.innerHTML : `<option value="Workout">Workout</option>`;
+                const firstInput = table.querySelector("input[type='text']");
+                let prefix = "chest";
+                if (firstInput) {
+                    const nameAttr = firstInput.getAttribute("name") || "";
+                    prefix = nameAttr.replace("Sets", "").toLowerCase();
+                }
+                const selectOptionsHtml = getOptionsHtmlForPrefix(prefix);
                 table.appendChild(createEmptyRow(selectOptionsHtml));
             });
 
@@ -212,7 +218,6 @@ function Planner(props) {
             alert(`Loaded "${buildName}" into your workout planner and regime!`);
         }
 
-        // --- Event Listeners ---
         const preBuildAddBtn = document.getElementById("preBuildAddBtn");
         if (preBuildAddBtn) {
             preBuildAddBtn.onclick = () => {
@@ -236,7 +241,6 @@ function Planner(props) {
             };
         }
 
-        // Dynamic Row Add Buttons
         const addButtons = document.querySelectorAll(".workout-input .add-btn");
         addButtons.forEach(button => {
             button.onclick = () => {
@@ -285,7 +289,6 @@ function Planner(props) {
             };
         });
 
-        // Back / Undo Button
         const backBtn = document.getElementById("backBtn");
         if (backBtn) {
             backBtn.onclick = () => {
@@ -309,27 +312,35 @@ function Planner(props) {
             };
         }
 
-        // Save Build Button
         const saveBuildBtn = document.getElementById('saveBuildBtn');
         if (saveBuildBtn) {
             saveBuildBtn.onclick = () => {
-                const buildName = prompt("Enter a name for your saved workout build:");
-                if (!buildName || buildName.trim() === "") {
-                    alert("Build name cannot be empty.");
+                const nameInput = document.getElementById('buildNameInput');
+                const buildName = nameInput ? nameInput.value.trim() : "";
+
+                if (!buildName) {
+                    alert("Please enter a name for your saved workout build in the input box first.");
+                    if (nameInput) nameInput.focus();
                     return;
                 }
 
-                const regimeRows = document.querySelectorAll('.workout-regime tbody tr');
+                const regimeTable = document.getElementById('regime-table') || document.querySelector('table.workout-regime');
+                const regimeRows = regimeTable ? regimeTable.querySelectorAll('tbody tr') : document.querySelectorAll('.workout-regime tbody tr');
+                
                 const workouts = [];
 
                 regimeRows.forEach(row => {
                     const cells = row.querySelectorAll('td');
                     if (cells.length >= 3) {
-                        const setsMatch = cells[1].textContent.match(/(\d+)/);
-                        const timeMatch = cells[2].textContent.match(/(\d+)/);
+                        const name = cells[0].textContent.trim();
+                        const setsText = cells[1].textContent;
+                        const timeText = cells[2].textContent;
+
+                        const setsMatch = setsText.match(/(\d+)/);
+                        const timeMatch = timeText.match(/(\d+)/);
 
                         workouts.push({
-                            name: cells[0].textContent.trim(),
+                            name: name || "Workout",
                             sets: setsMatch ? setsMatch[1] : "3",
                             time: timeMatch ? timeMatch[1] : "10"
                         });
@@ -341,12 +352,13 @@ function Planner(props) {
                     return;
                 }
 
-                const storedPreBuilts = JSON.parse(localStorage.getItem("savedPreBuiltWorkouts")) || {};
-                storedPreBuilts[buildName.trim()] = workouts;
-                localStorage.setItem("savedPreBuiltWorkouts", JSON.stringify(storedPreBuilts));
+                const currentStored = JSON.parse(localStorage.getItem("savedPreBuiltWorkouts")) || {};
+                currentStored[buildName] = workouts;
+                localStorage.setItem("savedPreBuiltWorkouts", JSON.stringify(currentStored));
 
                 populatePreBuiltDropdown();
-                alert(`Successfully saved "${buildName.trim()}" to your pre-built workouts!`);
+                alert(`Successfully saved "${buildName}" to your pre-built workouts!`);
+                if (nameInput) nameInput.value = "";
             };
         }
 
@@ -407,38 +419,8 @@ function Planner(props) {
             </header>
 
             <main>
-                <section className="workout-input pre-build">
-                    <div className="control-group">
-                        <label htmlFor="pre-buildInput">Pre-built Workout</label>
-                        <select id="pre-buildInput" name="PreBuild Activity"></select>
-                        <button type="button" id="preBuildAddBtn">Add</button>
-                    </div>
-                    
-                    <div className="control-group">
-                        <label htmlFor="reccInput">Recommended Build</label>
-                        <select id="reccInput" name="Recommended Activity">
-                            <option value="" defaultValue disabled>Select a recommended build</option>
-                            <option value="Calisthenics">Calisthenics</option>
-                            <option value="Bigger Back">Bigger Back</option>
-                            <option value="Bigger Chest">Bigger Chest</option>
-                            <option value="First Pull-Up">First Pull-Up</option>
-                        </select>
-                        <button type="button" id="reccAddBtn">Add</button>
-                    </div>
+                <PreBuildControls />
 
-                    <div id="links">
-                        <h2>Table of Contents</h2>
-                        <a href="#chest-input">Chest</a>
-                        <a href="#back-input">Back</a>
-                        <a href="#leg-input">Leg</a>
-                        <a href="#shoulder-input">Shoulder</a>
-                        <a href="#arm-input">Arm</a>
-                        <a href="#core-input">Core</a>
-                        <a href="#workout-regime">Workout Regime</a>
-                    </div>
-                </section>
-
-                {/* Decomposed Workout Components */}
                 <WorkoutSection title="Chest" id="chest-input" options={["Push-up", "Bench Press"]} namePrefix="chest" />
                 <WorkoutSection title="Back" id="back-input" options={["Pull-up", "Bent-Over Row"]} namePrefix="back" />
                 <WorkoutSection title="Leg" id="leg-input" options={["Bodyweight Squat", "Deadlift"]} namePrefix="leg" />
@@ -446,36 +428,8 @@ function Planner(props) {
                 <WorkoutSection title="Arm" id="arm-input" options={["Bicep Curl", "Tricep Dip"]} namePrefix="arm" />
                 <WorkoutSection title="Core" id="core-input" options={["Plank"]} namePrefix="core" />
 
-                <section className="workout-input">
-                    <h2 id="workout-regime">Workout Regime</h2>
-                    <div>
-                        <table className="workout-regime">
-                            <thead>
-                                <tr>
-                                    <th colSpan="4">Full Workout Regime</th>
-                                </tr>
-                                <tr>
-                                    <th>Workout</th>
-                                    <th>Total Work Outs</th>
-                                    <th>Time?</th>
-                                    <th>Complete</th>
-                                </tr>
-                            </thead>
-                            <tbody></tbody>
-                        </table>
-                        <div className="regime-actions">
-                            <button type="button" id="backBtn">Back</button>
-                            <button type="button" id="startTimerBtn">Start Timer</button>
-                            <button type="button" id="saveBuildBtn">Save Build</button>
-                        </div>
-                    </div>
-                </section>
-
-                <section className="workout-input">
-                    <h2 className="Results">Results</h2>
-                    <p>Here we will insert a calculation formula to see how much calories were gained and lost</p>
-                    <p>A possible graph may be shown</p>
-                </section>
+                <WorkoutRegime />
+                <PlannerResults />
             </main>
 
             <footer id="copyright">Copyright &copy; 2026</footer>

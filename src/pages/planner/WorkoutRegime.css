@@ -1,0 +1,68 @@
+/* --- Workout Regime Component Styles --- */
+.workout-input {
+    margin-bottom: 20px;
+    padding: 16px;
+    background: #ffffff;
+    border: 1px solid #d9e0e7;
+    border-radius: 8px;
+}
+
+.workout-input h2 {
+    margin: 0 0 12px;
+    font-size: 1.15rem;
+    color: #1f2933;
+}
+
+/* Regime table structure */
+.workout-regime {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 12px;
+}
+
+.workout-regime th,
+.workout-regime td {
+    padding: 8px;
+    text-align: left;
+}
+
+/* Regime action buttons layout */
+.regime-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    margin-top: 12px;
+}
+
+.save-build-group {
+    display: inline-flex;
+    gap: 8px;
+    align-items: center;
+    margin-left: auto;
+}
+
+/* Custom build name input box */
+.save-build-group input[type="text"] {
+    padding: 6px 10px;
+    font-size: 0.95rem;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    background-color: #ffffff;
+    outline: none;
+    min-width: 180px;
+}
+
+/* Standard button styles for Back, Start Timer, and Save Build */
+.regime-actions button {
+    padding: 6px 16px;
+    font-size: 0.95rem;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    background-color: #f8fafc;
+    cursor: pointer;
+}
+
+.regime-actions button:hover {
+    background-color: #f1f5f9;
+}
