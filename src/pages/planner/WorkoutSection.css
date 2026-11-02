@@ -1,0 +1,84 @@
+.workout-input {
+    margin-bottom: 20px;
+    padding: 16px;
+    background: #ffffff;
+    border: 1px solid #d9e0e7;
+    border-radius: 8px;
+}
+
+.workout-input h2,
+.workout-input h3 {
+    margin: 0 0 12px;
+}
+
+.workout-input form {
+    display: block;
+    padding: 0;
+    background: none;
+    border: none;
+    border-radius: 0;
+}
+
+.workout-input p {
+    color: #616e7c;
+}
+
+.workout-input table {
+    width: 100%;
+    margin-bottom: 12px;
+    border-collapse: separate;
+    border-spacing: 0;
+    border: 1px solid #d9e0e7;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.workout-input th,
+.workout-input td {
+    padding: 8px 10px;
+    text-align: left;
+    border-bottom: 1px solid #d9e0e7;
+}
+
+.workout-input tr:last-child td {
+    border-bottom: none;
+}
+
+.workout-input th {
+    background: #f4f6f8;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #616e7c;
+}
+
+.workout-input td input,
+.workout-input select,
+.save-build-group input[type="text"] {
+    width: 100%;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px; 
+    padding: 6px 8px;
+    outline: none;
+    background-color: #ffffff;
+}
+
+.workout-input td input:focus,
+.workout-input select:focus,
+.save-build-group input[type="text"]:focus {
+    border-color: #2563eb;
+}
+
+.imgPlaceholder {
+    display: block;
+    width: 120px;
+    height: auto;
+    margin-left: auto;
+    border-radius: 6px;
+}
+
+.workout-input td label {
+    display: inline;
+    margin: 0;
+    font-size: 1rem;
+    color: #1f2933;
+}

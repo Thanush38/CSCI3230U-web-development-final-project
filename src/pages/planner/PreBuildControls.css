@@ -1,0 +1,62 @@
+/* Pre-build / recommended pickers */
+.workout-input.pre-build {
+    margin-bottom: 20px;
+    padding: 16px;
+    background: #ffffff;
+    border: 1px solid #d9e0e7;
+    border-radius: 8px;
+}
+
+.workout-input.pre-build h2,
+.workout-input.pre-build h3 {
+    margin: 0 0 12px;
+}
+
+.workout-input.pre-build form {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+    padding: 0;
+    background: none;
+    border: none;
+    border-radius: 0;
+}
+
+.workout-input.pre-build form label,
+.workout-layout label {
+    margin: 0;
+    font-size: 1rem;
+    color: #1f2933;
+}
+
+.workout-layout {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+/* Table of contents */
+#links {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 8px 16px;
+}
+
+#links h2 {
+    flex-basis: 100%;
+    margin: 16px 0 0;
+    font-size: 1rem;
+}
+
+#links a {
+    color: #616e7c;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+#links a:hover {
+    color: #2563eb;
+}
