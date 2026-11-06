@@ -3,7 +3,7 @@ import Achievements from './components/Achievements'
 import GoalForm from './components/GoalForm'
 import GoalList from './components/GoalList'
 import './Goals.css'
-import { useState } from 'react'
+import { useCallback, useState } from 'react'
 
 function Goals(props) {
     
@@ -26,13 +26,41 @@ function Goals(props) {
         }
     ])
 
-    const workoutCompleted = () => {} // function to be used to update goal info
+    const addGoal = useCallback(
+        (goal) => {
+            setGoals(
+                [...goals, goal]
+            )
+        }, [goals, setGoals]
+    )   
+
+    const updateGoal = useCallback(
+        (id, log) => {
+            setGoals(
+                goals.map((goal) => goal.id !== id ? goal : {
+                    ...goal,
+                    current: log.current,
+                    logs: [...goal.logs, log]
+                })
+            )
+        }, [goals, setGoals]
+    )
+
+    const removeGoal = useCallback(
+        (id) => {
+            setGoals(
+                goals.filter((goal) => goal.id !== id)
+            )
+        }, [goals, setGoals]
+    )
+
+    const workoutCompleted = () => {} // function to be used to update goal info    
 
     return <div id='goals'>
         <h2>Goals</h2>
         <Achievements />
-        <GoalForm goals={goals} setGoals={setGoals} />
-        <GoalList goals={goals} setGoals={setGoals} />
+        <GoalForm addGoal={addGoal} />
+        <GoalList goals={goals} updateGoal={updateGoal} deleteGoal={removeGoal} />
     </div>
 }
 

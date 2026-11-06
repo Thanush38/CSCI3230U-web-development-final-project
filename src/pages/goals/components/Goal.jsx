@@ -1,9 +1,11 @@
 import { useCallback, useState } from 'react'
 import './Goal.css'
-import { buildGoal, buildLog, buildLogManual } from '../builders'
+import { buildLog } from '../builders'
+import LogForm from './LogForm'
+import Log from './Log'
 
-export default function Goal({goal, index, goals, setGoals}) {    
-
+export default function Goal({goal, updateGoal, deleteGoal}) {    
+    const id = goal.id
     const name = goal.name
     const info = goal.info
     const min = goal.min
@@ -14,49 +16,12 @@ export default function Goal({goal, index, goals, setGoals}) {
 
     const [editing, setEditing] = useState(false)
 
-    const [complete, setComplete] = useState(false)
-
-    const updateGoal = useCallback((e) => {
-        e.preventDefault()
-        const form = e.target
-        const formData = new FormData(form)
-
-        const newGoal = {...goal}
-
-        newGoal.current = Number(formData.get('current'))
-        const log = buildLog(goal, formData)
-        newGoal.logs = [...newGoal.logs, log]
-
-        setComplete(newGoal.current === newGoal.max)
-
-        setGoals(goals.with(index, newGoal))
-
-    }, [goal, goals, setGoals, index]
-    )
+    const complete = current === max
 
     const completeGoal = useCallback(() => {
-        if (complete) {
-            const newGoal = {...goal}
-            const newLogs = [...newGoal.logs]
-            newLogs.pop()
-            newGoal.current = newLogs[newLogs.length-1].current
-            newGoal.logs = newLogs
-            setGoals(goals.with(index, newGoal))
-        } else {
-            const newGoal = {...goal}
-            newGoal.current = newGoal.max
-            const newLogs = [...newGoal.logs]
-            newLogs.push(buildLogManual(newGoal.current, "Goal Complete"))
-            newGoal.logs = newLogs
-            setGoals(goals.with(index, newGoal))
-        }
-        setComplete(!complete)
-    }, [goal, goals, setGoals, index, complete, setComplete]
-    )
-
-    const removeGoal = useCallback(() => {
-        setGoals(goals.filter(a => a !== goal))
-    }, [goal, goals, setGoals]
+        const log = buildLog(goal, max, "Goal Complete")
+        updateGoal(id, log)
+    }, [goal, updateGoal]
     )
 
     return <article className='goal'>
@@ -72,21 +37,11 @@ export default function Goal({goal, index, goals, setGoals}) {
         </div>
         <div className='buttons'>
             <button className='update' onClick={() => setEditing(!editing)}>{editing ? 'Cancel' : 'Update Goal'}</button>
-            <button className='complete' onClick={completeGoal} disabled={editing}>{complete ? 'Unmark As Complete' : 'Mark As Complete'}</button>
-            <button className='delete' onClick={removeGoal} disabled={editing}>Delete Goal</button>
+            <button className='complete' onClick={completeGoal} disabled={editing | complete}>{complete ? 'Completed' : 'Mark As Complete'}</button>
+            <button className='delete' onClick={() => deleteGoal(id)} disabled={editing}>Delete Goal</button>
         </div>
         <div className='log-form' hidden={!editing}>
-            <form onSubmit={updateGoal}>
-                <div className='current'>
-                    <label htmlFor="current">New Value</label>
-                    <input name='current' type='number' step='any' defaultValue={current} />
-                </div>
-                <div className='message'>
-                    <label htmlFor="message">Log Message</label>
-                    <textarea name='message' />
-                </div>
-                <button>Submit</button>
-            </form>
+            <LogForm goal={goal} updateGoal={updateGoal} />
         </div>
         <button className='log-button' onClick={() => setShowlogs(!showLogs)}>Logs</button>
         <div className='logs' hidden={!showLogs} >
@@ -97,14 +52,5 @@ export default function Goal({goal, index, goals, setGoals}) {
             />)
             }
         </div>
-    </article>
-}
-
-function Log({log}) {
-
-
-    return <article className='log'>
-        <h4>Date: {log.date} - New Progress: {log.current}</h4>
-        <p>{log.message}</p>
     </article>
 }
