@@ -29,7 +29,7 @@ export default function GoalForm({addGoal}) {
         else
             alert("Invalid data entered")
         
-    }, [addGoal]
+    }, [addGoal, goalName, goalInfo, start, end, current]
     )
 
     return <section id='goal-form'>

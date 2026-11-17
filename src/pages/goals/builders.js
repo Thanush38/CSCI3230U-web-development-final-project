@@ -9,14 +9,14 @@ export function buildGoal(name, info, min, max, current) {
         max: Number(max),
         current: Number(current),
         logs: []
-    }    
+    }   
 
     // replace with defaults if info omitted
     if (current === '') {
         goal.current = goal.min   
     }
 
-    goal.logs.push(buildLog(goal.current, 'Goal Started'))
+    goal.logs.push(buildLog(goal, goal.current, 'Goal Started'))
 
     // check data compliance
     if (goal.min > goal.max || 
