@@ -1,11 +1,15 @@
 import useCompletedList from "../hooks/useCompletedList";
 import Badge from "./Badge";
-import { useMemo } from "react";
+import { useCallback, useMemo } from "react";
 
 export default function BadgeList(props) {
 
     const [badges, loading, error] = useCompletedList()
 
+    const evaluateTier = useCallback((count) => {
+            return Math.min(Math.ceil(count / 5), 7)
+        }, []
+    )
 
     const badgeData = useMemo(
         () => {
@@ -49,7 +53,7 @@ export default function BadgeList(props) {
                     id: crypto.randomUUID(),
                     name: bodyPart,
                     type: 'Body Part',
-                    tier: Math.min(Math.ceil(bodyPartsCount.get(bodyPart) / 5), 7)
+                    tier: evaluateTier(bodyPartsCount.get(bodyPart))
                 })
             }
 
@@ -58,7 +62,7 @@ export default function BadgeList(props) {
                     id: crypto.randomUUID(),
                     name: equipment,
                     type: 'Equipment',
-                    tier: Math.min(Math.ceil(equipmentsCount.get(equipment) / 5), 7)
+                    tier: evaluateTier(equipmentsCount.get(equipment))
                 })
             }
 
@@ -67,7 +71,7 @@ export default function BadgeList(props) {
                     id: crypto.randomUUID(),
                     name: targetMuscle,
                     type: 'Target Muscle',
-                    tier: Math.min(Math.ceil(targetMuscleCount.get(targetMuscle) / 5), 7)
+                    tier: evaluateTier(targetMuscleCount.get(targetMuscle))
                 })
             }
 
@@ -81,6 +85,7 @@ export default function BadgeList(props) {
         <div id="badge-display">
             {loading && <p>Loading Badges</p>}
             {error ? <p>Error Loading Badges</p> : 
+            badgeData.length === 0 ? <p>No Badges</p> :
             badgeData.map((data) => 
             <Badge 
             key={data.id} 

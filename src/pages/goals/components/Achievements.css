@@ -15,7 +15,7 @@
         }
     }
 
-    & #streak {
+    /* & #streak {
         width: calc(min(30vw, 300px));
         text-align: center;
 
@@ -71,14 +71,13 @@
                 width: 80%;
             }
         }
-    }
+    } */
 
     & #badges {
         text-align: center;
         flex: 1;
 
         & #badge-display {
-            height: 80%;
 
             border: 2px solid black;
             border-radius: 10px;

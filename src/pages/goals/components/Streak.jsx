@@ -1,11 +1,10 @@
 import { useState } from "react"
+import useStreak from "../hooks/useStreak"
 
 
 export default function Streak(props) {
-    const [streak, setStreak] = useState(3)
-    const [currentWeek, setCurrentWeek] = useState(0) // use date to find actual week
-    const [weekHours, setWeekHours] = useState(4)
-    const [goalWeekHours, setGoalWeekHours] = useState(10)
+
+    const [streak, weekHours, goalWeekHours] = useStreak()
 
     return <div id="streak">
         <h4>Streak</h4>

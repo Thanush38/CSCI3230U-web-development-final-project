@@ -12,7 +12,6 @@ export default function Achievements(props) {
     return <section id='achievements' >
         <h3>Achievements</h3>
         <div className='content'>
-            <Streak />
             <BadgeList />
         </div>
     </section>

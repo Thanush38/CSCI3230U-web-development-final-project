@@ -10,7 +10,6 @@ export default function useGoals() {
 
   useEffect(() => {
     localStorage.setItem('goals', JSON.stringify(goals))
-    console.log(goals)
   }, [goals])
 
   const addGoal = useCallback(

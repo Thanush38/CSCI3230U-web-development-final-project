@@ -6,7 +6,10 @@ export default function useCompletedList() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
 
-  const completedWorkouts = ['EIeI8Vf']
+  const [completedWorkouts, setCompletedWorkouts] = useState(() => {
+    const completedWorkouts = localStorage.getItem('completedWorkouts')
+    return completedWorkouts ? JSON.parse(completedWorkouts) : [{id: 'EIeI8Vf'}]
+  })
     
   useEffect(() => { // AI modified code to prevent load bugs (copilot)
     const controller = new AbortController()
@@ -14,8 +17,8 @@ export default function useCompletedList() {
     async function loadCompletedList() {
       try {
         const results = await Promise.all(
-          completedWorkouts.map(async () => {
-            const response = await fetch('./dummydb.json', {
+          completedWorkouts.map(async (item) => {
+            const response = await fetch(`https://oss.exercisedb.dev/api/v1/exercises/${item.id}`, {
               signal: controller.signal,
             })
 
