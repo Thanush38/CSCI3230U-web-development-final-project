@@ -40,7 +40,7 @@ export default function ExerciseList() {
         </section>
     </header>
 
-    {loadStatus === 'loading' && <p>Loading exercises... {(loadedCount / 1500) * 100}% Loaded.</p>}
+    {loadStatus === 'loading' && <p>Loading exercises... {((loadedCount / 1500) * 100).toFixed(2)}%</p>}
     {loadStatus === 'error' && <p>Could not load exercises.</p>}
 
     <section id="browse-group" className="exercise-grid">
