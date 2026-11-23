@@ -6,6 +6,7 @@ import Planner from './pages/planner/Planner.jsx';
 import Recommended from './pages/recommended/Recommended.jsx';
 import Timer from './pages/timer/Timer.jsx';
 import Goals from './pages/goals/Goals.jsx';
+import ExerciseLoader from './ExerciseLoader.jsx';
 
 import './App.css'
 
@@ -29,11 +30,13 @@ function App() {
       </header>
 
       <Routes>
-        <Route path="/" element={<ExerciseList />} />
-        <Route path="/planner" element={<Planner />} />
-        <Route path="/recommended" element={<Recommended />} />
-        <Route path="/timer" element={<Timer />} />
-        <Route path="/goals" element={<Goals />} />
+        <Route element={<ExerciseLoader />}>
+          <Route path="/" element={<ExerciseList />} />
+          <Route path="/planner" element={<Planner />} />
+          <Route path="/recommended" element={<Recommended />} />
+          <Route path="/timer" element={<Timer />} />
+          <Route path="/goals" element={<Goals />} />
+        </Route>
       </Routes>
     </div>
   )
