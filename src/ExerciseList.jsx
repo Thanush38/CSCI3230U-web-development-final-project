@@ -4,34 +4,72 @@ import ExerciseCard from './ExerciseCard.jsx';
 import { API, toExercise } from './exercises.js';
 import './pages/home/Home.css'
 
+const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
 export default function ExerciseList() {
     const [exercises, setExercises] = useState([]);
     const [loadStatus, setLoadStatus] = useState('loading');
     const [search, setSearch] = useState('');
     const [category, setCategory] = useState('all');
+    const [loadedCount, setLoadedCount] = useState(0);
 
     useEffect( () => {
-        setLoadStatus('loading');
-
         const controller = new AbortController();
 
-        fetch(API, { signal: controller.signal })
-        .then( (response) => {
-            if (!response.ok) throw new Error(`HTTP Response: ${response.status}`);
+        async function fetchExercises() {
+            setLoadStatus('loading');
 
-            return response.json();
-        })
-        .then((data) => {
-            setExercises((data.data ?? []).map(toExercise));
-            setLoadStatus('ok');
-        })
-        .catch((error) => {
-            if (error.name === 'AbortError') return;
+            try {
+                let allExercises = [];
+                let cursor = null;
+                let hasNextPage = true;
 
-            console.error(error);
-            setLoadStatus('error');
-        });
+                while (hasNextPage) {
+                    let url = `${API}?limit=25`;
+
+                    if (cursor) {
+                        url += `&after=${encodeURIComponent(cursor)}`;
+                    }
+
+                    const response = await fetch(url, {
+                        signal: controller.signal
+                    });
+
+                    if (!response.ok) {
+                        throw new Error(`HTTP Response: ${response.status}`);
+                    }
+
+                    const data = await response.json();
+
+                    allExercises = [
+                        ...allExercises,
+                        ...(data.data ?? []).map(toExercise)
+                    ];
+
+                    setLoadedCount(allExercises.length);
+                    hasNextPage = data.meta.hasNextPage;
+                    cursor = data.meta.nextCursor;
+
+                    if (hasNextPage){
+                        await delay(2000);
+                    }
+                }
+
+                setExercises(allExercises);
+                setLoadStatus('ok');
+            }
+            catch (error) {
+                if (error.name === 'AbortError') return;
+
+                console.error(error);
+                setLoadStatus('error');
+            }
+        }
+
+        fetchExercises();
+
         return () => controller.abort();
+
     }, []);
 
     const visible = exercises
@@ -60,7 +98,7 @@ export default function ExerciseList() {
         </section>
     </header>
 
-    {loadStatus === 'loading' && <p>Loading exercises...</p>}
+    {loadStatus === 'loading' && <p>Loading exercises... {(loadedCount / 1500) * 100}%</p>}
     {loadStatus === 'error' && <p>Could not load exercises.</p>}
 
     <section id="browse-group" className="exercise-grid">

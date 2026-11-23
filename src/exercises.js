@@ -21,7 +21,7 @@ export function toExercise(exercise) {
         name: exercise.name,
         muscle: (exercise.targetMuscles ?? []).join(", "),
         category: categoryMap[bodyPart] ?? bodyPart,
-        description: (exercise.instructions ?? []).join(" "),
+        instructions: (exercise.instructions ?? []).join(" "),
         gif: exercise.gifUrl
     };
 }
