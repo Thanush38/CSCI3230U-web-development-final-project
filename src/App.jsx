@@ -1,5 +1,7 @@
-import { Link, Outlet } from 'react-router-dom';
+import { Routes, Route } from 'react-router-dom';
+import { Link } from 'react-router-dom'
 
+import ExerciseList from './ExerciseList.jsx';
 import './App.css'
 
 function App() {
@@ -21,9 +23,9 @@ function App() {
         </nav>
       </header>
 
-      <main>
-        <Outlet />
-      </main>
+      <Routes>
+        <Route path="/" element={<ExerciseList />} />
+      </Routes>
     </div>
   )
 }
