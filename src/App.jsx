@@ -2,6 +2,11 @@ import { Routes, Route } from 'react-router-dom';
 import { Link } from 'react-router-dom'
 
 import ExerciseList from './ExerciseList.jsx';
+import Planner from './pages/planner/Planner.jsx';
+import Recommended from './pages/recommended/Recommended.jsx';
+import Timer from './pages/timer/Timer.jsx';
+import Goals from './pages/goals/Goals.jsx';
+
 import './App.css'
 
 function App() {
@@ -25,6 +30,10 @@ function App() {
 
       <Routes>
         <Route path="/" element={<ExerciseList />} />
+        <Route path="/planner" element={<Planner />} />
+        <Route path="/recommended" element={<Recommended />} />
+        <Route path="/timer" element={<Timer />} />
+        <Route path="/goals" element={<Goals />} />
       </Routes>
     </div>
   )
