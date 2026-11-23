@@ -3,6 +3,11 @@
     margin-bottom: 32px;
 }
 
+.timer-note {
+    margin: 0 0 12px;
+    color: #616e7c;
+}
+
 .workout-choices {
     display: flex;
     flex-wrap: wrap;
