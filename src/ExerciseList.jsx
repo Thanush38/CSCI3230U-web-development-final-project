@@ -51,7 +51,7 @@ export default function ExerciseList() {
                     cursor = data.meta.nextCursor;
 
                     if (hasNextPage){
-                        await delay(2000);
+                        await delay(1100);
                     }
                 }
 
@@ -98,7 +98,7 @@ export default function ExerciseList() {
         </section>
     </header>
 
-    {loadStatus === 'loading' && <p>Loading exercises... {(loadedCount / 1500) * 100}%</p>}
+    {loadStatus === 'loading' && <p>Loading exercises... {(loadedCount / 1500) * 100}% Loaded.</p>}
     {loadStatus === 'error' && <p>Could not load exercises.</p>}
 
     <section id="browse-group" className="exercise-grid">
