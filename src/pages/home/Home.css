@@ -132,9 +132,9 @@ button:hover {
 /* Exercise list layout */
 .exercise-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(min(100%, 230px), 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 230px), 1fr));
     gap: 24px;
-    align-items: stretch;
+    align-items: start;
     margin-top: 24px;
 }
 
