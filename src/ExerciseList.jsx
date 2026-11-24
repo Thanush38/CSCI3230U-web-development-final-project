@@ -21,7 +21,7 @@ export default function ExerciseList() {
   return (
     <>
     <header>
-        <h1>Exercises</h1>
+        <h1>All Exercises</h1>
       
         <section id="search-section">
             <input 
