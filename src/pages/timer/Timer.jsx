@@ -132,6 +132,17 @@ function Timer(props) {
         return () => clearInterval(interval)
     }, [isTicking, steps])
 
+    // add each finished workout (date + exercise ids and sets) to the history so other pages can use it
+    useEffect(() => {
+        if (!isDone) return
+        const history = JSON.parse(localStorage.getItem('completedWorkouts')) || []
+        history.push({
+            date: new Date().toISOString(),
+            exercises: workout.exercises.map(e => ({ id: e.id, sets: e.sets })),
+        })
+        localStorage.setItem('completedWorkouts', JSON.stringify(history))
+    }, [isDone, workout])
+
     function handleChooseWorkout(id) {
         setWorkoutId(id)
         setPosition({ index: 0, elapsed: 0 })
