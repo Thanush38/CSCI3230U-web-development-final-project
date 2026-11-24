@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 
-import { API, toExercise } from './exercises.js';
+import {API, toExercise} from './exercises.js'
 import './ExerciseDetail.css';
 
 export default function ExerciseDetail() {
@@ -10,38 +10,38 @@ export default function ExerciseDetail() {
     const [exercise, setExercise] = useState(null);
     const [loadStatus, setLoadStatus] = useState('loading');
 
-    useEffect(() => {
+    useEffect( () => {
         setLoadStatus('loading');
 
         const controller = new AbortController();
 
         fetch(`${API}/${id}`, { signal: controller.signal })
-            .then((response) => {
-                if (!response.ok) throw new Error(`HTTP Response: ${response.status}`);
+        .then( (response) => {
+            if (!response.ok) throw new Error(`HTTP Response: ${response.status}`);
 
-                return response.json();
-            })
-            .then((data) => {
-                setExercise(toExercise(data.data ?? data));
-                setLoadStatus('ok');
-            })
-            .catch((error) => {
-                if (error.name !== 'AbortError') {
-                    console.error(error);
-                    setLoadStatus('error');
-                }
-            });
+            return response.json();
+        })
+        .then((data) => {
+            setExercise(toExercise(data.data));
+            setLoadStatus('ok');
+        })
+        .catch( (error) => {
+            if (error.name !== 'AbortError') {
+                console.error(error);
+                setLoadStatus('error');
+            }
+        });
         return () => controller.abort();
     }, [id]);
 
-    if (loadStatus === 'loading') return <p>Loading exercise...</p>;
-    if (loadStatus === 'error') return <p>Could not load exercise.</p>;
-    if (!exercise) return <p className="exercise-missing">No such exercise. <Link to="/planner">Back</Link></p>;
+    if (loadStatus === 'loading') return <p>Loading exercise...</p>
+    if (loadStatus === "error") return <p>Could not load exercise.</p>
+    if (!exercise) return <p className="exercise-missing">No such exercise. <Link to="/">Back</Link></p>
 
     return (
         <main className='exercise-detail'>
-            <Link to="/planner" className="back-link">
-                ← Back to Planner
+            <Link to="/" className="back-link">
+                ← Back to Exercises
             </Link>
 
             <header className='detail-header'>
@@ -87,6 +87,7 @@ export default function ExerciseDetail() {
                 <h2>How to Perform</h2>
                 <p>{exercise.instructions}</p>
             </section>
+        
         </main>
-    );
+    )
 }

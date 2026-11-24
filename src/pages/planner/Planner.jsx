@@ -343,20 +343,6 @@ function Planner() {
 
     return (
         <>
-            <header>
-                <a className="logo" href="homePage.html">
-                    <img src="/dumbbell.png" alt="WorkOnSite logo" />
-                    WorkOnSite
-                </a>
-                <h1 id="Title">Workout Planner</h1>
-                <nav>
-                    <a href="homePage.html">Home</a>
-                    <a href="workoutPlanner.html">Workout Planner</a>
-                    <a href="recommendedBuilds.html">Recommended Builds</a>
-                    <a href="workoutTimer.html">Workout Timer</a>
-                </nav>
-            </header>
-
             <main>
                 {statusMessage && (
                     <p role="status" className="status-banner">
