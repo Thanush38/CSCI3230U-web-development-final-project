@@ -1,109 +1,104 @@
-import React, {useState} from 'react';
+import React, { useState } from 'react';
 import './WorkoutRegime.css';
 
 function WorkoutRegime({
-    items=[],
-    canUndo=false,
+    items = [],
+    canUndo = false,
     onToggleComplete,
     onUndo,
     onStartTimer,
     onSaveBuild,
 }) {
     const [buildName, setBuildName] = useState('');
-    const [errorMessage, setErrorMessage] = useState('');
-    const handleSaveSubmit = (e) => {
+
+    const handleSave = (e) => {
         e.preventDefault();
-        const trimmedName=buildName.trim();
-        if(!trimmedName){
-            setErrorMessage('Workout build name');
-            return;
-        }
-        if(items.length===0){
-            setErrorMessage('Currently emptry, please add workouts first');
-            return;
-        }
-        setErrorMessage('');
-        onSaveBuild?.(trimmedName);
+        const trimmed = buildName.trim();
+        if (!trimmed || !onSaveBuild) return;
+        onSaveBuild(trimmed);
         setBuildName('');
     };
-    
+
     return (
-        <section className="workout-input">
-            <h2 id="workout-regime">Workout Regime</h2>
-            <div>
-                <table id="regime-table" className="workout-regime">
-                    <thead>
+        <section id="workout-regime-section" className="workout-input" aria-labelledby="regime-heading">
+            <h2 id="regime-heading">Workout Regime</h2>
+            <p className="regime-subtitle">Full Workout Regime</p>
+
+            <table className="workout-regime">
+                <thead>
+                    <tr>
+                        <th>Workout</th>
+                        <th>Total Work Outs</th>
+                        <th>Time?</th>
+                        <th>Complete</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {items.length === 0 ? (
                         <tr>
-                            <th colSpan="4">Full Workout Regime</th>
+                            <td colSpan="4">No exercises in your regime yet.</td>
                         </tr>
-                        <tr>
-                            <th>Workout</th>
-                            <th>Total Work Outs</th>
-                            <th>Time?</th>
-                            <th>Complete</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {items.map((item)=>(
-                            <tr key={items.id}>
-                                <td>{items.name}</td>
-                                <td>{items.sets} sets</td>
-                                <td>{items.time} minutes</td>
-                                <td>
-                                    <label>
-                                        <input
-                                            type="checkbox"
-                                            name="complete"
-                                            className="regime-checkbox"
-                                            checked={Boolean(item.completed)}
-                                            onChange={()=>onToggleComplete?.(item.id)}
-                                        />{' '} 
-                                        Complete?
-                                    </label>
-                                </td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
-                {errorMessage && (
-                    <p role="alert" className="form-error">
-                        {errorMessage}
-                    </p>
-                )}
-                <form onSubmit={handleSaveSubmit} noValidate>
-                    <div className="regime-actions">
-                        <button
-                            type="button"
-                            id="backBtn"
-                            onClick={onUndo}
-                            disabled={!canUndo}
-                        > 
-                        Back 
-                        </button>
-                        <button
-                            type="button"
-                            id="startTimerBtn"
-                            onClick={onStartTimer}
-                        > Start Timer
-                        </button>
-                        <div className="save-build-group">
-                            <button type="submit" id = "saveBuildBtn">
-                                Save Build
-                            </button>
-                            <label htmlFor="buildNameInput" className="sr-only">
-                                Custom build name
-                            </label>
-                            <input
-                                type="text"
-                                id="buildNameInput"
-                                placeholder="Enter custom build name..."
-                                value={buildName}
-                                onChange={(e)=>setBuildName(e.target.value)}
-                                />
-                        </div>
-                    </div>
+                    ) : (
+                        items.map((item) => {
+                            const workoutName = item.name || item.workout || item.exercise || 'Untitled Exercise';
+                            const setsValue = item.sets ?? item.totalWorkouts ?? 0;
+                            const timeValue = item.time ?? item.minutes ?? item.duration ?? 0;
+
+                            return (
+                                <tr key={item.id}>
+                                    <td>{workoutName}</td>
+                                    <td>{setsValue} sets</td>
+                                    <td>{timeValue} minutes</td>
+                                    <td>
+                                        <label>
+                                            <input
+                                                type="checkbox"
+                                                checked={Boolean(item.completed)}
+                                                onChange={() => onToggleComplete?.(item.id)}
+                                            />{' '}
+                                            Complete?
+                                        </label>
+                                    </td>
+                                </tr>
+                            );
+                        })
+                    )}
+                </tbody>
+            </table>
+
+            <div className="regime-actions">
+                <button
+                    type="button"
+                    onClick={onUndo}
+                    disabled={!canUndo}
+                >
+                    Undo
+                </button>
+
+                <button
+                    type="button"
+                    id="startTimerBtn"
+                    onClick={onStartTimer}
+                >
+                    Start Timer
+                </button>
+
+                <form className="save-build-group" onSubmit={handleSave}>
+                    <label htmlFor="regime-build-name" className="visually-hidden">
+                        Build name
+                    </label>
+                    <input
+                        id="regime-build-name"
+                        type="text"
+                        placeholder="Custom build name"
+                        value={buildName}
+                        onChange={(e) => setBuildName(e.target.value)}
+                    />
+                    <button type="submit" id="saveBuildBtn">
+                        Save Build
+                    </button>
                 </form>
-                </div>
+            </div>
         </section>
     );
 }

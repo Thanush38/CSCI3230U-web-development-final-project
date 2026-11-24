@@ -1,0 +1,160 @@
+/*AI Assisted Code*/
+
+/* Main container */
+.exercise-detail {
+    max-width: 1100px;
+    margin: 40px auto;
+    padding: 0 24px;
+}
+
+/* Back button */
+.back-link {
+    display: inline-block;
+    margin-bottom: 24px;
+    color: #2563eb;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.back-link:hover {
+    text-decoration: underline;
+}
+
+/* Exercise heading */
+.detail-header {
+    margin-bottom: 30px;
+}
+
+.detail-header h1 {
+    margin: 0;
+    font-size: 2rem;
+    color: #1e293b;
+    text-transform: capitalize;
+}
+
+.detail-header p {
+    margin-top: 8px;
+    color: #64748b;
+}
+
+/* Main two-column layout */
+.detail-main {
+    display: grid;
+    grid-template-columns: 1.2fr 1fr;
+    gap: 30px;
+    align-items: stretch;
+}
+
+/* Image container */
+.detail-image {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 24px;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+}
+
+.detail-image img {
+    width: 100%;
+    max-height: 400px;
+    object-fit: contain;
+}
+
+/* Information section */
+.detail-information {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.detail-information h2,
+.instructions-section h2 {
+    margin: 0 0 8px;
+    color: #1e293b;
+    font-size: 1.4rem;
+}
+
+/* Individual information cards */
+.info-card {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 20px;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+}
+
+.info-label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.info-value {
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: #1e293b;
+    text-transform: capitalize;
+}
+
+/* Instructions */
+.instructions-section {
+    margin-top: 35px;
+    padding: 28px;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+}
+
+.instructions-section ol {
+    padding-left: 24px;
+    margin-bottom: 0;
+}
+
+.instructions-section li {
+    padding: 8px 0 8px 8px;
+    color: #475569;
+    line-height: 1.7;
+}
+
+.instructions-section li::marker {
+    color: #2563eb;
+    font-weight: 700;
+}
+
+/* Mobile layout */
+@media (max-width: 700px) {
+    .exercise-detail {
+        margin-top: 24px;
+        padding: 0 16px;
+    }
+
+    .detail-main {
+        grid-template-columns: 1fr;
+        gap: 24px;
+    }
+
+    .detail-header h1 {
+        font-size: 1.6rem;
+    }
+
+    .detail-image img {
+        max-height: 300px;
+    }
+
+    .instructions-section {
+        padding: 20px;
+    }
+}
+
+.instructions-section p {
+    white-space: pre-line;
+}

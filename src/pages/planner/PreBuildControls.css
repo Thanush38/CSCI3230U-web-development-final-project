@@ -93,3 +93,28 @@
     font-size: 0.9rem;
     margin: 0 0 10px;
 }
+.control-group button,
+.add-btn {
+    padding: 7px 16px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    border: 1px solid #2563eb;
+    border-radius: 6px;
+    background-color: #2563eb;
+    color: #ffffff;
+    cursor: pointer;
+    transition: background-color 0.2s, border-color 0.2s;
+}
+
+.control-group button:hover,
+.add-btn:hover {
+    background-color: #1d4ed8;
+    border-color: #1d4ed8;
+}
+
+.control-group button:focus-visible,
+.control-group select:focus-visible,
+.add-btn:focus-visible {
+    outline: 2px solid #1e3a8a;
+    outline-offset: 2px;
+}
