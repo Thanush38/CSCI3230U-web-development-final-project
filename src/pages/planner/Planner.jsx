@@ -1,416 +1,305 @@
-import React, { useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import PreBuildControls from './PreBuildControls';
+import ExerciseCatalog from './ExerciseCatalog';
 import WorkoutSection from './WorkoutSection';
 import WorkoutRegime from './WorkoutRegime';
 import PlannerResults from './PlannerResults';
+import { fetchExercises } from '../../services/exerciseApi';
 import './Planner.css';
 
-function Planner(props) {
+const LEGACY_DEFAULTS = ['Full Body Beginner', 'Push / Pull / Legs', 'Upper / Lower Split'];
+const STORAGE_KEY = 'savedPreBuiltWorkouts';
+
+const INITIAL_SECTION_ENTRIES = {
+    chest: [],
+    back: [],
+    leg: [],
+    shoulder: [],
+    arm: [],
+    core: [],
+};
+
+const DEFAULT_GROUP_OPTIONS = {
+    chest: ['Push-up', 'Bench Press'],
+    back: ['Pull-up', 'Bent-Over Row'],
+    leg: ['Bodyweight Squat', 'Deadlift'],
+    shoulder: ['Overhead Press'],
+    arm: ['Bicep Curl', 'Tricep Dip'],
+    core: ['Plank'],
+};
+
+const WORKOUT_BUILDS = {
+    Calisthenics: [
+        { name: 'Push-up', sets: 4, time: 15 },
+        { name: 'Pull-up', sets: 3, time: 12 },
+        { name: 'Plank', sets: 3, time: 10 },
+    ],
+    'Bigger Back': [
+        { name: 'Pull-up', sets: 4, time: 15 },
+        { name: 'Bent-Over Row', sets: 4, time: 15 },
+    ],
+    'Bigger Chest': [
+        { name: 'Bench Press', sets: 4, time: 20 },
+        { name: 'Push-up', sets: 3, time: 10 },
+    ],
+    'First Pull-Up': [
+        { name: 'Pull-up', sets: 5, time: 10 },
+        { name: 'Bicep Curl', sets: 3, time: 10 },
+    ],
+};
+
+const EXERCISE_TO_GROUP = {
+    'Push-up': 'chest',
+    'Bench Press': 'chest',
+    'Pull-up': 'back',
+    'Bent-Over Row': 'back',
+    'Bodyweight Squat': 'leg',
+    Deadlift: 'leg',
+    'Overhead Press': 'shoulder',
+    'Bicep Curl': 'arm',
+    'Tricep Dip': 'arm',
+    Plank: 'core',
+};
+
+function createUniqueId(prefix = 'item') {
+    if (typeof crypto !== 'undefined' && crypto.randomUUID) {
+        return `${prefix}-${crypto.randomUUID()}`;
+    }
+    return `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+}
+
+function cloneSectionEntries(entries) {
+    return Object.fromEntries(
+        Object.entries(entries).map(([group, list]) => [
+            group,
+            list.map((entry) => ({ ...entry })),
+        ])
+    );
+}
+
+function loadInitialSavedBuilds() {
+    try {
+        const parsed = JSON.parse(localStorage.getItem(STORAGE_KEY)) || {};
+        const cleaned = { ...parsed };
+        LEGACY_DEFAULTS.forEach((name) => {
+            delete cleaned[name];
+        });
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(cleaned));
+        return cleaned;
+    } catch {
+        return {};
+    }
+}
+
+function Planner() {
     const navigate = useNavigate();
 
+    const [savedBuilds, setSavedBuilds] = useState(loadInitialSavedBuilds);
+    const [sectionEntries, setSectionEntries] = useState(INITIAL_SECTION_ENTRIES);
+    const [regimeItems, setRegimeItems] = useState([]);
+    const [undoHistory, setUndoHistory] = useState([]);
+    const [statusMessage, setStatusMessage] = useState('');
+
+    const [catalog, setCatalog] = useState([]);
+    const [isLoadingExercises, setIsLoadingExercises] = useState(true);
+    const [fetchError, setFetchError] = useState('');
+
     useEffect(() => {
-        let storedPreBuilts = JSON.parse(localStorage.getItem("savedPreBuiltWorkouts")) || {};
-        const legacyDefaults = ["Full Body Beginner", "Push / Pull / Legs", "Upper / Lower Split"];
-        
-        legacyDefaults.forEach(def => {
-            delete storedPreBuilts[def];
+        try {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(savedBuilds));
+        } catch {
+        }
+    }, [savedBuilds]);
+
+    useEffect(() => {
+        const controller = new AbortController();
+
+        async function loadCatalog() {
+            setIsLoadingExercises(true);
+            setFetchError('');
+
+            try {
+                const mapped = await fetchExercises({ signal: controller.signal });
+                if (!controller.signal.aborted) {
+                    setCatalog(mapped);
+                }
+            } catch (err) {
+                if (err?.name === 'AbortError') return;
+                if (!controller.signal.aborted) {
+                    setFetchError(
+                        err?.message || 'Could not load live exercises; using local defaults.'
+                    );
+                }
+            } finally {
+                if (!controller.signal.aborted) {
+                    setIsLoadingExercises(false);
+                }
+            }
+        }
+
+        loadCatalog();
+
+        return () => {
+            controller.abort();
+        };
+    }, []);
+
+    const dynamicGroupMap = useMemo(() => {
+        const map = { ...EXERCISE_TO_GROUP };
+        catalog.forEach((ex) => {
+            if (ex.name && ex.muscleGroup && !map[ex.name]) {
+                map[ex.name] = ex.muscleGroup;
+            }
         });
-        
-        localStorage.setItem("savedPreBuiltWorkouts", JSON.stringify(storedPreBuilts));
+        return map;
+    }, [catalog]);
 
-        const preBuildSelect = document.getElementById('pre-buildInput');
-        function populatePreBuiltDropdown() {
-            if (!preBuildSelect) return;
-            preBuildSelect.innerHTML = '<option value="" selected disabled>Select a pre-built workout</option>';
-            
-            const currentPreBuilts = JSON.parse(localStorage.getItem("savedPreBuiltWorkouts")) || {};
-            Object.keys(currentPreBuilts).forEach(buildName => {
-                const option = document.createElement('option');
-                option.value = buildName;
-                option.textContent = buildName;
-                preBuildSelect.appendChild(option);
-            });
-        }
-        populatePreBuiltDropdown();
-
-        const sectionOptionsMap = {
-            chest: ['Push-up', 'Bench Press'],
-            back: ['Pull-up', 'Bent-Over Row'],
-            leg: ['Bodyweight Squat', 'Deadlift'],
-            shoulder: ['Overhead Press'],
-            arm: ['Bicep Curl', 'Tricep Dip'],
-            core: ['Plank']
+    const groupOptions = useMemo(() => {
+        const grouped = {
+            chest: new Set(DEFAULT_GROUP_OPTIONS.chest),
+            back: new Set(DEFAULT_GROUP_OPTIONS.back),
+            leg: new Set(DEFAULT_GROUP_OPTIONS.leg),
+            shoulder: new Set(DEFAULT_GROUP_OPTIONS.shoulder),
+            arm: new Set(DEFAULT_GROUP_OPTIONS.arm),
+            core: new Set(DEFAULT_GROUP_OPTIONS.core),
         };
 
-        const workoutBuilds = {
-            "Calisthenics": [
-                { name: "Push-up", sets: "4", time: "15" },
-                { name: "Pull-up", sets: "3", time: "12" },
-                { name: "Plank", sets: "3", time: "10" }
-            ],
-            "Bigger Back": [
-                { name: "Pull-up", sets: "4", time: "15" },
-                { name: "Bent-Over Row", sets: "4", time: "15" }
-            ],
-            "Bigger Chest": [
-                { name: "Bench Press", sets: "4", time: "20" },
-                { name: "Push-up", sets: "3", time: "10" }
-            ],
-            "First Pull-Up": [
-                { name: "Pull-up", sets: "5", time: "10" },
-                { name: "Bicep Curl", sets: "3", time: "10" }
-            ]
-        };
-
-        const exerciseMap = {
-            "Push-up": { prefix: "chest", setsInput: "chestSets", timeInput: "chestTime" },
-            "Bench Press": { prefix: "chest", setsInput: "chestSets", timeInput: "chestTime" },
-            "Pull-up": { prefix: "back", setsInput: "backSets", timeInput: "backTime" },
-            "Bent-Over Row": { prefix: "back", setsInput: "backSets", timeInput: "backTime" },
-            "Bodyweight Squat": { prefix: "leg", setsInput: "legSets", timeInput: "legTime" },
-            "Deadlift": { prefix: "leg", setsInput: "legSets", timeInput: "legTime" },
-            "Overhead Press": { prefix: "shoulder", setsInput: "shoulderSets", timeInput: "shoulderTime" },
-            "Bicep Curl": { prefix: "arm", setsInput: "armSets", timeInput: "armTime" },
-            "Tricep Dip": { prefix: "arm", setsInput: "armSets", timeInput: "armTime" },
-            "Plank": { prefix: "core", setsInput: "coreSets", timeInput: "coreTime" }
-        };
-
-        const regimeTbody = document.querySelector(".workout-regime tbody");
-        const resultsSection = document.querySelector(".Results");
-
-        if (regimeTbody) regimeTbody.innerHTML = "";
-
-        let undoHistory = [];
-
-        function saveStateSnapshot() {
-            const snapshot = {
-                muscleTables: [],
-                regimeHtml: regimeTbody ? regimeTbody.innerHTML : ""
-            };
-
-            document.querySelectorAll(".workout-input table").forEach(table => {
-                if (table.classList.contains("workout-regime")) return;
-                snapshot.muscleTables.push({
-                    tableElement: table,
-                    html: table.innerHTML
-                });
-            });
-
-            undoHistory.push(snapshot);
-        }
-
-        function getOptionsHtmlForPrefix(prefix) {
-            const options = sectionOptionsMap[prefix] || ['Workout'];
-            return options.map(opt => `<option value="${opt}">${opt}</option>`).join('');
-        }
-
-        function createEmptyRow(selectOptionsHtml) {
-            const tr = document.createElement("tr");
-            tr.innerHTML = `
-                <td>
-                    <select name="activity" aria-label="Exercise selection">
-                        ${selectOptionsHtml}
-                    </select>
-                </td>
-                <td><input type="text" name="sets" placeholder="Sets" aria-label="Sets"></td>
-                <td><input type="text" name="time" placeholder="Minutes" aria-label="Minutes"></td>
-                <td><img class="imgPlaceholder" src="/workout-placeholder.svg" alt="demonstration"></td>
-            `;
-            return tr;
-        }
-
-        function loadWorkoutBuild(buildName, isPreBuilt = false) {
-            let buildWorkouts = isPreBuilt 
-                ? (JSON.parse(localStorage.getItem("savedPreBuiltWorkouts")) || {})[buildName] 
-                : workoutBuilds[buildName];
-
-            if (!buildWorkouts) {
-                alert("Selected build not found.");
-                return;
+        catalog.forEach((ex) => {
+            if (grouped[ex.muscleGroup] && ex.name) {
+                grouped[ex.muscleGroup].add(ex.name);
             }
-
-            saveStateSnapshot();
-
-            document.querySelectorAll(".workout-input table").forEach(table => {
-                if (table.classList.contains("workout-regime")) return;
-                
-                const rows = table.querySelectorAll("tr");
-                for (let i = 2; i < rows.length; i++) {
-                    rows[i].remove();
-                }
-
-                const topInputs = rows[1]?.querySelectorAll("input[type='text']");
-                if (topInputs) {
-                    topInputs[0].value = "";
-                    topInputs[0].removeAttribute("readonly");
-                    topInputs[1].value = "";
-                    topInputs[1].removeAttribute("readonly");
-                }
-            });
-
-            const updatedTables = new Set();
-
-            buildWorkouts.forEach(item => {
-                const mapping = exerciseMap[item.name];
-                if (mapping) {
-                    const setsInput = document.querySelector(`input[name="${mapping.setsInput}"]`);
-                    const timeInput = document.querySelector(`input[name="${mapping.timeInput}"]`);
-
-                    if (setsInput && timeInput) {
-                        const table = setsInput.closest("table");
-
-                        if (table && !updatedTables.has(table)) {
-                            setsInput.value = item.sets;
-                            timeInput.value = item.time;
-                            setsInput.setAttribute("readonly", true);
-                            timeInput.setAttribute("readonly", true);
-
-                            const row = setsInput.closest("tr");
-                            const selectEl = row ? row.querySelector("select") : null;
-                            if (selectEl) selectEl.value = item.name;
-
-                            updatedTables.add(table);
-                        } else if (table) {
-                            const selectOptionsHtml = getOptionsHtmlForPrefix(mapping.prefix);
-
-                            const newRow = document.createElement("tr");
-                            newRow.innerHTML = `
-                                <td>
-                                    <select name="activity" aria-label="Exercise selection">
-                                        ${selectOptionsHtml}
-                                    </select>
-                                </td>
-                                <td><input type="text" name="sets" value="${item.sets}" aria-label="${item.name} sets" readonly></td>
-                                <td><input type="text" name="time" value="${item.time}" aria-label="${item.name} time" readonly></td>
-                                <td><img class="imgPlaceholder" src="/workout-placeholder.svg" alt="${item.name} demonstration"></td>
-                            `;
-                            table.appendChild(newRow);
-                        }
-                    }
-                }
-            });
-
-            updatedTables.forEach(table => {
-                const firstInput = table.querySelector("input[type='text']");
-                let prefix = "chest";
-                if (firstInput) {
-                    const nameAttr = firstInput.getAttribute("name") || "";
-                    prefix = nameAttr.replace("Sets", "").toLowerCase();
-                }
-                const selectOptionsHtml = getOptionsHtmlForPrefix(prefix);
-                table.appendChild(createEmptyRow(selectOptionsHtml));
-            });
-
-            if (regimeTbody) {
-                regimeTbody.innerHTML = "";
-                buildWorkouts.forEach(item => {
-                    const row = document.createElement('tr');
-                    row.innerHTML = `
-                        <td>${item.name}</td>
-                        <td>${item.sets} sets</td>
-                        <td>${item.time} minutes</td>
-                        <td><label><input type="checkbox" name="complete" class="regime-checkbox"> Complete?</label></td>
-                    `;
-                    regimeTbody.appendChild(row);
-                });
-                attachCheckboxListeners();
-            }
-
-            updateResults();
-            alert(`Loaded "${buildName}" into your workout planner and regime!`);
-        }
-
-        const preBuildAddBtn = document.getElementById("preBuildAddBtn");
-        if (preBuildAddBtn) {
-            preBuildAddBtn.onclick = () => {
-                if (!preBuildSelect || !preBuildSelect.value) {
-                    alert("Please select a pre-built workout first.");
-                    return;
-                }
-                loadWorkoutBuild(preBuildSelect.value, true);
-            };
-        }
-
-        const reccAddBtn = document.getElementById("reccAddBtn");
-        if (reccAddBtn) {
-            reccAddBtn.onclick = () => {
-                const selectElem = document.getElementById("reccInput");
-                if (!selectElem || !selectElem.value) {
-                    alert("Please select a recommended build first.");
-                    return;
-                }
-                loadWorkoutBuild(selectElem.value, false);
-            };
-        }
-
-        const startTimerBtn = document.getElementById("startTimerBtn");
-        if (startTimerBtn) {
-            startTimerBtn.onclick = () => {
-                navigate('/timer');
-            };
-        }
-
-        const addButtons = document.querySelectorAll(".workout-input .add-btn");
-        addButtons.forEach(button => {
-            button.onclick = () => {
-                const section = button.closest(".workout-input");
-                if (!section) return;
-
-                const table = section.querySelector("table");
-                if (!table) return;
-
-                const rows = table.querySelectorAll("tr");
-                const lastRow = rows[rows.length - 1];
-                if (!lastRow) return;
-
-                const selectEl = lastRow.querySelector("select");
-                const textInputs = lastRow.querySelectorAll("input[type='text']");
-                if (!selectEl || textInputs.length < 2) return;
-
-                const setsVal = textInputs[0].value.trim();
-                const timeVal = textInputs[1].value.trim();
-
-                if (!setsVal || !timeVal) {
-                    alert("Please fill out both sets and time fields in the table.");
-                    return;
-                }
-
-                saveStateSnapshot();
-
-                const exerciseName = selectEl.value;
-                textInputs[0].setAttribute("readonly", true);
-                textInputs[1].setAttribute("readonly", true);
-
-                if (regimeTbody) {
-                    const regimeRow = document.createElement("tr");
-                    regimeRow.innerHTML = `
-                        <td>${exerciseName}</td>
-                        <td>${setsVal} sets</td>
-                        <td>${timeVal} minutes</td>
-                        <td><label><input type="checkbox" name="complete" class="regime-checkbox"> Complete?</label></td>
-                    `;
-                    regimeTbody.appendChild(regimeRow);
-                    attachCheckboxListeners();
-                }
-
-                table.appendChild(createEmptyRow(selectEl.innerHTML));
-                updateResults();
-            };
         });
 
-        const backBtn = document.getElementById("backBtn");
-        if (backBtn) {
-            backBtn.onclick = () => {
-                if (undoHistory.length === 0) {
-                    alert("Nothing to undo!");
-                    return;
-                }
+        return Object.fromEntries(
+            Object.entries(grouped).map(([group, set]) => [group, Array.from(set)])
+        );
+    }, [catalog]);
 
-                const previousState = undoHistory.pop();
-                previousState.muscleTables.forEach(item => {
-                    item.tableElement.innerHTML = item.html;
-                });
+    const pushUndoSnapshot = () => {
+        setUndoHistory((prev) => [
+            ...prev,
+            {
+                sectionEntries: cloneSectionEntries(sectionEntries),
+                regimeItems: regimeItems.map((item) => ({ ...item })),
+            },
+        ]);
+    };
 
-                if (regimeTbody) {
-                    regimeTbody.innerHTML = previousState.regimeHtml;
-                    attachCheckboxListeners();
-                }
+    const handleAddExercise = ({ muscleGroup, name, sets, time }) => {
+        pushUndoSnapshot();
 
-                updateResults();
-                alert("Successfully undone last action!");
+        const newEntry = {
+            id: createUniqueId('ex'),
+            muscleGroup,
+            name,
+            sets,
+            time,
+            completed: false,
+        };
+
+        setSectionEntries((prev) => ({
+            ...prev,
+            [muscleGroup]: [...(prev[muscleGroup] || []), newEntry],
+        }));
+
+        setRegimeItems((prev) => [...prev, newEntry]);
+        setStatusMessage(`Added ${name} to your workout regime.`);
+    };
+
+    const handleLoadBuild = (buildName, isPreBuilt = false) => {
+        const workouts = isPreBuilt ? savedBuilds[buildName] : WORKOUT_BUILDS[buildName];
+        if (!Array.isArray(workouts) || workouts.length === 0) {
+            setStatusMessage(`Selected build "${buildName}" could not be loaded.`);
+            return;
+        }
+
+        pushUndoSnapshot();
+
+        const nextSections = {
+            chest: [],
+            back: [],
+            leg: [],
+            shoulder: [],
+            arm: [],
+            core: [],
+        };
+
+        const nextRegime = workouts.map((item) => {
+            const group = dynamicGroupMap[item.name] || 'chest';
+            const parsedSets = Number(item.sets) || 3;
+            const parsedTime = Number(item.time) || 10;
+            const entry = {
+                id: createUniqueId('build'),
+                muscleGroup: group,
+                name: item.name,
+                sets: parsedSets,
+                time: parsedTime,
+                completed: false,
             };
-        }
+            nextSections[group].push(entry);
+            return entry;
+        });
 
-        const saveBuildBtn = document.getElementById('saveBuildBtn');
-        if (saveBuildBtn) {
-            saveBuildBtn.onclick = () => {
-                const nameInput = document.getElementById('buildNameInput');
-                const buildName = nameInput ? nameInput.value.trim() : "";
+        setSectionEntries(nextSections);
+        setRegimeItems(nextRegime);
+        setStatusMessage(`Loaded "${buildName}" into your workout planner and regime.`);
+    };
 
-                if (!buildName) {
-                    alert("Please enter a name for your saved workout build in the input box first.");
-                    if (nameInput) nameInput.focus();
-                    return;
-                }
+    const handleToggleComplete = (itemId) => {
+        setRegimeItems((prev) =>
+            prev.map((item) =>
+                item.id === itemId ? { ...item, completed: !item.completed } : item
+            )
+        );
+    };
 
-                const regimeTable = document.getElementById('regime-table') || document.querySelector('table.workout-regime');
-                const regimeRows = regimeTable ? regimeTable.querySelectorAll('tbody tr') : document.querySelectorAll('.workout-regime tbody tr');
-                
-                const workouts = [];
+    const handleUndo = () => {
+        if (undoHistory.length === 0) return;
 
-                regimeRows.forEach(row => {
-                    const cells = row.querySelectorAll('td');
-                    if (cells.length >= 3) {
-                        const name = cells[0].textContent.trim();
-                        const setsText = cells[1].textContent;
-                        const timeText = cells[2].textContent;
+        const previous = undoHistory[undoHistory.length - 1];
+        setUndoHistory((prev) => prev.slice(0, -1));
+        setSectionEntries(previous.sectionEntries);
+        setRegimeItems(previous.regimeItems);
+        setStatusMessage('Undid last action.');
+    };
 
-                        const setsMatch = setsText.match(/(\d+)/);
-                        const timeMatch = timeText.match(/(\d+)/);
+    const handleSaveBuild = (buildName) => {
+        const snapshotWorkouts = regimeItems.map((item) => ({
+            name: item.name,
+            sets: String(item.sets),
+            time: String(item.time),
+        }));
 
-                        workouts.push({
-                            name: name || "Workout",
-                            sets: setsMatch ? setsMatch[1] : "3",
-                            time: timeMatch ? timeMatch[1] : "10"
-                        });
-                    }
-                });
+        setSavedBuilds((prev) => ({
+            ...prev,
+            [buildName]: snapshotWorkouts,
+        }));
+        setStatusMessage(`Saved "${buildName}" to your pre-built workouts.`);
+    };
 
-                if (workouts.length === 0) {
-                    alert("Your workout regime is empty! Add some workouts first.");
-                    return;
-                }
+    const summary = useMemo(() => {
+        let completedCount = 0;
+        let totalMinutes = 0;
 
-                const currentStored = JSON.parse(localStorage.getItem("savedPreBuiltWorkouts")) || {};
-                currentStored[buildName] = workouts;
-                localStorage.setItem("savedPreBuiltWorkouts", JSON.stringify(currentStored));
-
-                populatePreBuiltDropdown();
-                alert(`Successfully saved "${buildName}" to your pre-built workouts!`);
-                if (nameInput) nameInput.value = "";
-            };
-        }
-
-        function attachCheckboxListeners() {
-            const checkboxes = document.querySelectorAll(".regime-checkbox");
-            checkboxes.forEach(checkbox => {
-                checkbox.onchange = updateResults;
-            });
-        }
-
-        function updateResults() {
-            const checkboxes = document.querySelectorAll(".regime-checkbox");
-            let totalMinutes = 0;
-            let completedCount = 0;
-
-            checkboxes.forEach(cb => {
-                if (cb.checked) {
-                    completedCount++;
-                    const row = cb.closest("tr");
-                    if (row && row.cells[2]) {
-                        const timeText = row.cells[2].textContent;
-                        const match = timeText.match(/(\d+)/);
-                        const mins = match ? parseInt(match[1], 10) : 10;
-                        totalMinutes += mins;
-                    }
-                }
-            });
-
-            const caloriesBurned = totalMinutes * 8;
-
-            if (resultsSection) {
-                resultsSection.innerHTML = `
-                    <h2 class="Results">Results</h2>
-                    <p><strong>Workouts Completed:</strong> ${completedCount} / ${checkboxes.length}</p>
-                    <p><strong>Total Active Time:</strong> ${totalMinutes} minutes</p>
-                    <p><strong>Estimated Calories Burned:</strong> ${caloriesBurned} kcal</p>
-                `;
+        regimeItems.forEach((item) => {
+            if (item.completed) {
+                completedCount += 1;
+                const mins = Number(item.time);
+                totalMinutes += Number.isNaN(mins) ? 10 : mins;
             }
-        }
+        });
 
-        attachCheckboxListeners();
-    }, [navigate]);
+        return {
+            completedCount,
+            totalCount: regimeItems.length,
+            totalMinutes,
+            caloriesBurned: totalMinutes * 8,
+        };
+    }, [regimeItems]);
+
+    const savedBuildNames = useMemo(() => Object.keys(savedBuilds), [savedBuilds]);
+    const recommendedBuildNames = useMemo(() => Object.keys(WORKOUT_BUILDS), []);
 
     return (
         <>
@@ -429,17 +318,100 @@ function Planner(props) {
             </header>
 
             <main>
-                <PreBuildControls />
+                {statusMessage && (
+                    <p role="status" className="status-banner">
+                        {statusMessage}
+                    </p>
+                )}
 
-                <WorkoutSection title="Chest" id="chest-input" options={["Push-up", "Bench Press"]} namePrefix="chest" />
-                <WorkoutSection title="Back" id="back-input" options={["Pull-up", "Bent-Over Row"]} namePrefix="back" />
-                <WorkoutSection title="Leg" id="leg-input" options={["Bodyweight Squat", "Deadlift"]} namePrefix="leg" />
-                <WorkoutSection title="Shoulder" id="shoulder-input" options={["Overhead Press"]} namePrefix="shoulder" />
-                <WorkoutSection title="Arm" id="arm-input" options={["Bicep Curl", "Tricep Dip"]} namePrefix="arm" />
-                <WorkoutSection title="Core" id="core-input" options={["Plank"]} namePrefix="core" />
+                {isLoadingExercises && (
+                    <p role="status" className="status-banner">
+                        Loading exercises...
+                    </p>
+                )}
 
-                <WorkoutRegime />
-                <PlannerResults />
+                {fetchError && (
+                    <p role="alert" className="form-error">
+                        {fetchError}
+                    </p>
+                )}
+
+                <PreBuildControls
+                    savedBuildNames={savedBuildNames}
+                    recommendedBuildNames={recommendedBuildNames}
+                    onLoadBuild={handleLoadBuild}
+                />
+
+                <ExerciseCatalog
+                    catalog={catalog}
+                    isLoading={isLoadingExercises}
+                    onQuickAdd={handleAddExercise}
+                />
+
+                <WorkoutSection
+                    title="Chest"
+                    id="chest-input"
+                    options={groupOptions.chest}
+                    namePrefix="chest"
+                    addedEntries={sectionEntries.chest}
+                    onAddExercise={handleAddExercise}
+                />
+                <WorkoutSection
+                    title="Back"
+                    id="back-input"
+                    options={groupOptions.back}
+                    namePrefix="back"
+                    addedEntries={sectionEntries.back}
+                    onAddExercise={handleAddExercise}
+                />
+                <WorkoutSection
+                    title="Leg"
+                    id="leg-input"
+                    options={groupOptions.leg}
+                    namePrefix="leg"
+                    addedEntries={sectionEntries.leg}
+                    onAddExercise={handleAddExercise}
+                />
+                <WorkoutSection
+                    title="Shoulder"
+                    id="shoulder-input"
+                    options={groupOptions.shoulder}
+                    namePrefix="shoulder"
+                    addedEntries={sectionEntries.shoulder}
+                    onAddExercise={handleAddExercise}
+                />
+                <WorkoutSection
+                    title="Arm"
+                    id="arm-input"
+                    options={groupOptions.arm}
+                    namePrefix="arm"
+                    addedEntries={sectionEntries.arm}
+                    onAddExercise={handleAddExercise}
+                />
+                <WorkoutSection
+                    title="Core"
+                    id="core-input"
+                    options={groupOptions.core}
+                    namePrefix="core"
+                    addedEntries={sectionEntries.core}
+                    onAddExercise={handleAddExercise}
+                />
+
+                <WorkoutRegime
+                    items={regimeItems}
+                    canUndo={undoHistory.length > 0}
+                    onToggleComplete={handleToggleComplete}
+                    onUndo={handleUndo}
+                    onStartTimer={() => navigate('/timer')}
+                    onSaveBuild={handleSaveBuild}
+                />
+
+                <PlannerResults
+                    completedCount={summary.completedCount}
+                    totalCount={summary.totalCount}
+                    totalMinutes={summary.totalMinutes}
+                    caloriesBurned={summary.caloriesBurned}
+                />
             </main>
 
             <footer id="copyright">Copyright &copy; 2026</footer>
