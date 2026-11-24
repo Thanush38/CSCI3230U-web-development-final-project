@@ -1,5 +1,5 @@
-import { StrictMode } from 'react'
-import { createRoot } from 'react-dom/client'
+import { StrictMode } from 'react';
+import { createRoot } from 'react-dom/client';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import './index.css'
 import App from './App.jsx'
@@ -9,7 +9,6 @@ import Timer from './pages/timer/Timer.jsx';
 import Goals from './pages/goals/Goals.jsx';
 import ExerciseList from './ExerciseList.jsx';
 import ExerciseDetail from './ExerciseDetail.jsx';
-import ExerciseLoader from './ExerciseLoader.jsx';
 
 const router = createBrowserRouter([
   {
@@ -30,4 +29,4 @@ createRoot(document.getElementById('root')).render(
   <StrictMode>
     <RouterProvider router={router} />
   </StrictMode>,
-)
+);
