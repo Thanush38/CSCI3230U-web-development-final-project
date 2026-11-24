@@ -28,12 +28,12 @@ export default function Goal({goal, updateGoal, deleteGoal}) {
         <h3>{name}</h3>
         <p>{info}</p>
         <div className='progress-track'>
-            <div className='markers'>
+            <div className='markers' inert>
                 <p>{min}</p>
                 <p className='progress'>Progress: {current}</p>
                 <p>{max}</p>
             </div>
-            <meter min={min} max={max} value={current} />
+            <meter min={min} max={max} value={current} aria-label='progress tracking' />
         </div>
         <div className='buttons'>
             <button className='update' onClick={() => setEditing(!editing)}>{editing ? 'Cancel' : 'Update Goal'}</button>

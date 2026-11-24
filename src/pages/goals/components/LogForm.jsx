@@ -12,6 +12,9 @@ export default function LogForm({goal, updateGoal}) {
 
       const log = buildLog(goal, current, message)
 
+      setCurrent('')
+      setMessage('')
+
       if (log)
         updateGoal(goal.id, log)
       else

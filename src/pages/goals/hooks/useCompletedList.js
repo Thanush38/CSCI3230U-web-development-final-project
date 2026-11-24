@@ -8,10 +8,10 @@ export default function useCompletedList() {
 
   const [completedWorkouts, setCompletedWorkouts] = useState(() => {
     const completedWorkouts = localStorage.getItem('completedWorkouts')
-    return completedWorkouts ? JSON.parse(completedWorkouts) : [{id: 'EIeI8Vf'}]
+    return completedWorkouts ? JSON.parse(completedWorkouts) : []
   })
     
-  useEffect(() => { // AI modified code to prevent load bugs (copilot)
+  useEffect(() => { // AI modified code to prevent load bugs  see AI-USAGE.md #2
     const controller = new AbortController()
 
     async function loadCompletedList() {

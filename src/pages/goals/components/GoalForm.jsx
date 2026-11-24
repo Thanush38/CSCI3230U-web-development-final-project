@@ -23,6 +23,12 @@ export default function GoalForm({addGoal}) {
             end,
             current
         )
+        
+        setGoalName('')
+        setGoalInfo('')
+        setStart('0')
+        setEnd('100')
+        setCurrent('')
 
         if (goal)
             addGoal(goal)
@@ -60,7 +66,7 @@ export default function GoalForm({addGoal}) {
                 </div>
                 <div className='value-field'>
                     <label htmlFor="current">Current Value (Optional)</label>
-                    <input name='current' id="min" step='any' type="number" 
+                    <input name='current' id="current" step='any' type="number" 
                     value={current} onChange={(e) => {e.preventDefault(); setCurrent(e.target.value) }} />
                 </div>
             </div>
