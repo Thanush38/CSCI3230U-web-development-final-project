@@ -1,0 +1,29 @@
+{
+  "success": true,
+  "data": {
+    "exerciseId": "EIeI8Vf",
+    "name": "barbell bench press",
+    "bodyParts": [
+      "Chest"
+    ],
+    "equipments": [
+      "Barbell"
+    ],
+    "targetMuscles": [
+      "pectorals"
+    ],
+    "secondaryMuscles": [
+      "deltoids",
+      "triceps"
+    ],
+    "gifUrl": "https://static.exercisedb.dev/media/EIeI8Vf.gif",
+    "instructions": [
+      "Step:1 Settle onto a bench with your feet planted and your back pressed against the bench.",
+      "Step:2 Hold the barbell with palms facing down just beyond shoulder width.",
+      "Step:3 Brace the torso and align the wrists with the forearms.",
+      "Step:4 Press the weight or handles away while keeping your trunk braced.",
+      "Step:5 Keep the wrists stacked and use a shoulder path that feels natural.",
+      "Step:6 Lower the weight to its starting height under control before pressing again."
+    ]
+  }
+}

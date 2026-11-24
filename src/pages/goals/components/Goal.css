@@ -2,15 +2,19 @@
 .goal {
 
     margin: 1dvh 0;
-    padding: 10px;
+    padding: 1rem;
     width: 100%;
-    border-radius: 1rem;
+    border-radius: 10px;
 
     background-color: white;
-    border: 2px solid lightgrey;
+    border: 1px solid lightgrey;
 
     & h3 {
 
+    }
+
+    & p {
+        margin: 0.5rem 1rem;
     }
 
     & .progress-track {
@@ -40,10 +44,14 @@
 
     & .buttons {
         display: flex;
+        font-size: min(3vw, 20px);
 
         & button {
-            margin: 1rem;
+            margin: 0.5rem;
             flex: 1;
+
+            padding: 0.3rem, 0.1rem;
+            min-width: 0;
         }
 
         & .update {
@@ -55,7 +63,7 @@
         }
 
         & .delete {
-            background-color: red;
+            background-color: #dd0000;
         }
     }
 
@@ -90,8 +98,7 @@
 
     & .log-button {
         width: 100%;
-        background-color: lightgray;
-        color: gray;
+        background-color: #444;
         text-align: center;
 
     }
