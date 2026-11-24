@@ -7,6 +7,8 @@ import {
     AUTO_COMPLETE_MODE,
     SECONDS_PER_MINUTE,
 } from '../../utils/timerAutoComplete'
+import { LOCAL_EXERCISE_IDS, resolveExerciseGif, resolveExerciseDbId } from '../../utils/exerciseImages'
+import ExerciseImage from '../../ExerciseImage'
 import './Timer.css'
 
 // Demo workouts, shown only when nothing has been saved in the planner yet.
@@ -39,18 +41,19 @@ const DEMO_WORKOUTS = [
 const STORAGE_KEY = 'savedPreBuiltWorkouts'
 const DEFAULT_REST = 30
 
-// planner exercise names -> ids used for the gif files and exercise routes
-const EXERCISE_IDS = {
-    'Push-up': 'pushup',
-    'Bench Press': 'benchpress',
-    'Pull-up': 'pullup',
-    'Bent-Over Row': 'bentoverrow',
-    'Bodyweight Squat': 'bodyweightsquat',
-    'Deadlift': 'deadlift',
-    'Overhead Press': 'overheadpress',
-    'Bicep Curl': 'bicepcurl',
-    'Tricep Dip': 'tricepdips',
-    'Plank': 'plank',
+// planner exercise names -> ids used for the local gif files and exercise routes
+const EXERCISE_IDS = LOCAL_EXERCISE_IDS
+
+// Demo workouts only have ids matching the files in public/exercises; planner
+// exercises carry a resolved gif (null when there is none -> placeholder).
+function exerciseGif(exercise) {
+    return 'gif' in exercise ? exercise.gif : `/exercises/${exercise.id}.gif`
+}
+
+// Real ExerciseDB id for the detail page link and the completed history.
+// Planner exercises carry it; demo exercises are looked up by their local id.
+function exerciseDbId(exercise) {
+    return exercise.exerciseId ?? resolveExerciseDbId({ localId: exercise.id })
 }
 
 // planner stores time as total minutes for the exercise, so split it across the sets
@@ -60,6 +63,8 @@ function toExercise(item) {
     return {
         id: EXERCISE_IDS[item.name] ?? String(item.name).toLowerCase().replace(/[^a-z]/g, ''),
         name: item.name,
+        gif: resolveExerciseGif(item.name, item.gif),
+        exerciseId: resolveExerciseDbId({ name: item.name, exerciseId: item.exerciseId }),
         sets,
         work: Math.max(1, Math.round((minutes * 60) / sets)),
         rest: DEFAULT_REST,
@@ -134,6 +139,8 @@ function Timer(props) {
                 return {
                     id: EXERCISE_IDS[ex.name] ?? ex.id ?? `regime-ex-${i}`,
                     name: ex.name,
+                    gif: resolveExerciseGif(ex.name, ex.gif),
+                    exerciseId: resolveExerciseDbId({ name: ex.name, exerciseId: ex.exerciseId }),
                     sets,
                     work: Math.max(1, Math.round(totalExerciseSeconds / sets)),
                     rest: incomingDetails.restSeconds ?? DEFAULT_REST,
@@ -168,13 +175,16 @@ function Timer(props) {
         return () => clearInterval(interval)
     }, [isTicking, steps])
 
-    // add each finished workout (date + exercise ids and sets) to the history so other pages can use it
+    // add each finished workout (date + ExerciseDB ids and sets) to the history so other pages can use it.
+    // The Goals page fetches each id from ExerciseDB, so exercises without a real id are left out.
     useEffect(() => {
         if (!isDone) return
         const history = JSON.parse(localStorage.getItem('completedWorkouts')) || []
         history.push({
             date: new Date().toISOString(),
-            exercises: workout.exercises.map(e => ({ id: e.id, sets: e.sets })),
+            exercises: workout.exercises
+                .map(e => ({ id: exerciseDbId(e), sets: e.sets }))
+                .filter(e => e.id),
         })
         localStorage.setItem('completedWorkouts', JSON.stringify(history))
     }, [isDone, workout])
@@ -279,7 +289,7 @@ function Timer(props) {
                 </p>
 
                 <div className="timer-body">
-                    <img src={`/exercises/${step.exercise.id}.gif`} alt={`${step.exercise.name} demonstration`} />
+                    <ExerciseImage src={exerciseGif(step.exercise)} alt={`${step.exercise.name} demonstration`} />
 
                     <svg className="timer-ring" viewBox="0 0 200 200" role="img" aria-label={`${secondsLeft} seconds remaining`}>
                         <circle className="ring-track" cx="100" cy="100" r="90"></circle>
@@ -313,7 +323,9 @@ function Timer(props) {
                         key={`${exercise.id}-${i}`}
                         className={i === currentExercise ? 'current' : i < currentExercise ? 'finished' : ''}
                     >
-                        <Link to={`/${exercise.id}`}>{exercise.name}</Link>
+                        {exerciseDbId(exercise)
+                            ? <Link to={`/exercises/${exerciseDbId(exercise)}`}>{exercise.name}</Link>
+                            : <span>{exercise.name}</span>}
                         <span>{exercise.sets} × {exercise.work}s, {exercise.rest}s rest</span>
                     </li>
                 ))}

@@ -13,6 +13,7 @@ import {
     saveTimerDetails,
     applyThresholdAutoComplete,
 } from '../../utils/timerAutoComplete';
+import { resolveExerciseGif, resolveExerciseDbId } from '../../utils/exerciseImages';
 import './Planner.css';
 
 const LEGACY_DEFAULTS = ['Full Body Beginner', 'Push / Pull / Legs', 'Upper / Lower Split'];
@@ -189,6 +190,27 @@ function Planner() {
         return map;
     }, [catalog]);
 
+    // Exercises picked from a section dropdown or loaded from an older build
+    // only carry a name, so look their GIF / ExerciseDB id up in the catalog.
+    const catalogByName = useMemo(() => {
+        const map = {};
+        catalog.forEach((ex) => {
+            if (ex.name && !map[ex.name]) {
+                map[ex.name] = ex;
+            }
+        });
+        return map;
+    }, [catalog]);
+
+    // Fills in the image and real ExerciseDB id for a regime entry
+    const resolveExerciseMedia = ({ name, gif, exerciseId }) => {
+        const match = catalogByName[name];
+        return {
+            gif: resolveExerciseGif(name, gif ?? match?.gif),
+            exerciseId: resolveExerciseDbId({ name, exerciseId: exerciseId ?? match?.id }),
+        };
+    };
+
     const groupOptions = useMemo(() => {
         const grouped = {
             chest: new Set(DEFAULT_GROUP_OPTIONS.chest),
@@ -220,7 +242,7 @@ function Planner() {
         ]);
     };
 
-    const handleAddExercise = ({ muscleGroup, name, sets, time }) => {
+    const handleAddExercise = ({ muscleGroup, name, sets, time, gif, exerciseId }) => {
         pushUndoSnapshot();
 
         const newEntry = {
@@ -229,13 +251,17 @@ function Planner() {
             name,
             sets,
             time,
+            ...resolveExerciseMedia({ name, gif, exerciseId }),
             completed: false,
         };
 
-        setSectionEntries((prev) => ({
-            ...prev,
-            [muscleGroup]: [...(prev[muscleGroup] || []), newEntry],
-        }));
+        // Groups without a section (e.g. cardio) only go into the regime
+        if (muscleGroup in INITIAL_SECTION_ENTRIES) {
+            setSectionEntries((prev) => ({
+                ...prev,
+                [muscleGroup]: [...(prev[muscleGroup] || []), newEntry],
+            }));
+        }
 
         setRegimeItems((prev) => [...prev, newEntry]);
         setStatusMessage(`Added ${name} to your workout regime.`);
@@ -269,9 +295,12 @@ function Planner() {
                 name: item.name,
                 sets: parsedSets,
                 time: parsedTime,
+                // Builds saved before this have no gif / exerciseId fields
+                ...resolveExerciseMedia(item),
                 completed: false,
             };
-            nextSections[group].push(entry);
+            // Groups without a section (e.g. cardio) still go into the regime
+            nextSections[group]?.push(entry);
             return entry;
         });
 
@@ -303,6 +332,8 @@ function Planner() {
             name: item.name,
             sets: String(item.sets),
             time: String(item.time),
+            gif: item.gif ?? null,
+            exerciseId: item.exerciseId ?? null,
         }));
 
         setSavedBuilds((prev) => ({
@@ -371,6 +402,7 @@ function Planner() {
                 <ExerciseCatalog
                     catalog={catalog}
                     isLoading={isLoadingExercises}
+                    regimeItems={regimeItems}
                     onQuickAdd={handleAddExercise}
                 />
 

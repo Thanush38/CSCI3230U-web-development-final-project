@@ -1,5 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
+import useExerciseSearch from '../../hooks/useExerciseSearch';
+import { mapApiExercise } from '../../services/exerciseApi';
 import './ExerciseCatalog.css';
 
 const MUSCLE_GROUPS = [
@@ -12,28 +14,42 @@ const MUSCLE_GROUPS = [
     { value: 'core', label: 'Core' },
 ];
 
-function ExerciseCatalog({ catalog = [], isLoading = false, onQuickAdd }) {
+// Planner section -> category name used by useExerciseSearch (home page)
+const SEARCH_CATEGORY = {
+    all: 'all',
+    chest: 'chest',
+    back: 'back',
+    leg: 'legs',
+    shoulder: 'shoulders',
+    arm: 'arms',
+    core: 'core',
+};
+
+const PAGE_SIZE = 12;
+
+const normalizeName = (name) => String(name ?? '').trim().toLowerCase();
+
+function ExerciseCatalog({ catalog = [], isLoading = false, regimeItems = [], onQuickAdd }) {
     const [searchQuery, setSearchQuery] = useState('');
     const [selectedGroup, setSelectedGroup] = useState('all');
     const [sortBy, setSortBy] = useState('name-asc');
+    const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
 
-    const filteredExercises = useMemo(() => {
-        const normalizedQuery = searchQuery.trim().toLowerCase();
+    // Searches all of ExerciseDB server-side. With no search text and no
+    // group selected it stays idle, and we show the preloaded catalog instead.
+    const { results, status } = useExerciseSearch(
+        searchQuery,
+        SEARCH_CATEGORY[selectedGroup]
+    );
+    const isIdle = status === 'idle';
+    const isSearching = isIdle ? isLoading : status === 'loading';
 
-        const filtered = catalog.filter((exercise) => {
-            const matchesGroup =
-                selectedGroup === 'all' || exercise.muscleGroup === selectedGroup;
+    const sortedExercises = useMemo(() => {
+        const source = isIdle
+            ? catalog
+            : results.map((exercise, index) => mapApiExercise(exercise, index));
 
-            const matchesSearch =
-                !normalizedQuery ||
-                exercise.name.toLowerCase().includes(normalizedQuery) ||
-                exercise.equipment.toLowerCase().includes(normalizedQuery) ||
-                exercise.muscleGroup.toLowerCase().includes(normalizedQuery);
-
-            return matchesGroup && matchesSearch;
-        });
-
-        return [...filtered].sort((a, b) => {
+        return [...source].sort((a, b) => {
             switch (sortBy) {
                 case 'name-desc':
                     return b.name.localeCompare(a.name);
@@ -49,7 +65,16 @@ function ExerciseCatalog({ catalog = [], isLoading = false, onQuickAdd }) {
                     return a.name.localeCompare(b.name);
             }
         });
-    }, [catalog, searchQuery, selectedGroup, sortBy]);
+    }, [isIdle, catalog, results, sortBy]);
+
+    const visibleExercises = sortedExercises.slice(0, visibleCount);
+
+    // Match by name: regime entries get their own ids, and loaded builds
+    // only store names.
+    const regimeNames = useMemo(
+        () => new Set(regimeItems.map((item) => normalizeName(item.name))),
+        [regimeItems]
+    );
 
     return (
         <section className="workout-input exercise-catalog" aria-labelledby="catalog-heading">
@@ -61,9 +86,12 @@ function ExerciseCatalog({ catalog = [], isLoading = false, onQuickAdd }) {
                     <input
                         id="exercise-search"
                         type="search"
-                        placeholder="Search by name or equipment..."
+                        placeholder="Search exercises..."
                         value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
+                        onChange={(e) => {
+                            setSearchQuery(e.target.value);
+                            setVisibleCount(PAGE_SIZE);
+                        }}
                     />
                 </div>
 
@@ -72,7 +100,10 @@ function ExerciseCatalog({ catalog = [], isLoading = false, onQuickAdd }) {
                     <select
                         id="exercise-group-filter"
                         value={selectedGroup}
-                        onChange={(e) => setSelectedGroup(e.target.value)}
+                        onChange={(e) => {
+                            setSelectedGroup(e.target.value);
+                            setVisibleCount(PAGE_SIZE);
+                        }}
                     >
                         {MUSCLE_GROUPS.map((group) => (
                             <option key={group.value} value={group.value}>
@@ -97,38 +128,65 @@ function ExerciseCatalog({ catalog = [], isLoading = false, onQuickAdd }) {
                 </div>
             </div>
 
-            {!isLoading && filteredExercises.length === 0 ? (
+            {status === 'error' ? (
+                <p role="alert" className="form-error">
+                    Could not search exercises right now. Please try again.
+                </p>
+            ) : isSearching && sortedExercises.length === 0 ? (
+                <p role="status" className="empty-state">Searching exercises...</p>
+            ) : sortedExercises.length === 0 ? (
                 <p className="empty-state">No exercises match your search and filter criteria.</p>
             ) : (
-                <ul className="catalog-list">
-                    {filteredExercises.slice(0, 12).map((exercise) => (
-                        <li key={exercise.id} className="catalog-card">
-                            <div className="catalog-info">
-                                <strong>{exercise.name}</strong>
-                                <span className="catalog-meta">
-                                    {' '}
-                                    ({exercise.muscleGroup} · {exercise.equipment} · {exercise.sets} sets, {exercise.time} min)
-                                </span>
-                            </div>
-                            <div className="catalog-actions">
-                                <Link to={`/exercises/${exercise.id}`}>Details</Link>
-                                <button
-                                    type="button"
-                                    onClick={() =>
-                                        onQuickAdd?.({
-                                            muscleGroup: exercise.muscleGroup,
-                                            name: exercise.name,
-                                            sets: exercise.sets,
-                                            time: exercise.time,
-                                        })
-                                    }
-                                >
-                                    Add to Regime
-                                </button>
-                            </div>
-                        </li>
-                    ))}
-                </ul>
+                <>
+                    <p role="status" className="catalog-meta">
+                        Showing {visibleExercises.length} of {sortedExercises.length} exercises
+                    </p>
+                    <ul className="catalog-list">
+                        {visibleExercises.map((exercise) => {
+                            const isAdded = regimeNames.has(normalizeName(exercise.name));
+                            return (
+                            <li key={exercise.id} className="catalog-card">
+                                <div className="catalog-info">
+                                    <strong>{exercise.name}</strong>
+                                    <span className="catalog-meta">
+                                        {' '}
+                                        ({exercise.muscleGroup} · {exercise.equipment} · {exercise.sets} sets, {exercise.time} min)
+                                    </span>
+                                </div>
+                                <div className="catalog-actions">
+                                    <Link to={`/exercises/${exercise.id}`}>Details</Link>
+                                    <button
+                                        type="button"
+                                        className={isAdded ? 'is-added' : undefined}
+                                        onClick={() =>
+                                            onQuickAdd?.({
+                                                muscleGroup: exercise.muscleGroup,
+                                                name: exercise.name,
+                                                sets: exercise.sets,
+                                                time: exercise.time,
+                                                gif: exercise.gif,
+                                                exerciseId: exercise.id,
+                                            })
+                                        }
+                                    >
+                                        {isAdded ? 'Added ✓' : 'Add to Regime'}
+                                    </button>
+                                </div>
+                            </li>
+                            );
+                        })}
+                    </ul>
+                    {visibleCount < sortedExercises.length && (
+                        <div className="catalog-actions">
+                            <button
+                                type="button"
+                                onClick={() => setVisibleCount((count) => count + PAGE_SIZE)}
+                            >
+                                Show more
+                            </button>
+                        </div>
+                    )}
+                </>
             )}
         </section>
     );

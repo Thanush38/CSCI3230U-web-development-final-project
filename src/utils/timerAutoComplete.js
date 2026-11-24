@@ -33,6 +33,8 @@ export function buildTimerDetails(items = [], workoutTitle = 'Current Regime') {
         return {
             id: item.id ?? `regime-item-${idx}`,
             name: item.name,
+            gif: item.gif ?? null,
+            exerciseId: item.exerciseId ?? null,
             sets,
             time: mins,
             durationSeconds,
