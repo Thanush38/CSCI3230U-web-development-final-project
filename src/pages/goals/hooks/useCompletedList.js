@@ -6,7 +6,7 @@ export default function useCompletedList() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
 
-  const [completedWorkouts, setCompletedWorkouts] = useState(() => {
+  const [completedWorkouts] = useState(() => {
     const completedWorkouts = localStorage.getItem('completedWorkouts')
     return completedWorkouts ? JSON.parse(completedWorkouts) : []
   })
@@ -16,8 +16,17 @@ export default function useCompletedList() {
 
     async function loadCompletedList() {
       try {
+
+        let exercises = []
+
+        completedWorkouts.forEach(workout => {
+          exercises = exercises.concat(workout.exercises)
+        });
+
         const results = await Promise.all(
-          completedWorkouts.map(async (item) => {
+          exercises.map(async (item) => {
+            console.log(item);
+            
             const response = await fetch(`https://oss.exercisedb.dev/api/v1/exercises/${item.id}`, {
               signal: controller.signal,
             })
@@ -34,6 +43,7 @@ export default function useCompletedList() {
       } catch (error) {
         if (error.name !== 'AbortError') {
           setError(error.message)
+          console.log(error)
         }
       } finally {
         if (!controller.signal.aborted) {
