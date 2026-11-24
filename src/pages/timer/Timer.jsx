@@ -2,8 +2,8 @@ import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import './Timer.css'
 
-// Hardcoded until workouts come from the planner stored in loclstorage.
-const WORKOUTS = [
+// Demo workouts, shown only when nothing has been saved in the planner yet.
+const DEMO_WORKOUTS = [
     {
         id: 'push',
         name: 'Push Day',
@@ -27,6 +27,51 @@ const WORKOUTS = [
         ],
     },
 ]
+
+// The planner saves builds here as { [buildName]: [{ name, sets, time }] }
+const STORAGE_KEY = 'savedPreBuiltWorkouts'
+const DEFAULT_REST = 30
+
+// planner exercise names -> ids used for the gif files and exercise routes
+const EXERCISE_IDS = {
+    'Push-up': 'pushup',
+    'Bench Press': 'benchpress',
+    'Pull-up': 'pullup',
+    'Bent-Over Row': 'bentoverrow',
+    'Bodyweight Squat': 'bodyweightsquat',
+    'Deadlift': 'deadlift',
+    'Overhead Press': 'overheadpress',
+    'Bicep Curl': 'bicepcurl',
+    'Tricep Dip': 'tricepdips',
+    'Plank': 'plank',
+}
+
+// planner stores time as total minutes for the exercise, so split it across the sets
+function toExercise(item) {
+    const sets = parseInt(item.sets, 10) || 1
+    const minutes = parseInt(item.time, 10) || 1
+    return {
+        id: EXERCISE_IDS[item.name] ?? String(item.name).toLowerCase().replace(/[^a-z]/g, ''),
+        name: item.name,
+        sets,
+        work: Math.max(1, Math.round((minutes * 60) / sets)),
+        rest: DEFAULT_REST,
+    }
+}
+
+function loadSavedWorkouts() {
+    let saved
+    try {
+        saved = JSON.parse(localStorage.getItem(STORAGE_KEY))
+    } catch {
+        return []
+    }
+    if (!saved || typeof saved !== 'object') return []
+
+    return Object.entries(saved)
+        .filter(([, items]) => Array.isArray(items) && items.length > 0)
+        .map(([name, items]) => ({ id: `saved-${name}`, name, exercises: items.map(toExercise) }))
+}
 
 const RING_LENGTH = 2 * Math.PI * 90
 
@@ -61,11 +106,15 @@ function describeNext(step, nextStep) {
 }
 
 function Timer(props) {
-    const [workoutId, setWorkoutId] = useState(WORKOUTS[0].id)
+    const [savedWorkouts] = useState(loadSavedWorkouts)
+    const hasSaved = savedWorkouts.length > 0
+    const workouts = hasSaved ? savedWorkouts : DEMO_WORKOUTS
+
+    const [workoutId, setWorkoutId] = useState(workouts[0].id)
     const [position, setPosition] = useState({ index: 0, elapsed: 0 })
     const [isRunning, setIsRunning] = useState(false)
 
-    const workout = WORKOUTS.find(w => w.id === workoutId)
+    const workout = workouts.find(w => w.id === workoutId) ?? workouts[0]
     const steps = useMemo(() => buildSteps(workout.exercises), [workout])
 
     const isDone = position.index >= steps.length
@@ -82,6 +131,17 @@ function Timer(props) {
 
         return () => clearInterval(interval)
     }, [isTicking, steps])
+
+    // add each finished workout (date + exercise ids and sets) to the history so other pages can use it
+    useEffect(() => {
+        if (!isDone) return
+        const history = JSON.parse(localStorage.getItem('completedWorkouts')) || []
+        history.push({
+            date: new Date().toISOString(),
+            exercises: workout.exercises.map(e => ({ id: e.id, sets: e.sets })),
+        })
+        localStorage.setItem('completedWorkouts', JSON.stringify(history))
+    }, [isDone, workout])
 
     function handleChooseWorkout(id) {
         setWorkoutId(id)
@@ -115,8 +175,13 @@ function Timer(props) {
     return <>
         <section id="choose-workout">
             <h2>Choose a Workout</h2>
+            {!hasSaved && (
+                <p className="timer-note">
+                    No saved workouts yet. Save a build in the <Link to="/planner">Workout Planner</Link> to see it here. Showing demo workouts for now.
+                </p>
+            )}
             <div className="workout-choices">
-                {WORKOUTS.map(w => (
+                {workouts.map(w => (
                     <button
                         key={w.id}
                         type="button"
@@ -179,7 +244,7 @@ function Timer(props) {
             <ol>
                 {workout.exercises.map((exercise, i) => (
                     <li
-                        key={exercise.id}
+                        key={`${exercise.id}-${i}`}
                         className={i === currentExercise ? 'current' : i < currentExercise ? 'finished' : ''}
                     >
                         <Link to={`/${exercise.id}`}>{exercise.name}</Link>
