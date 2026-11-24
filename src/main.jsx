@@ -9,7 +9,6 @@ import Timer from './pages/timer/Timer.jsx';
 import Goals from './pages/goals/Goals.jsx';
 import ExerciseList from './ExerciseList.jsx';
 import ExerciseDetail from './ExerciseDetail.jsx';
-import ExerciseLoader from './ExerciseLoader.jsx';
 
 const router = createBrowserRouter([
   {

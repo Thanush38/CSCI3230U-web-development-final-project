@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 
 import {API, toExercise} from './exercises.js'
+import ExerciseImage from './ExerciseImage.jsx';
 import './ExerciseDetail.css';
 
 export default function ExerciseDetail() {
@@ -51,7 +52,7 @@ export default function ExerciseDetail() {
 
             <section className='detail-main'>
                 <div className='detail-image'>
-                    <img src={exercise.gif} alt={exercise.name} />
+                    <ExerciseImage src={exercise.gif} alt={exercise.name} />
                 </div>
 
                 <div className='detail-information'>
