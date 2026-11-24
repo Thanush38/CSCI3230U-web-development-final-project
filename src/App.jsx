@@ -1,7 +1,7 @@
-import { Routes, Route } from 'react-router-dom';
-import { Link, Outlet } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 
 import './App.css'
+import ExerciseLoader from './ExerciseLoader';
 
 function App() {
 
@@ -22,7 +22,7 @@ function App() {
         </nav>
       </header>
 
-      <Outlet />
+      <ExerciseLoader />
     </div>
   )
 }

@@ -16,13 +16,8 @@ const router = createBrowserRouter([
     path: "/",
     element: <App />,
     children: [
-      {
-        element: <ExerciseLoader />,
-        children: [
-          { index: true, element: <ExerciseList /> },
-          { path: 'exercises/:id', element: <ExerciseDetail /> }
-        ]
-      },
+      { index: true, element: <ExerciseList /> },
+      { path: 'exercises/:id', element: <ExerciseDetail /> },
       { path: "planner", element: <Planner /> },
       { path: "recommended", element: <Recommended /> },
       { path: "timer", element: <Timer /> },
