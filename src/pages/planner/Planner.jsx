@@ -5,7 +5,7 @@ import ExerciseCatalog from './ExerciseCatalog';
 import WorkoutSection from './WorkoutSection';
 import WorkoutRegime from './WorkoutRegime';
 import PlannerResults from './PlannerResults';
-import { fetchExercises } from '../services/exerciseApi';
+import { fetchExercises } from '../../services/exerciseApi';
 import './Planner.css';
 
 const LEGACY_DEFAULTS = ['Full Body Beginner', 'Push / Pull / Legs', 'Upper / Lower Split'];
