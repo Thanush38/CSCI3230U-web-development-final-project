@@ -6,6 +6,13 @@ import WorkoutSection from './WorkoutSection';
 import WorkoutRegime from './WorkoutRegime';
 import PlannerResults from './PlannerResults';
 import { fetchExercises } from '../../services/exerciseApi';
+import {
+    TIMER_EVENT_TICK,
+    TIMER_EVENT_AUTO_COMPLETE,
+    buildTimerDetails,
+    saveTimerDetails,
+    applyThresholdAutoComplete,
+} from '../../utils/timerAutoComplete';
 import './Planner.css';
 
 const LEGACY_DEFAULTS = ['Full Body Beginner', 'Push / Pull / Legs', 'Upper / Lower Split'];
@@ -145,6 +152,33 @@ function Planner() {
         };
     }, []);
 
+    // Listen to timer tick/threshold events and reactively auto-check matching rows
+    useEffect(() => {
+        const handleTimerProgress = (event) => {
+            const detail = event.detail || {};
+            setRegimeItems((prevItems) => {
+                const result = applyThresholdAutoComplete({
+                    items: prevItems,
+                    elapsedSeconds: detail.elapsedSeconds ?? 0,
+                    remainingSeconds: detail.secondsLeft ?? null,
+                    exerciseName: detail.exerciseName ?? null,
+                    exerciseId: detail.exerciseId ?? null,
+                    isWorkoutDone: Boolean(detail.isDone),
+                    mode: detail.mode,
+                });
+                return result.changed ? result.items : prevItems;
+            });
+        };
+
+        window.addEventListener(TIMER_EVENT_TICK, handleTimerProgress);
+        window.addEventListener(TIMER_EVENT_AUTO_COMPLETE, handleTimerProgress);
+
+        return () => {
+            window.removeEventListener(TIMER_EVENT_TICK, handleTimerProgress);
+            window.removeEventListener(TIMER_EVENT_AUTO_COMPLETE, handleTimerProgress);
+        };
+    }, []);
+
     const dynamicGroupMap = useMemo(() => {
         const map = { ...EXERCISE_TO_GROUP };
         catalog.forEach((ex) => {
@@ -278,6 +312,12 @@ function Planner() {
         setStatusMessage(`Saved "${buildName}" to your pre-built workouts.`);
     };
 
+    const handleStartTimer = () => {
+        const timerDetails = buildTimerDetails(regimeItems, 'Full Workout Regime');
+        saveTimerDetails(timerDetails);
+        navigate('/timer', { state: { timerDetails } });
+    };
+
     const summary = useMemo(() => {
         let completedCount = 0;
         let totalMinutes = 0;
@@ -402,7 +442,7 @@ function Planner() {
                     canUndo={undoHistory.length > 0}
                     onToggleComplete={handleToggleComplete}
                     onUndo={handleUndo}
-                    onStartTimer={() => navigate('/timer')}
+                    onStartTimer={handleStartTimer}
                     onSaveBuild={handleSaveBuild}
                 />
 
