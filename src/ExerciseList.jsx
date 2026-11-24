@@ -24,19 +24,25 @@ export default function ExerciseList() {
         <h1>Exercises</h1>
       
         <section id="search-section">
-        <input value={search}
+            <input 
+                type='search'
+                id='search'
+                name='search'
+                value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder="Search exercises..." />
-        <select value={category}
-            onChange={(e) => setCategory(e.target.value)}>
-            <option value="all">All</option>
-            <option value="chest">Chest</option>
-            <option value="back">Back</option>
-            <option value="legs">Legs</option>
-            <option value="shoulders">Shoulders</option>
-            <option value="arms">Arms</option>
-            <option value="core" >Core</option>
-        </select>
+            <select value={category}
+                id='muscle'
+                name='muscle'
+                onChange={(e) => setCategory(e.target.value)}>
+                <option value="all">All</option>
+                <option value="chest">Chest</option>
+                <option value="back">Back</option>
+                <option value="legs">Legs</option>
+                <option value="shoulders">Shoulders</option>
+                <option value="arms">Arms</option>
+                <option value="core" >Core</option>
+            </select>
         </section>
     </header>
 

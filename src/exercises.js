@@ -19,9 +19,12 @@ export function toExercise(exercise) {
     return {
         id: exercise.exerciseId,
         name: exercise.name,
+        bodyParts: exercise.bodyParts,
+        secondaryMuscle: (exercise.secondaryMuscles ?? []).join(", "),
+        equipment: exercise.equipments,
         muscle: (exercise.targetMuscles ?? []).join(", "),
         category: categoryMap[bodyPart] ?? bodyPart,
-        instructions: (exercise.instructions ?? []).join(" "),
+        instructions: (exercise.instructions ?? []).join("\n\n"),
         gif: exercise.gifUrl
     };
 }

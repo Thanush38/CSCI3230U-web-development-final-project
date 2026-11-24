@@ -1,12 +1,5 @@
 import { Routes, Route } from 'react-router-dom';
-import { Link } from 'react-router-dom'
-
-import ExerciseList from './ExerciseList.jsx';
-import Planner from './pages/planner/Planner.jsx';
-import Recommended from './pages/recommended/Recommended.jsx';
-import Timer from './pages/timer/Timer.jsx';
-import Goals from './pages/goals/Goals.jsx';
-import ExerciseLoader from './ExerciseLoader.jsx';
+import { Link, Outlet } from 'react-router-dom';
 
 import './App.css'
 
@@ -29,15 +22,7 @@ function App() {
         </nav>
       </header>
 
-      <Routes>
-        <Route element={<ExerciseLoader />}>
-          <Route path="/" element={<ExerciseList />} />
-          <Route path="/planner" element={<Planner />} />
-          <Route path="/recommended" element={<Recommended />} />
-          <Route path="/timer" element={<Timer />} />
-          <Route path="/goals" element={<Goals />} />
-        </Route>
-      </Routes>
+      <Outlet />
     </div>
   )
 }
