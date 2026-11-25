@@ -99,4 +99,30 @@ describe('Workout Planner', () => {
     expect(within(regimeSection).getByText('Bench Press')).toBeInTheDocument();
     expect(JSON.parse(window.localStorage.getItem('plannerRegimeItems'))).toHaveLength(1);
   });
+
+  it('clears the planner after saving a build', async () => {
+    const user = userEvent.setup();
+    renderPlanner();
+
+    const catalogHeading = await screen.findByRole('heading', { name: /exercise library/i });
+    const catalogSection = catalogHeading.closest('section');
+
+    await waitFor(() => {
+      expect(within(catalogSection).getByText('Bench Press')).toBeInTheDocument();
+    });
+
+    const addButtons = within(catalogSection).getAllByRole('button', { name: /add/i });
+    await user.click(addButtons[0]);
+
+    await user.type(screen.getByLabelText(/build name/i), 'My Build');
+    await user.click(screen.getByRole('button', { name: /save build/i }));
+
+    const regimeHeading = screen.getByRole('heading', { name: /workout regime/i });
+    const regimeSection = regimeHeading.closest('section');
+
+    expect(within(regimeSection).queryByText('Bench Press')).not.toBeInTheDocument();
+    expect(JSON.parse(window.localStorage.getItem('plannerRegimeItems'))).toEqual([]);
+    expect(JSON.parse(window.localStorage.getItem('savedPreBuiltWorkouts'))['My Build']).toHaveLength(1);
+    expect(screen.getByRole('button', { name: /undo/i })).toBeDisabled();
+  });
 });

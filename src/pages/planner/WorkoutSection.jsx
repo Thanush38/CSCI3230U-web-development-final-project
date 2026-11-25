@@ -1,8 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import ExerciseImage from '../../ExerciseImage';
+import { DEFAULT_SET_MINUTES, defaultExerciseMinutes } from '../../utils/timerAutoComplete';
 import './WorkoutSection.css';
 
-function WorkoutSection({ title, id, options = [], namePrefix, addedEntries, onAddExercise }) {
+function WorkoutSection({
+    title,
+    id,
+    options = [],
+    namePrefix,
+    addedEntries,
+    onAddExercise,
+    exerciseGifMap = {},
+}) {
     const [selectedExercise, setSelectedExercise] = useState(options[0] || '');
     const [sets, setSets] = useState('');
     const [time, setTime] = useState('');
@@ -14,10 +23,13 @@ function WorkoutSection({ title, id, options = [], namePrefix, addedEntries, onA
         }
     }, [options, selectedExercise]);
 
+    const getGifForName = (name) => exerciseGifMap?.[name] || ''; // Ai suggested this variable to be used
+
     const handleSubmit = (e) => {
         e.preventDefault();
         const parsedSets = Number(sets);
-        const parsedTime = Number(time);
+        // Blank minutes -> default of 2 minutes per set
+        const parsedTime = time.trim() === '' ? defaultExerciseMinutes(parsedSets) : Number(time);
 
         if (!selectedExercise) {
             setErrorMessage('Make sure to select an exercise.');
@@ -33,11 +45,13 @@ function WorkoutSection({ title, id, options = [], namePrefix, addedEntries, onA
         }
 
         setErrorMessage('');
+        // the idea of getgifforname was also an idea given by ai
         onAddExercise({
             muscleGroup: namePrefix,
             name: selectedExercise,
             sets: parsedSets,
             time: parsedTime,
+            gif: getGifForName(selectedExercise),
         });
         setSets('');
         setTime('');
@@ -79,8 +93,8 @@ function WorkoutSection({ title, id, options = [], namePrefix, addedEntries, onA
                                     </td>
                                     <td>
                                         <ExerciseImage
-                                            className="imgPlaceholder"
-                                            src={entry.gif}
+                                            className="imgPlaceholder" // The exercise image block was ai assited
+                                            src={entry.gif || entry.gifUrl || getGifForName(entry.name)}
                                             alt={`${entry.name} demonstration`}
                                         />
                                     </td>
@@ -119,17 +133,17 @@ function WorkoutSection({ title, id, options = [], namePrefix, addedEntries, onA
                                         min="1"
                                         step="1"
                                         name={`${namePrefix}Time`}
-                                        placeholder="Minutes"
+                                        placeholder={`Minutes (${DEFAULT_SET_MINUTES}/set)`}
                                         aria-label={`${title} time`}
                                         value={time}
                                         onChange={(e) => setTime(e.target.value)}
                                     />
                                 </td>
                                 <td>
-                                    <img
+                                    <ExerciseImage
                                         className="imgPlaceholder"
-                                        src="/workout-placeholder.svg"
-                                        alt="Workout demonstration"
+                                        src={getGifForName(selectedExercise)} // Ai assisted use for ExerciseImage tags
+                                        alt={selectedExercise ? `${selectedExercise} demonstration` : 'Workout demonstration'}
                                     />
                                 </td>
                             </tr>

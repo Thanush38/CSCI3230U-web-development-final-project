@@ -5,15 +5,20 @@ import ExerciseCatalog from './ExerciseCatalog';
 import WorkoutSection from './WorkoutSection';
 import WorkoutRegime from './WorkoutRegime';
 import PlannerResults from './PlannerResults';
-import { fetchExercises } from '../../services/exerciseApi';
-import { useLocalStorageState } from '../../hooks/useLocalStorageState';
+import { fetchExercises } from '/src/services/exerciseApi';
+import { useLocalStorageState } from '/src/hooks/useLocalStorageState';
 import {
     TIMER_EVENT_TICK,
     TIMER_EVENT_AUTO_COMPLETE,
     TIMER_EVENT_SYNC_WORKOUT,
+    INCLUDE_REST_STORAGE_KEY,
     buildTimerDetails,
     saveTimerDetails,
     applyThresholdAutoComplete,
+    calculateTotalWorkoutDuration,
+    resolveExerciseMinutes,
+    resolveSets,
+    restSecondsFor,
 } from '../../utils/timerAutoComplete';
 import { resolveExerciseGif, resolveExerciseDbId } from '../../utils/exerciseImages';
 import './Planner.css';
@@ -125,6 +130,11 @@ function Planner() {
         'plannerUndoHistory',
         []
     );
+    const [includeRest, setIncludeRest] = useLocalStorageState(
+        INCLUDE_REST_STORAGE_KEY,
+        true
+    );
+    const restSeconds = restSecondsFor(includeRest);
     const [statusMessage, setStatusMessage] = useState('');
 
     const [catalog, setCatalog] = useState([]);
@@ -259,8 +269,8 @@ function Planner() {
                         id: ex.id || createUniqueId(`sync-${index}`),
                         muscleGroup: group,
                         name: ex.name,
-                        sets: Number(ex.sets) || 3,
-                        time: Number(ex.time) || 10,
+                        sets: resolveSets(ex.sets),
+                        time: resolveExerciseMinutes(ex),
                         completed: isCompleted,
                     };
                     if (nextSections[group]) {
@@ -296,6 +306,8 @@ function Planner() {
             }
         };
 
+
+        // Ai taught me how to use timer based event listeners
         window.addEventListener(TIMER_EVENT_TICK, handleTimerProgress);
         window.addEventListener(TIMER_EVENT_AUTO_COMPLETE, handleTimerProgress);
         window.addEventListener(TIMER_EVENT_SYNC_WORKOUT, handleWorkoutSync);
@@ -304,11 +316,9 @@ function Planner() {
             window.removeEventListener(TIMER_EVENT_TICK, handleTimerProgress);
             window.removeEventListener(TIMER_EVENT_AUTO_COMPLETE, handleTimerProgress);
             window.removeEventListener(TIMER_EVENT_SYNC_WORKOUT, handleWorkoutSync);
-        };
+        }; // upto here
     }, [dynamicGroupMap, setRegimeItems, setSectionEntries]);
 
-    // Exercises picked from a section dropdown or loaded from an older build
-    // only carry a name, so look their GIF / ExerciseDB id up in the catalog.
     const catalogByName = useMemo(() => {
         const map = {};
         catalog.forEach((ex) => {
@@ -319,7 +329,22 @@ function Planner() {
         return map;
     }, [catalog]);
 
-    // Fills in the image and real ExerciseDB id for a regime entry
+    const gifByName = useMemo(() => {
+        const map = {};
+
+        Object.keys(EXERCISE_TO_GROUP).forEach((name) => {
+            map[name] = resolveExerciseGif(name, '');
+        });
+
+        catalog.forEach((ex) => {
+            if (ex.name) {
+                map[ex.name] = resolveExerciseGif(ex.name, ex.gif ?? map[ex.name] ?? '');
+            }
+        });
+
+        return map;
+    }, [catalog]);
+
     const resolveExerciseMedia = ({ name, gif, exerciseId }) => {
         const match = catalogByName[name];
         return {
@@ -366,13 +391,12 @@ function Planner() {
             id: createUniqueId('ex'),
             muscleGroup,
             name,
-            sets,
-            time,
+            sets: resolveSets(sets),
+            time: resolveExerciseMinutes({ sets, time }),
             ...resolveExerciseMedia({ name, gif, exerciseId }),
             completed: false,
         };
 
-        // Groups without a section (e.g. cardio) only go into the regime
         if (muscleGroup in INITIAL_SECTION_ENTRIES) {
             setSectionEntries((prev) => ({
                 ...prev,
@@ -404,19 +428,16 @@ function Planner() {
 
         const nextRegime = workouts.map((item) => {
             const group = dynamicGroupMap[item.name] || 'chest';
-            const parsedSets = Number(item.sets) || 3;
-            const parsedTime = Number(item.time) || 10;
             const entry = {
                 id: createUniqueId('build'),
                 muscleGroup: group,
                 name: item.name,
-                sets: parsedSets,
-                time: parsedTime,
+                sets: resolveSets(item.sets),
+                time: resolveExerciseMinutes(item),
                 // Builds saved before this have no gif / exerciseId fields
                 ...resolveExerciseMedia(item),
                 completed: false,
             };
-            // Groups without a section (e.g. cardio) still go into the regime
             nextSections[group]?.push(entry);
             return entry;
         });
@@ -457,11 +478,16 @@ function Planner() {
             ...prev,
             [buildName]: snapshotWorkouts,
         }));
-        setStatusMessage(`Saved "${buildName}" to your pre-built workouts.`);
+
+        // Start fresh so the next build can be made from an empty planner
+        setSectionEntries(INITIAL_SECTION_ENTRIES);
+        setRegimeItems([]);
+        setUndoHistory([]);
+        setStatusMessage(`Saved "${buildName}" to your pre-built workouts. Planner cleared for a new build.`);
     };
 
     const handleStartTimer = () => {
-        const timerDetails = buildTimerDetails(regimeItems, 'Full Workout Regime');
+        const timerDetails = buildTimerDetails(regimeItems, 'Full Workout Regime', restSeconds);
         saveTimerDetails(timerDetails);
         navigate('/timer', { state: { timerDetails } });
     };
@@ -473,8 +499,7 @@ function Planner() {
         regimeItems.forEach((item) => {
             if (item.completed) {
                 completedCount += 1;
-                const mins = Number(item.time);
-                totalMinutes += Number.isNaN(mins) ? 10 : mins;
+                totalMinutes += resolveExerciseMinutes(item);
             }
         });
 
@@ -485,6 +510,12 @@ function Planner() {
             caloriesBurned: totalMinutes * 8,
         };
     }, [regimeItems]);
+
+    // What the timer will run for the exercises still to do, rest included
+    const estimatedMinutes = useMemo(
+        () => calculateTotalWorkoutDuration(regimeItems, restSeconds).totalMinutes,
+        [regimeItems, restSeconds]
+    );
 
     const savedBuildNames = useMemo(() => Object.keys(savedBuilds), [savedBuilds]);
     const recommendedBuildNames = useMemo(() => Object.keys(WORKOUT_BUILDS), []);
@@ -529,6 +560,7 @@ function Planner() {
                 namePrefix="chest"
                 addedEntries={sectionEntries.chest}
                 onAddExercise={handleAddExercise}
+                exerciseGifMap={gifByName}
             />
             <WorkoutSection
                 title="Back"
@@ -537,6 +569,7 @@ function Planner() {
                 namePrefix="back"
                 addedEntries={sectionEntries.back}
                 onAddExercise={handleAddExercise}
+                exerciseGifMap={gifByName}
             />
             <WorkoutSection
                 title="Leg"
@@ -545,6 +578,7 @@ function Planner() {
                 namePrefix="leg"
                 addedEntries={sectionEntries.leg}
                 onAddExercise={handleAddExercise}
+                exerciseGifMap={gifByName}
             />
             <WorkoutSection
                 title="Shoulder"
@@ -553,6 +587,7 @@ function Planner() {
                 namePrefix="shoulder"
                 addedEntries={sectionEntries.shoulder}
                 onAddExercise={handleAddExercise}
+                exerciseGifMap={gifByName}
             />
             <WorkoutSection
                 title="Arm"
@@ -561,6 +596,7 @@ function Planner() {
                 namePrefix="arm"
                 addedEntries={sectionEntries.arm}
                 onAddExercise={handleAddExercise}
+                exerciseGifMap={gifByName}
             />
             <WorkoutSection
                 title="Core"
@@ -569,11 +605,16 @@ function Planner() {
                 namePrefix="core"
                 addedEntries={sectionEntries.core}
                 onAddExercise={handleAddExercise}
+                exerciseGifMap={gifByName}
             />
 
             <WorkoutRegime
                 items={regimeItems}
                 canUndo={undoHistory.length > 0}
+                includeRest={includeRest}
+                restMinutes={restSecondsFor(true) / 60}
+                estimatedMinutes={estimatedMinutes}
+                onToggleRest={() => setIncludeRest((prev) => !prev)}
                 onToggleComplete={handleToggleComplete}
                 onUndo={handleUndo}
                 onStartTimer={handleStartTimer}

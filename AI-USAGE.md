@@ -80,3 +80,22 @@
   ```
 
 - **What it produced & what I changed:** It went through the Planner and explained the localStorage keys it writes. Saved builds go in `savedPreBuiltWorkouts`. I wrote `loadSavedWorkouts()` and `toExercise()` in the timer to read the builds and convert them into timer steps.
+
+Kharintirasakar Ai Usage:
+I used ai mostly to give suggestions rather than writing code, however Ai did assist in a few functions, namely the functions invoveld with having checkboxes kept on to correspond with the wokrout timer. For example I asked ai for how to make the timer link and althoguh it did not write all codes it gave me starter code for the imports
+
+### #7 Using it to help with image extraction in workout planner ###
+
+- **Date:** 2026-11-25
+- **Member:** Kharintirasaskar
+- **Tool / model:** Gemini (chat.gemini.com)
+- **Files:** `src/pages/planner/WorkoutSection.jsx`, `src/pages/timer.jsx`, `src/pages/Planner.jsx`, `src/utils/timerAutoComplete.js`
+- **Prompt (verbatim): How would you use localstorage to make the status of the checkboxes and timer synced so that both the timer changes from the table and that the cheeckboxes in the table change from the timer. The second section I used ai for was for image collecting. I  used the prompt, which pathing would I need to implement and what methodeology would I use to receive the gifs. **
+
+  ```
+  How the timer can influence the workout tables chcked status and vice verse.
+  ```
+
+
+- **What it produced & what I changed:** `It produced variables names, ad the event listeners, however for the main changes themselves AI did not write it but rather explain how to do it and I implemented it. Furthermore I used ai to help with image extraction by asking it to suggest how to correclty path and receive the image files but made sure to impeemnt the main functoins itself. For example ai suggested using using the viarable gifForName and mapping it to the correct gifs which I implemented however ai helped me implement this onto the exercise image blocks. Overall the code was mostly handwritten aside from a few variables and tags which were commented on, such as ExerciseImage and Exercisegifmap but the other code was not ai generated. Ai was mainly used to learn how to implement properties rather than direclty write them in these prompts.`
+
