@@ -1,5 +1,12 @@
 import { useEffect, useMemo, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
+import {
+    loadTimerDetails,
+    TIMER_EVENT_TICK,
+    TIMER_EVENT_AUTO_COMPLETE,
+    AUTO_COMPLETE_MODE,
+    SECONDS_PER_MINUTE,
+} from '../../utils/timerAutoComplete'
 import './Timer.css'
 
 // Demo workouts, shown only when nothing has been saved in the planner yet.
@@ -106,9 +113,38 @@ function describeNext(step, nextStep) {
 }
 
 function Timer(props) {
+    const location = useLocation()
+    const incomingDetails = location.state?.timerDetails || loadTimerDetails()
+    const autoCompleteMode = incomingDetails?.autoCompleteMode || AUTO_COMPLETE_MODE
+
     const [savedWorkouts] = useState(loadSavedWorkouts)
-    const hasSaved = savedWorkouts.length > 0
-    const workouts = hasSaved ? savedWorkouts : DEMO_WORKOUTS
+    const baseWorkouts = savedWorkouts.length > 0 ? savedWorkouts : DEMO_WORKOUTS
+
+    const workouts = useMemo(() => {
+        if (!incomingDetails?.totalMinutes || !Array.isArray(incomingDetails.exercises) || incomingDetails.exercises.length === 0) {
+            return baseWorkouts
+        }
+
+        const customWorkout = {
+            id: 'planner-active-regime',
+            name: incomingDetails.workoutName || 'Planner Regime',
+            exercises: incomingDetails.exercises.map((ex, i) => {
+                const sets = Math.max(1, Number(ex.sets) || 1)
+                const totalExerciseSeconds = Math.max(1, (Number(ex.time) || 1) * SECONDS_PER_MINUTE)
+                return {
+                    id: EXERCISE_IDS[ex.name] ?? ex.id ?? `regime-ex-${i}`,
+                    name: ex.name,
+                    sets,
+                    work: Math.max(1, Math.round(totalExerciseSeconds / sets)),
+                    rest: incomingDetails.restSeconds ?? DEFAULT_REST,
+                }
+            }),
+        }
+
+        return [customWorkout, ...baseWorkouts.filter(w => w.id !== 'planner-active-regime')]
+    }, [baseWorkouts, incomingDetails])
+
+    const hasSaved = savedWorkouts.length > 0 || Boolean(incomingDetails?.exercises?.length)
 
     const [workoutId, setWorkoutId] = useState(workouts[0].id)
     const [position, setPosition] = useState({ index: 0, elapsed: 0 })
@@ -142,6 +178,36 @@ function Timer(props) {
         })
         localStorage.setItem('completedWorkouts', JSON.stringify(history))
     }, [isDone, workout])
+
+    // notify planner listener as time progresses or completes so matching table rows auto-check
+    useEffect(() => {
+        const activeStep = steps[position.index]
+        const activeExercise = activeStep?.exercise
+        const currentSecondsLeft = isDone || !activeStep ? 0 : activeStep.seconds - position.elapsed
+
+        const cumulativeExerciseElapsed = activeExercise
+            ? steps
+                .slice(0, position.index)
+                .filter(s => s.type === 'Work' && s.exercise.name === activeExercise.name)
+                .reduce((sum, s) => sum + s.seconds, 0) + (activeStep.type === 'Work' ? position.elapsed : 0)
+            : 0
+
+        const detail = {
+            workoutName: workout.name,
+            exerciseId: activeExercise?.id ?? null,
+            exerciseName: activeExercise?.name ?? null,
+            elapsedSeconds: cumulativeExerciseElapsed,
+            secondsLeft: currentSecondsLeft,
+            isDone,
+            mode: autoCompleteMode,
+        }
+
+        window.dispatchEvent(new CustomEvent(TIMER_EVENT_TICK, { detail }))
+
+        if (isDone || (activeExercise && currentSecondsLeft <= 0)) {
+            window.dispatchEvent(new CustomEvent(TIMER_EVENT_AUTO_COMPLETE, { detail }))
+        }
+    }, [position, isDone, steps, workout.name, autoCompleteMode])
 
     function handleChooseWorkout(id) {
         setWorkoutId(id)

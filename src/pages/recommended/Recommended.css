@@ -56,3 +56,41 @@ a.button {
 a.button:hover {
     background: #1d4ed8;
 }
+
+.goal-exercises {
+  padding: 0 1rem 1rem;
+}
+
+.goal-exercise-list {
+  list-style: none;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 1rem;
+}
+
+.goal-exercise-list li,
+.goal-exercise-list a {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.goal-exercise-list img {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1;
+  object-fit: contain;
+  background: #fff;
+  border-radius: 8px;
+}
+
+.goal-exercise-placeholder {
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f4f6f8;
+  border-radius: 8px;
+  color: #4b5563;
+}

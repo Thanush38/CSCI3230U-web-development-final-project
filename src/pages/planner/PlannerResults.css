@@ -106,4 +106,12 @@
     .workout-regime td {
         padding: 8px;
     }
+    .results-section p {
+        margin: 0 0 8px;
+        color: #1f2933;
+    }
+
+    .results-section p:last-child {
+        margin-bottom: 0;
+    }
 }
