@@ -1,10 +1,10 @@
 import './Badge.css'
 
-export default function Badge(props) {
+export default function Badge({name, tier}) {
 
 
     return <article className="badge">
-        <img src="/workout-placeholder.svg" />
-        <p>Example Badge</p>
+        <img src={`/badges/tier${tier}.png`} />
+        <p>{name}</p>
     </article>
 }
