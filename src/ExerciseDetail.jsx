@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { fetchExercises } from '../src/services/exerciseApi';
+import { fetchExercises } from './services/exerciseApi';
 
 function ExerciseDetail() {
     const { id } = useParams();
@@ -62,7 +62,7 @@ function ExerciseDetail() {
     if (!exercise) {
         return (
             <section className="exercise-detail">
-                <h1>Exercise Not Found</h1>
+                <h2>Exercise Not Found</h2>
                 <p>No exercise matched ID &ldquo;{id}&rdquo;.</p>
                 <Link to="/planner">Back to Planner</Link>
             </section>
@@ -82,7 +82,7 @@ function ExerciseDetail() {
                 <Link to="/planner">All Exercises</Link>
             </div>
 
-            <h1>{exercise.name}</h1>
+            <h2>{exercise.name}</h2>
             <p>
                 <strong>Muscle Group:</strong> {exercise.muscleGroup}
             </p>
@@ -93,7 +93,7 @@ function ExerciseDetail() {
                 <strong>Recommended Sets &amp; Time:</strong> {exercise.sets} sets · {exercise.time} min
             </p>
 
-            <h2>Instructions</h2>
+            <h3>Instructions</h3>
             <ol>
                 {instructions.map((step, index) => (
                     <li key={index}>{step}</li>
