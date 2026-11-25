@@ -6,6 +6,7 @@ import WorkoutSection from './WorkoutSection';
 import WorkoutRegime from './WorkoutRegime';
 import PlannerResults from './PlannerResults';
 import { fetchExercises } from '../../services/exerciseApi';
+import { useLocalStorageState } from '../../hooks/useLocalStorageState';
 import {
     TIMER_EVENT_TICK,
     TIMER_EVENT_AUTO_COMPLETE,
@@ -85,14 +86,13 @@ function cloneSectionEntries(entries) {
     );
 }
 
-function loadInitialSavedBuilds() {
+function loadInitialSavedBuilds(parsedInput) {
     try {
-        const parsed = JSON.parse(localStorage.getItem(STORAGE_KEY)) || {};
+        const parsed = parsedInput ?? (JSON.parse(localStorage.getItem(STORAGE_KEY)) || {});
         const cleaned = { ...parsed };
         LEGACY_DEFAULTS.forEach((name) => {
             delete cleaned[name];
         });
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(cleaned));
         return cleaned;
     } catch {
         return {};
@@ -102,22 +102,28 @@ function loadInitialSavedBuilds() {
 function Planner() {
     const navigate = useNavigate();
 
-    const [savedBuilds, setSavedBuilds] = useState(loadInitialSavedBuilds);
-    const [sectionEntries, setSectionEntries] = useState(INITIAL_SECTION_ENTRIES);
-    const [regimeItems, setRegimeItems] = useState([]);
-    const [undoHistory, setUndoHistory] = useState([]);
+    const [savedBuilds, setSavedBuilds] = useLocalStorageState(
+        STORAGE_KEY,
+        {},
+        loadInitialSavedBuilds
+    );
+    const [sectionEntries, setSectionEntries] = useLocalStorageState(
+        'plannerSectionEntries',
+        INITIAL_SECTION_ENTRIES
+    );
+    const [regimeItems, setRegimeItems] = useLocalStorageState(
+        'plannerRegimeItems',
+        []
+    );
+    const [undoHistory, setUndoHistory] = useLocalStorageState(
+        'plannerUndoHistory',
+        []
+    );
     const [statusMessage, setStatusMessage] = useState('');
 
     const [catalog, setCatalog] = useState([]);
     const [isLoadingExercises, setIsLoadingExercises] = useState(true);
     const [fetchError, setFetchError] = useState('');
-
-    useEffect(() => {
-        try {
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(savedBuilds));
-        } catch {
-        }
-    }, [savedBuilds]);
 
     useEffect(() => {
         const controller = new AbortController();
@@ -152,7 +158,6 @@ function Planner() {
         };
     }, []);
 
-    // Listen to timer tick/threshold events and reactively auto-check matching rows
     useEffect(() => {
         const handleTimerProgress = (event) => {
             const detail = event.detail || {};
@@ -177,7 +182,7 @@ function Planner() {
             window.removeEventListener(TIMER_EVENT_TICK, handleTimerProgress);
             window.removeEventListener(TIMER_EVENT_AUTO_COMPLETE, handleTimerProgress);
         };
-    }, []);
+    }, [setRegimeItems]);
 
     const dynamicGroupMap = useMemo(() => {
         const map = { ...EXERCISE_TO_GROUP };
@@ -342,120 +347,104 @@ function Planner() {
     const recommendedBuildNames = useMemo(() => Object.keys(WORKOUT_BUILDS), []);
 
     return (
-        <>
-            <header>
-                <a className="logo" href="homePage.html">
-                    <img src="/dumbbell.png" alt="WorkOnSite logo" />
-                    WorkOnSite
-                </a>
-                <h1 id="Title">Workout Planner</h1>
-                <nav>
-                    <a href="homePage.html">Home</a>
-                    <a href="workoutPlanner.html">Workout Planner</a>
-                    <a href="recommendedBuilds.html">Recommended Builds</a>
-                    <a href="workoutTimer.html">Workout Timer</a>
-                </nav>
-            </header>
+        <div className="planner-page">
+            {statusMessage && (
+                <p role="status" className="status-banner">
+                    {statusMessage}
+                </p>
+            )}
 
-            <main>
-                {statusMessage && (
-                    <p role="status" className="status-banner">
-                        {statusMessage}
-                    </p>
-                )}
+            {isLoadingExercises && (
+                <p role="status" className="status-banner">
+                    Loading exercises...
+                </p>
+            )}
 
-                {isLoadingExercises && (
-                    <p role="status" className="status-banner">
-                        Loading exercises...
-                    </p>
-                )}
+            {fetchError && (
+                <p role="alert" className="form-error">
+                    {fetchError}
+                </p>
+            )}
 
-                {fetchError && (
-                    <p role="alert" className="form-error">
-                        {fetchError}
-                    </p>
-                )}
+            <PreBuildControls
+                savedBuildNames={savedBuildNames}
+                recommendedBuildNames={recommendedBuildNames}
+                onLoadBuild={handleLoadBuild}
+            />
 
-                <PreBuildControls
-                    savedBuildNames={savedBuildNames}
-                    recommendedBuildNames={recommendedBuildNames}
-                    onLoadBuild={handleLoadBuild}
-                />
+            <ExerciseCatalog
+                catalog={catalog}
+                isLoading={isLoadingExercises}
+                onQuickAdd={handleAddExercise}
+            />
 
-                <ExerciseCatalog
-                    catalog={catalog}
-                    isLoading={isLoadingExercises}
-                    onQuickAdd={handleAddExercise}
-                />
+            <WorkoutSection
+                title="Chest"
+                id="chest-input"
+                options={groupOptions.chest}
+                namePrefix="chest"
+                addedEntries={sectionEntries.chest}
+                onAddExercise={handleAddExercise}
+            />
+            <WorkoutSection
+                title="Back"
+                id="back-input"
+                options={groupOptions.back}
+                namePrefix="back"
+                addedEntries={sectionEntries.back}
+                onAddExercise={handleAddExercise}
+            />
+            <WorkoutSection
+                title="Leg"
+                id="leg-input"
+                options={groupOptions.leg}
+                namePrefix="leg"
+                addedEntries={sectionEntries.leg}
+                onAddExercise={handleAddExercise}
+            />
+            <WorkoutSection
+                title="Shoulder"
+                id="shoulder-input"
+                options={groupOptions.shoulder}
+                namePrefix="shoulder"
+                addedEntries={sectionEntries.shoulder}
+                onAddExercise={handleAddExercise}
+            />
+            <WorkoutSection
+                title="Arm"
+                id="arm-input"
+                options={groupOptions.arm}
+                namePrefix="arm"
+                addedEntries={sectionEntries.arm}
+                onAddExercise={handleAddExercise}
+            />
+            <WorkoutSection
+                title="Core"
+                id="core-input"
+                options={groupOptions.core}
+                namePrefix="core"
+                addedEntries={sectionEntries.core}
+                onAddExercise={handleAddExercise}
+            />
 
-                <WorkoutSection
-                    title="Chest"
-                    id="chest-input"
-                    options={groupOptions.chest}
-                    namePrefix="chest"
-                    addedEntries={sectionEntries.chest}
-                    onAddExercise={handleAddExercise}
-                />
-                <WorkoutSection
-                    title="Back"
-                    id="back-input"
-                    options={groupOptions.back}
-                    namePrefix="back"
-                    addedEntries={sectionEntries.back}
-                    onAddExercise={handleAddExercise}
-                />
-                <WorkoutSection
-                    title="Leg"
-                    id="leg-input"
-                    options={groupOptions.leg}
-                    namePrefix="leg"
-                    addedEntries={sectionEntries.leg}
-                    onAddExercise={handleAddExercise}
-                />
-                <WorkoutSection
-                    title="Shoulder"
-                    id="shoulder-input"
-                    options={groupOptions.shoulder}
-                    namePrefix="shoulder"
-                    addedEntries={sectionEntries.shoulder}
-                    onAddExercise={handleAddExercise}
-                />
-                <WorkoutSection
-                    title="Arm"
-                    id="arm-input"
-                    options={groupOptions.arm}
-                    namePrefix="arm"
-                    addedEntries={sectionEntries.arm}
-                    onAddExercise={handleAddExercise}
-                />
-                <WorkoutSection
-                    title="Core"
-                    id="core-input"
-                    options={groupOptions.core}
-                    namePrefix="core"
-                    addedEntries={sectionEntries.core}
-                    onAddExercise={handleAddExercise}
-                />
+            <WorkoutRegime
+                items={regimeItems}
+                canUndo={undoHistory.length > 0}
+                onToggleComplete={handleToggleComplete}
+                onUndo={handleUndo}
+                onStartTimer={handleStartTimer}
+                onSaveBuild={handleSaveBuild}
+            />
 
-                <WorkoutRegime
-                    items={regimeItems}
-                    canUndo={undoHistory.length > 0}
-                    onToggleComplete={handleToggleComplete}
-                    onUndo={handleUndo}
-                    onStartTimer={handleStartTimer}
-                    onSaveBuild={handleSaveBuild}
-                />
-
-                <PlannerResults
-                    completedCount={summary.completedCount}
-                    totalCount={summary.totalCount}
-                    totalMinutes={summary.totalMinutes}
-                    caloriesBurned={summary.caloriesBurned}
-                />
-            </main>
+            <PlannerResults
+                completedCount={summary.completedCount}
+                totalCount={summary.totalCount}
+                totalMinutes={summary.totalMinutes}
+                caloriesBurned={summary.caloriesBurned}
+            />
 
             <footer id="copyright">Copyright &copy; 2026</footer>
-        </>
+        </div>
     );
 }
 

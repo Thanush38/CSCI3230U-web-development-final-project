@@ -22,31 +22,31 @@ import Tricepdips from './pages/Clickables/TricepDips.jsx';
 
 const router = createBrowserRouter([
   {
-    path: "/",
+    path: '/',
     element: <App />,
     children: [
-      { path: "", element: <Home /> },
-      { path: "planner", element: <Planner /> },
-      { path: "recommended", element: <Recommended /> },
-      { path: "timer", element: <Timer /> },
-      { path: "goals", element: <Goals /> },
-      { path: "exercises/:id", element: <ExerciseDetail /> },
-      { path: "pushup", element: <PushUp /> },
-      { path: "benchpress", element: <Benchpress /> },
-      { path: "bentoverrow", element: <Bentoverrow /> },
-      { path: "bicepcurl", element: <Bicepcurl /> },
-      { path: "bodyweightsquat", element: <Bodyweightsquat /> },
-      { path: "deadlift", element: <Deadlift /> },
-      { path: "overheadpress", element: <Overheadpress /> },
-      { path: "plank", element: <Plank /> },
-      { path: "pullup", element: <Pullup /> },
-      { path: "tricepdips", element: <Tricepdips /> }
-    ]
-  }
+      { index: true, element: <Home /> },
+      { path: 'planner', element: <Planner /> },
+      { path: 'recommended', element: <Recommended /> },
+      { path: 'timer', element: <Timer /> },
+      { path: 'goals', element: <Goals /> },
+      { path: 'exercises/:id', element: <ExerciseDetail /> },
+      { path: 'pushup', element: <PushUp /> },
+      { path: 'benchpress', element: <Benchpress /> },
+      { path: 'bentoverrow', element: <Bentoverrow /> },
+      { path: 'bicepcurl', element: <Bicepcurl /> },
+      { path: 'bodyweightsquat', element: <Bodyweightsquat /> },
+      { path: 'deadlift', element: <Deadlift /> },
+      { path: 'overheadpress', element: <Overheadpress /> },
+      { path: 'plank', element: <Plank /> },
+      { path: 'pullup', element: <Pullup /> },
+      { path: 'tricepdips', element: <Tricepdips /> },
+    ],
+  },
 ]);
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <RouterProvider router={router} />
-  </StrictMode>,
+  </StrictMode>
 );
