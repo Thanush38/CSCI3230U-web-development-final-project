@@ -142,7 +142,7 @@ function WorkoutSection({
                                 <td>
                                     <ExerciseImage
                                         className="imgPlaceholder"
-                                        src={getGifForName(selectedExercise)} // Ai assisted
+                                        src={getGifForName(selectedExercise)} // Ai assisted use for ExerciseImage tags
                                         alt={selectedExercise ? `${selectedExercise} demonstration` : 'Workout demonstration'}
                                     />
                                 </td>
