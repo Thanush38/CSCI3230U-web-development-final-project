@@ -1,9 +1,10 @@
-// Shows real ExerciseDB exercises for the selected goal, linking to each detail page.
+// AI-assisted - see AI-USAGE.md
+//shows real ExerciseDB exercises for the selected goal, linking to each detail page
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import useGoalExercises from "../useGoalExercises";
 
-// Some API GIF links point to files that don't exist. If the image fails to load, show a placeholder box instead.
+//Some API GIF links point to files that don't exist. If the image fails to load, show a placeholder box instead
 function ExerciseThumb({ src, name }) {
   const [failed, setFailed] = useState(false);
 

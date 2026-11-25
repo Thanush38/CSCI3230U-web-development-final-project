@@ -1,5 +1,5 @@
-// Recommended Builds page: pick a goal, see the build, save it to the planner,
-// and see more exercises for that goal from the API.
+//AI-assisted - see AI-USAGE.md
+//Recommended Builds page: pick a goal, see the build, save it to the planner, and see more exercises for that goal from the API.
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { builds } from "./builds";

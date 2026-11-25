@@ -1,3 +1,4 @@
+// AI-assisted - see AI-USAGE.md
 //give it a goal, and it gives back 4 real exercises from the API plus a status
 import { useEffect, useState } from "react";
 import { API, toExercise } from "../../exercises.js";
