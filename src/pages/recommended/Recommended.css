@@ -4,6 +4,69 @@
     margin-bottom: 32px;
 }
 
+/* Goal picker card - matches the .build card below it */
+#goal-section {
+    padding: 20px;
+    background: #ffffff;
+    border: 1px solid #d9e0e7;
+    border-radius: 8px;
+}
+
+.goal-field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    max-width: 320px;
+}
+
+.goal-field label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #616e7c;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.goal-field select {
+    appearance: none;
+    width: 100%;
+    padding: 10px 40px 10px 12px;
+    font: inherit;
+    font-weight: 500;
+    color: #1f2933;
+    background-color: #f8fafc;
+    /* custom chevron so it looks the same in every browser */
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%23616e7c' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: border-color 0.2s, background-color 0.2s, box-shadow 0.2s;
+}
+
+.goal-field select:hover {
+    border-color: #2563eb;
+    background-color: #ffffff;
+}
+
+.goal-field select:focus-visible {
+    outline: none;
+    border-color: #2563eb;
+    background-color: #ffffff;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.25);
+}
+
+@media (max-width: 600px) {
+    #goal-section {
+        padding: 16px;
+    }
+
+    .goal-field {
+        max-width: none;
+    }
+}
+
 .build {
     margin-bottom: 32px;
     padding: 20px;
