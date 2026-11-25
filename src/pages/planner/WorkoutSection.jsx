@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import ExerciseImage from '../../ExerciseImage';
 import './WorkoutSection.css';
 
 function WorkoutSection({ title, id, options = [], namePrefix, addedEntries, onAddExercise }) {
@@ -77,9 +78,9 @@ function WorkoutSection({ title, id, options = [], namePrefix, addedEntries, onA
                                         />
                                     </td>
                                     <td>
-                                        <img
+                                        <ExerciseImage
                                             className="imgPlaceholder"
-                                            src="/workout-placeholder.svg"
+                                            src={entry.gif}
                                             alt={`${entry.name} demonstration`}
                                         />
                                     </td>

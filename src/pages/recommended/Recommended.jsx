@@ -31,14 +31,16 @@ function Recommended() {
     <>
       <section id="goal-section">
         <h2>Choose Your Goal</h2>
-        <label htmlFor="goal">Goal</label>
-        <select id="goal" value={selectedBuild.id} onChange={handleGoalChange}>
-          {builds.map((build) => (
-            <option key={build.id} value={build.id}>
-              {build.name}
-            </option>
-          ))}
-        </select>
+        <div className="goal-field">
+          <label htmlFor="goal">Goal</label>
+          <select id="goal" value={selectedBuild.id} onChange={handleGoalChange}>
+            {builds.map((build) => (
+              <option key={build.id} value={build.id}>
+                {build.name}
+              </option>
+            ))}
+          </select>
+        </div>
       </section>
 
       <section id="build" className="build">

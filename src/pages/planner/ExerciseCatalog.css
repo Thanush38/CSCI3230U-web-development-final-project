@@ -91,6 +91,17 @@
     border-color: #1d4ed8;
 }
 
+/* Exercise is already in the current regime */
+.catalog-actions button.is-added {
+    background-color: #15803d;
+    border-color: #15803d;
+}
+
+.catalog-actions button.is-added:hover {
+    background-color: #166534;
+    border-color: #166534;
+}
+
 .empty-state {
     margin: 8px 0;
     color: #475569;

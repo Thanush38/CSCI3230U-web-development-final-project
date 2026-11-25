@@ -1,6 +1,9 @@
 
 #goals {
     display: block;
+    
+    margin: 0 auto;
+    max-width: 950px;
 
     & h2 {
         font-size: 2rem;

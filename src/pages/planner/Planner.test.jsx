@@ -52,9 +52,30 @@ describe('Workout Planner', () => {
       expect(within(catalogSection).getByText('Pull-Up')).toBeInTheDocument();
     });
 
+    // Picking a muscle group searches ExerciseDB server-side (useExerciseSearch).
+    const fetchSpy = vi.spyOn(globalThis, 'fetch').mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        data: [
+          {
+            exerciseId: '2',
+            name: 'Pull-Up',
+            bodyParts: ['back'],
+            equipments: ['body weight'],
+            targetMuscles: ['lats'],
+          },
+        ],
+        meta: { hasNextPage: false },
+      }),
+    });
+
     await user.selectOptions(screen.getByLabelText(/muscle group/i), 'back');
 
-    expect(within(catalogSection).getByText('Pull-Up')).toBeInTheDocument();
+    expect(await within(catalogSection).findByText('Pull-Up')).toBeInTheDocument();
+    expect(fetchSpy).toHaveBeenCalledWith(
+      expect.stringContaining('bodyParts=back'),
+      expect.anything()
+    );
     expect(within(catalogSection).queryByText('Bench Press')).not.toBeInTheDocument();
   });
 
