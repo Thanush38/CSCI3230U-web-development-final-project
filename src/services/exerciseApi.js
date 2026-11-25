@@ -7,19 +7,29 @@ export const DEFAULT_MINUTES = 10;
 const GROUP_ALIASES = {
     chest: 'chest',
     pectorals: 'chest',
+    pecs: 'chest',
+
     back: 'back',
     lats: 'back',
     'upper back': 'back',
+    'lower back': 'back',
+    traps: 'back',
+
     legs: 'leg',
     leg: 'leg',
     'upper legs': 'leg',
     'lower legs': 'leg',
     quads: 'leg',
+    quadriceps: 'leg',
     hamstrings: 'leg',
+    glutes: 'leg',
     calves: 'leg',
+
     shoulders: 'shoulder',
     shoulder: 'shoulder',
     delts: 'shoulder',
+    deltoids: 'shoulder',
+
     arms: 'arm',
     arm: 'arm',
     'upper arms': 'arm',
@@ -27,34 +37,48 @@ const GROUP_ALIASES = {
     biceps: 'arm',
     triceps: 'arm',
     forearms: 'arm',
+
     core: 'core',
     abs: 'core',
+    abdominals: 'core',
     waist: 'core',
 };
+
+// ExerciseDB returns arrays (bodyParts, equipments); older shapes used strings.
+function firstString(value) {
+    const list = Array.isArray(value) ? value : [value];
+    const found = list.find((v) => typeof v === 'string' && v.trim());
+    return found ? found.trim() : '';
+}
+
+function joinStrings(value) {
+    const list = (Array.isArray(value) ? value : [value])
+        .filter((v) => typeof v === 'string' && v.trim())
+        .map((v) => v.trim());
+    return list.length > 0 ? list.join(', ') : '';
+}
 
 // Returns one of the six planner sections when the name is recognised.
 // Anything else (e.g. ExerciseDB's "cardio" or "neck") keeps its own name,
 // so it can still be added to the regime instead of being mislabelled.
 export function normalizeMuscleGroup(rawGroup) {
-    if (!rawGroup || typeof rawGroup !== 'string') return 'other';
-    const cleaned = rawGroup.trim().toLowerCase();
-    return GROUP_ALIASES[cleaned] || cleaned || 'other';
-}
+    const text = firstString(rawGroup).toLowerCase();
+    if (!text) return 'other';
 
-// ExerciseDB returns arrays (bodyParts, equipments); older shapes used strings.
-function firstString(value) {
-    const list = Array.isArray(value) ? value : [value];
-    return list.find((v) => typeof v === 'string' && v.trim()) ?? null;
-}
+    if (GROUP_ALIASES[text]) return GROUP_ALIASES[text];
 
-function joinStrings(value) {
-    const list = (Array.isArray(value) ? value : [value])
-        .filter((v) => typeof v === 'string' && v.trim());
-    return list.length > 0 ? list.join(', ') : null;
+    if (text.includes('chest') || text.includes('pector')) return 'chest';
+    if (text.includes('back') || text.includes('lat') || text.includes('trap')) return 'back';
+    if (text.includes('leg') || text.includes('quad') || text.includes('hamstring') || text.includes('glute') || text.includes('calf')) return 'leg';
+    if (text.includes('shoulder') || text.includes('delt')) return 'shoulder';
+    if (text.includes('arm') || text.includes('bicep') || text.includes('tricep') || text.includes('forearm')) return 'arm';
+    if (text.includes('core') || text.includes('waist') || text.includes('abs') || text.includes('abdom')) return 'core';
+
+    return text;
 }
 
 export function mapApiExercise(raw, index = 0) {
-    const rawName = raw?.name || raw?.title || `Exercise ${index + 1}`;
+    const rawName = firstString(raw?.name) || firstString(raw?.title) || `Exercise ${index + 1}`;
     const rawGroup =
         firstString(raw?.muscleGroup) ||
         firstString(raw?.bodyParts) ||
@@ -75,7 +99,7 @@ export function mapApiExercise(raw, index = 0) {
 
     return {
         id: String(raw?.id ?? raw?.exerciseId ?? `api-ex-${index}`),
-        name: String(rawName).trim(),
+        name: rawName,
         muscleGroup: normalizeMuscleGroup(rawGroup),
         sets: Number.isInteger(Number(raw?.sets)) && Number(raw?.sets) > 0
             ? Number(raw?.sets)

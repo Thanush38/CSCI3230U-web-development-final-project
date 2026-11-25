@@ -44,17 +44,17 @@ function WorkoutSection({ title, id, options = [], namePrefix, addedEntries, onA
     };
 
     return (
-        <section className="workout-input">
+        <section className="workout-input" aria-labelledby={id}>
             <h2 id={id}>{title}</h2>
             <form onSubmit={handleSubmit} noValidate>
                 <div>
                     <table>
                         <thead>
                             <tr>
-                                <th>Workout</th>
-                                <th>Total Work Outs</th>
-                                <th>Time?</th>
-                                <th></th>
+                                <th scope="col">Workout</th>
+                                <th scope="col">Total Work Outs</th>
+                                <th scope="col">Time?</th>
+                                <th scope="col"><span className="visually-hidden">Preview</span></th>
                             </tr>
                         </thead>
                         <tbody>

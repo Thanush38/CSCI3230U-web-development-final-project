@@ -3,6 +3,7 @@ import { useState } from 'react';
 import ExerciseCard from './ExerciseCard.jsx';
 import useExerciseSearch from './hooks/useExerciseSearch.js';
 import { highlights } from './highlights.js';
+import { useFavouriteStore } from '../stores/favourites.js';
 import './pages/home/Home.css'
 
 const MUSCLE_GROUPS = [
@@ -12,16 +13,19 @@ const MUSCLE_GROUPS = [
     { value: 'legs', label: 'Legs' },
     { value: 'shoulders', label: 'Shoulders' },
     { value: 'arms', label: 'Arms' },
-    { value: 'core', label: 'Core' }
+    { value: 'core', label: 'Core' },
+    { value: 'favourites', label: 'Favourites'}
 ];
 
 export default function ExerciseList() {
     const [search, setSearch] = useState('');
     const [category, setCategory] = useState('all');
-
     const { results, status } = useExerciseSearch(search, category);
+
+    const favourites = useFavouriteStore((state) => state.saved);
     const loadStatus = status === 'idle' ? 'ok' : status;
-    const visible = status === 'idle' ? highlights : results;
+
+    const visible = category === 'favourites' ? favourites.filter((e) => e.name.toLowerCase().includes(search.toLowerCase())) : status === 'idle' ? highlights : results;
 
   return (
     <>
@@ -68,11 +72,11 @@ export default function ExerciseList() {
         </section>
     </header>
 
-    {loadStatus === 'loading' && <p>Loading exercises...</p>}
-    {loadStatus === 'error' && <p>Could not load exercises.</p>}
+    {category !== 'favourites' && loadStatus === 'loading' && <p>Loading exercises...</p>}
+    {category !== 'favourites' && loadStatus === 'error' && <p>Could not load exercises.</p>}
 
     <section id="browse-group" className="exercise-grid">
-        {loadStatus === 'ok' && (
+        {(category === 'favourites' || loadStatus === 'ok') && (
             visible.length === 0
                 ? <p className="empty">No matches</p>
                 : visible.map((e) => (

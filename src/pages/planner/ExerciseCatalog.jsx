@@ -50,19 +50,22 @@ function ExerciseCatalog({ catalog = [], isLoading = false, regimeItems = [], on
             : results.map((exercise, index) => mapApiExercise(exercise, index));
 
         return [...source].sort((a, b) => {
+            const groupA = String(a?.muscleGroup ?? '');
+            const groupB = String(b?.muscleGroup ?? '');
+
             switch (sortBy) {
                 case 'name-desc':
-                    return b.name.localeCompare(a.name);
+                    return String(b?.name ?? '').localeCompare(String(a?.name ?? ''));
                 case 'group-asc':
                     return (
-                        a.muscleGroup.localeCompare(b.muscleGroup) ||
-                        a.name.localeCompare(b.name)
+                        groupA.localeCompare(groupB) ||
+                        String(a?.name ?? '').localeCompare(String(b?.name ?? ''))
                     );
                 case 'time-asc':
-                    return a.time - b.time;
+                    return (Number(a?.time) || 0) - (Number(b?.time) || 0);
                 case 'name-asc':
                 default:
-                    return a.name.localeCompare(b.name);
+                    return String(a?.name ?? '').localeCompare(String(b?.name ?? ''));
             }
         });
     }, [isIdle, catalog, results, sortBy]);
