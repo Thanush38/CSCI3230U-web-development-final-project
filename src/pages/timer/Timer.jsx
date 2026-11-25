@@ -1,9 +1,10 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import {
     loadTimerDetails,
     TIMER_EVENT_TICK,
     TIMER_EVENT_AUTO_COMPLETE,
+    TIMER_EVENT_SYNC_WORKOUT,
     AUTO_COMPLETE_MODE,
     SECONDS_PER_MINUTE,
 } from '../../utils/timerAutoComplete'
@@ -37,6 +38,8 @@ const DEMO_WORKOUTS = [
 
 // The planner saves builds here as { [buildName]: [{ name, sets, time }] }
 const STORAGE_KEY = 'savedPreBuiltWorkouts'
+const REGIME_STORAGE_KEY = 'plannerRegimeItems'
+const SECTIONS_STORAGE_KEY = 'plannerSectionEntries'
 const DEFAULT_REST = 30
 
 // planner exercise names -> ids used for the gif files and exercise routes
@@ -53,12 +56,92 @@ const EXERCISE_IDS = {
     'Plank': 'plank',
 }
 
+const EXERCISE_TO_GROUP = {
+    'Push-up': 'chest',
+    'Bench Press': 'chest',
+    'Pull-up': 'back',
+    'Bent-Over Row': 'back',
+    'Bodyweight Squat': 'leg',
+    Deadlift: 'leg',
+    'Overhead Press': 'shoulder',
+    'Bicep Curl': 'arm',
+    'Tricep Dip': 'arm',
+    Plank: 'core',
+}
+
+function normalizeName(name) {
+    return String(name || '').trim().toLowerCase()
+}
+
+function markExerciseCompletedInStorage({ exerciseId, exerciseName }) {
+    try {
+        const raw = localStorage.getItem(REGIME_STORAGE_KEY)
+        const items = raw ? JSON.parse(raw) : []
+        if (!Array.isArray(items) || items.length === 0) return
+
+        const targetNorm = normalizeName(exerciseName)
+        let changed = false
+
+        const updated = items.map((item) => {
+            const idMatch = exerciseId && String(item.id) === String(exerciseId)
+            const nameMatch = targetNorm && normalizeName(item.name) === targetNorm
+            if ((idMatch || nameMatch) && !item.completed) {
+                changed = true
+                return { ...item, completed: true }
+            }
+            return item
+        })
+
+        if (changed) {
+            localStorage.setItem(REGIME_STORAGE_KEY, JSON.stringify(updated))
+        }
+    } catch {
+        // Ignore storage errors
+    }
+}
+
+function syncWorkoutToStorage(targetWorkout, completedNames = []) {
+    if (!targetWorkout || !Array.isArray(targetWorkout.exercises)) return
+    try {
+        const completedSet = new Set(completedNames.map(normalizeName))
+        const emptySections = {
+            chest: [],
+            back: [],
+            leg: [],
+            shoulder: [],
+            arm: [],
+            core: [],
+        }
+
+        const nextRegime = targetWorkout.exercises.map((ex, idx) => {
+            const group = EXERCISE_TO_GROUP[ex.name] || 'chest'
+            const minutes = Math.max(1, Math.round(((ex.work || 30) * (ex.sets || 1)) / SECONDS_PER_MINUTE))
+            const entry = {
+                id: ex.regimeItemId || ex.id || `timer-${idx}-${Date.now()}`,
+                muscleGroup: group,
+                name: ex.name,
+                sets: Number(ex.sets) || 3,
+                time: minutes,
+                completed: completedSet.has(normalizeName(ex.name)),
+            }
+            emptySections[group].push(entry)
+            return entry
+        })
+
+        localStorage.setItem(REGIME_STORAGE_KEY, JSON.stringify(nextRegime))
+        localStorage.setItem(SECTIONS_STORAGE_KEY, JSON.stringify(emptySections))
+    } catch {
+        // Ignore storage errors
+    }
+}
+
 // planner stores time as total minutes for the exercise, so split it across the sets
 function toExercise(item) {
     const sets = parseInt(item.sets, 10) || 1
     const minutes = parseInt(item.time, 10) || 1
     return {
         id: EXERCISE_IDS[item.name] ?? String(item.name).toLowerCase().replace(/[^a-z]/g, ''),
+        regimeItemId: item.id ?? null,
         name: item.name,
         sets,
         work: Math.max(1, Math.round((minutes * 60) / sets)),
@@ -133,6 +216,7 @@ function Timer(props) {
                 const totalExerciseSeconds = Math.max(1, (Number(ex.time) || 1) * SECONDS_PER_MINUTE)
                 return {
                     id: EXERCISE_IDS[ex.name] ?? ex.id ?? `regime-ex-${i}`,
+                    regimeItemId: ex.id ?? null,
                     name: ex.name,
                     sets,
                     work: Math.max(1, Math.round(totalExerciseSeconds / sets)),
@@ -152,6 +236,7 @@ function Timer(props) {
 
     const workout = workouts.find(w => w.id === workoutId) ?? workouts[0]
     const steps = useMemo(() => buildSteps(workout.exercises), [workout])
+    const prevIndexRef = useRef(0)
 
     const isDone = position.index >= steps.length
     const isTicking = isRunning && !isDone
@@ -179,8 +264,9 @@ function Timer(props) {
         localStorage.setItem('completedWorkouts', JSON.stringify(history))
     }, [isDone, workout])
 
-    // notify planner listener as time progresses or completes so matching table rows auto-check
+    // notify planner listener and persist completion as exercises finish or the full workout ends
     useEffect(() => {
+        const previousStep = steps[prevIndexRef.current]
         const activeStep = steps[position.index]
         const activeExercise = activeStep?.exercise
         const currentSecondsLeft = isDone || !activeStep ? 0 : activeStep.seconds - position.elapsed
@@ -194,7 +280,7 @@ function Timer(props) {
 
         const detail = {
             workoutName: workout.name,
-            exerciseId: activeExercise?.id ?? null,
+            exerciseId: activeExercise?.regimeItemId ?? activeExercise?.id ?? null,
             exerciseName: activeExercise?.name ?? null,
             elapsedSeconds: cumulativeExerciseElapsed,
             secondsLeft: currentSecondsLeft,
@@ -204,15 +290,70 @@ function Timer(props) {
 
         window.dispatchEvent(new CustomEvent(TIMER_EVENT_TICK, { detail }))
 
-        if (isDone || (activeExercise && currentSecondsLeft <= 0)) {
-            window.dispatchEvent(new CustomEvent(TIMER_EVENT_AUTO_COMPLETE, { detail }))
+        const completedWorkStep =
+            previousStep?.type === 'Work' &&
+            position.index > prevIndexRef.current &&
+            previousStep.set === previousStep.exercise.sets
+
+        if (isDone) {
+            workout.exercises.forEach((ex) => {
+                markExerciseCompletedInStorage({
+                    exerciseId: ex.regimeItemId ?? ex.id ?? null,
+                    exerciseName: ex.name,
+                })
+            })
+            window.dispatchEvent(
+                new CustomEvent(TIMER_EVENT_AUTO_COMPLETE, {
+                    detail: { ...detail, isDone: true },
+                })
+            )
+        } else if (completedWorkStep) {
+            const completedExercise = previousStep.exercise
+            const completedDetail = {
+                ...detail,
+                exerciseId: completedExercise?.regimeItemId ?? completedExercise?.id ?? null,
+                exerciseName: completedExercise?.name ?? null,
+                elapsedSeconds: Math.max(1, (completedExercise?.work ?? 30) * (completedExercise?.sets ?? 1)),
+                secondsLeft: 0,
+            }
+            markExerciseCompletedInStorage({
+                exerciseId: completedDetail.exerciseId,
+                exerciseName: completedDetail.exerciseName,
+            })
+            window.dispatchEvent(new CustomEvent(TIMER_EVENT_AUTO_COMPLETE, { detail: completedDetail }))
         }
-    }, [position, isDone, steps, workout.name, autoCompleteMode])
+
+        prevIndexRef.current = position.index
+    }, [position, isDone, steps, workout, autoCompleteMode])
+
+    function dispatchWorkoutSync(targetWorkout, completedExerciseNames = []) {
+        if (!targetWorkout) return
+        syncWorkoutToStorage(targetWorkout, completedExerciseNames)
+        window.dispatchEvent(
+            new CustomEvent(TIMER_EVENT_SYNC_WORKOUT, {
+                detail: {
+                    workoutId: targetWorkout.id,
+                    workoutName: targetWorkout.name,
+                    completedExerciseNames,
+                    exercises: targetWorkout.exercises.map((ex, idx) => ({
+                        id: ex.regimeItemId ?? ex.id ?? `timer-ex-${idx}`,
+                        name: ex.name,
+                        sets: ex.sets,
+                        time: Math.max(1, Math.round(((ex.work || 30) * (ex.sets || 1)) / SECONDS_PER_MINUTE)),
+                        completed: completedExerciseNames.includes(ex.name),
+                    })),
+                },
+            })
+        )
+    }
 
     function handleChooseWorkout(id) {
+        const nextWorkout = workouts.find(w => w.id === id) ?? workouts[0]
+        prevIndexRef.current = 0
         setWorkoutId(id)
         setPosition({ index: 0, elapsed: 0 })
         setIsRunning(false)
+        dispatchWorkoutSync(nextWorkout, [])
     }
 
     function handleToggle() {
@@ -220,15 +361,38 @@ function Timer(props) {
     }
 
     function handleSkip() {
+        const currentStep = steps[position.index]
+        const skippedExercise = currentStep?.type === 'Work' ? currentStep.exercise : null
+
+        if (skippedExercise) {
+            const skipDetail = {
+                workoutName: workout.name,
+                exerciseId: skippedExercise.regimeItemId ?? skippedExercise.id ?? null,
+                exerciseName: skippedExercise.name,
+                elapsedSeconds: Math.max(1, (skippedExercise.work || 30) * (skippedExercise.sets || 1)),
+                secondsLeft: 0,
+                isDone: false,
+                skipped: true,
+                mode: autoCompleteMode,
+            }
+            markExerciseCompletedInStorage({
+                exerciseId: skipDetail.exerciseId,
+                exerciseName: skipDetail.exerciseName,
+            })
+            window.dispatchEvent(new CustomEvent(TIMER_EVENT_AUTO_COMPLETE, { detail: skipDetail }))
+        }
+
         setPosition(p => ({ index: p.index + 1, elapsed: 0 }))
     }
 
     function handleStop() {
+        prevIndexRef.current = 0
         setPosition({ index: 0, elapsed: 0 })
         setIsRunning(false)
     }
 
     function handleRestart() {
+        prevIndexRef.current = 0
         setPosition({ index: 0, elapsed: 0 })
         setIsRunning(true)
     }

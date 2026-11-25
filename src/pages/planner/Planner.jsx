@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import PreBuildControls from './PreBuildControls';
 import ExerciseCatalog from './ExerciseCatalog';
@@ -10,6 +10,7 @@ import { useLocalStorageState } from '../../hooks/useLocalStorageState';
 import {
     TIMER_EVENT_TICK,
     TIMER_EVENT_AUTO_COMPLETE,
+    TIMER_EVENT_SYNC_WORKOUT,
     buildTimerDetails,
     saveTimerDetails,
     applyThresholdAutoComplete,
@@ -125,6 +126,47 @@ function Planner() {
     const [isLoadingExercises, setIsLoadingExercises] = useState(true);
     const [fetchError, setFetchError] = useState('');
 
+    const refreshFromStorage = useCallback(() => {
+        try {
+            const rawRegime = localStorage.getItem('plannerRegimeItems');
+            if (rawRegime) {
+                const parsedRegime = JSON.parse(rawRegime);
+                if (Array.isArray(parsedRegime)) {
+                    setRegimeItems(parsedRegime);
+                }
+            }
+
+            const rawSections = localStorage.getItem('plannerSectionEntries');
+            if (rawSections) {
+                const parsedSections = JSON.parse(rawSections);
+                if (parsedSections && typeof parsedSections === 'object') {
+                    setSectionEntries({
+                        ...INITIAL_SECTION_ENTRIES,
+                        ...parsedSections,
+                    });
+                }
+            }
+        } catch {
+            // Ignore malformed storage data
+        }
+    }, [setRegimeItems, setSectionEntries]);
+
+    useEffect(() => {
+        const handleVisibilityOrFocus = () => {
+            if (document.visibilityState === 'visible') {
+                refreshFromStorage();
+            }
+        };
+
+        window.addEventListener('focus', refreshFromStorage);
+        document.addEventListener('visibilitychange', handleVisibilityOrFocus);
+
+        return () => {
+            window.removeEventListener('focus', refreshFromStorage);
+            document.removeEventListener('visibilitychange', handleVisibilityOrFocus);
+        };
+    }, [refreshFromStorage]);
+
     useEffect(() => {
         const controller = new AbortController();
 
@@ -158,6 +200,16 @@ function Planner() {
         };
     }, []);
 
+    const dynamicGroupMap = useMemo(() => {
+        const map = { ...EXERCISE_TO_GROUP };
+        catalog.forEach((ex) => {
+            if (ex.name && ex.muscleGroup && !map[ex.name]) {
+                map[ex.name] = ex.muscleGroup;
+            }
+        });
+        return map;
+    }, [catalog]);
+
     useEffect(() => {
         const handleTimerProgress = (event) => {
             const detail = event.detail || {};
@@ -175,24 +227,56 @@ function Planner() {
             });
         };
 
+        const handleWorkoutSync = (event) => {
+            const detail = event.detail || {};
+            if (!Array.isArray(detail.exercises)) return;
+
+            const nextSections = {
+                chest: [],
+                back: [],
+                leg: [],
+                shoulder: [],
+                arm: [],
+                core: [],
+            };
+
+            const completedSet = new Set(
+                (detail.completedExerciseNames || []).map((n) => String(n).toLowerCase())
+            );
+
+            const syncedItems = detail.exercises.map((ex, index) => {
+                const group = dynamicGroupMap[ex.name] || 'chest';
+                const entry = {
+                    id: ex.id || createUniqueId(`sync-${index}`),
+                    muscleGroup: group,
+                    name: ex.name,
+                    sets: Number(ex.sets) || 3,
+                    time: Number(ex.time) || 10,
+                    completed: Boolean(ex.completed) || completedSet.has(String(ex.name).toLowerCase()),
+                };
+                if (nextSections[group]) {
+                    nextSections[group].push(entry);
+                }
+                return entry;
+            });
+
+            setSectionEntries(nextSections);
+            setRegimeItems(syncedItems);
+            if (detail.workoutName) {
+                setStatusMessage(`Synced regime with "${detail.workoutName}".`);
+            }
+        };
+
         window.addEventListener(TIMER_EVENT_TICK, handleTimerProgress);
         window.addEventListener(TIMER_EVENT_AUTO_COMPLETE, handleTimerProgress);
+        window.addEventListener(TIMER_EVENT_SYNC_WORKOUT, handleWorkoutSync);
 
         return () => {
             window.removeEventListener(TIMER_EVENT_TICK, handleTimerProgress);
             window.removeEventListener(TIMER_EVENT_AUTO_COMPLETE, handleTimerProgress);
+            window.removeEventListener(TIMER_EVENT_SYNC_WORKOUT, handleWorkoutSync);
         };
-    }, [setRegimeItems]);
-
-    const dynamicGroupMap = useMemo(() => {
-        const map = { ...EXERCISE_TO_GROUP };
-        catalog.forEach((ex) => {
-            if (ex.name && ex.muscleGroup && !map[ex.name]) {
-                map[ex.name] = ex.muscleGroup;
-            }
-        });
-        return map;
-    }, [catalog]);
+    }, [dynamicGroupMap, setRegimeItems, setSectionEntries]);
 
     const groupOptions = useMemo(() => {
         const grouped = {

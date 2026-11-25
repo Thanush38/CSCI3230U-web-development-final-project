@@ -3,14 +3,20 @@ export const SAVED_WORKOUTS_STORAGE_KEY = 'savedPreBuiltWorkouts';
 export const TIMER_HANDOFF_STORAGE_KEY = 'activeTimerDetails';
 export const TIMER_EVENT_TICK = 'workout-timer:tick';
 export const TIMER_EVENT_AUTO_COMPLETE = 'workout-timer:auto-complete';
+export const TIMER_EVENT_SYNC_WORKOUT = 'workout-timer:sync-workout';
 
 export const DEFAULT_EXERCISE_MINUTES = 5;
 export const SECONDS_PER_MINUTE = 60;
 export const DEFAULT_REST_SECONDS = 30;
 export const AUTO_COMPLETE_MODE = 'elapsed-threshold'; // 'elapsed-threshold' | 'remaining-threshold'
 
+export function getActiveTimerItems(items = []) {
+    return items.filter((item) => !Boolean(item?.completed));
+}
+
 export function calculateTotalWorkoutDuration(items = []) {
-    const totalMinutes = items.reduce((sum, item) => {
+    const activeItems = getActiveTimerItems(items);
+    const totalMinutes = activeItems.reduce((sum, item) => {
         const mins = Number(item?.time);
         return sum + (Number.isFinite(mins) && mins > 0 ? mins : 0);
     }, 0);
@@ -23,9 +29,10 @@ export function calculateTotalWorkoutDuration(items = []) {
 }
 
 export function buildTimerDetails(items = [], workoutTitle = 'Current Regime') {
-    const { totalMinutes, totalSeconds } = calculateTotalWorkoutDuration(items);
+    const activeItems = getActiveTimerItems(items);
+    const { totalMinutes, totalSeconds } = calculateTotalWorkoutDuration(activeItems);
 
-    const exercises = items.map((item, idx) => {
+    const exercises = activeItems.map((item, idx) => {
         const mins = Number(item?.time) > 0 ? Number(item.time) : DEFAULT_EXERCISE_MINUTES;
         const sets = Number(item?.sets) > 0 ? Number(item.sets) : 1;
         const durationSeconds = mins * SECONDS_PER_MINUTE;
@@ -37,19 +44,20 @@ export function buildTimerDetails(items = [], workoutTitle = 'Current Regime') {
             time: mins,
             durationSeconds,
             thresholdSeconds: durationSeconds,
-            completed: Boolean(item.completed),
+            completed: false,
         };
     });
 
-    const firstUnfinished = exercises.find((ex) => !ex.completed) || exercises[0] || null;
+    const firstExercise = exercises[0] || null;
 
     return {
         workoutName: workoutTitle,
         totalMinutes,
         totalSeconds,
-        targetExerciseId: firstUnfinished?.id ?? null,
-        targetExerciseName: firstUnfinished?.name ?? null,
-        targetThresholdSeconds: firstUnfinished?.thresholdSeconds ?? 0,
+        skippedCount: items.length - activeItems.length,
+        targetExerciseId: firstExercise?.id ?? null,
+        targetExerciseName: firstExercise?.name ?? null,
+        targetThresholdSeconds: firstExercise?.thresholdSeconds ?? 0,
         autoCompleteMode: AUTO_COMPLETE_MODE,
         exercises,
         updatedAt: Date.now(),
