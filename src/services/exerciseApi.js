@@ -2,9 +2,6 @@ import { DEFAULT_SETS, defaultExerciseMinutes } from '../utils/timerAutoComplete
 
 const DEFAULT_EXERCISES_URL = 'https://oss.exercisedb.dev/api/v1/exercises?limit=30';
 
-export const DEFAULT_SETS = 3;
-export const DEFAULT_MINUTES = 10;
-
 // ExerciseDB body parts (and a few common muscle names) -> planner sections
 const GROUP_ALIASES = {
     chest: 'chest',

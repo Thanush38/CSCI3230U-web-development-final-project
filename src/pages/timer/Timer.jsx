@@ -46,7 +46,11 @@ const DEMO_WORKOUTS = [
 const STORAGE_KEY = 'savedPreBuiltWorkouts'
 const REGIME_STORAGE_KEY = 'plannerRegimeItems'
 const SECTIONS_STORAGE_KEY = 'plannerSectionEntries'
-const DEFAULT_REST = 30
+
+// Rest between sets for planner workouts, following the planner's rest toggle
+function plannerRestSeconds() {
+    return restSecondsFor(loadIncludeRest())
+}
 
 // planner exercise names -> ids used for the local gif files and exercise routes
 const EXERCISE_IDS = LOCAL_EXERCISE_IDS
@@ -515,7 +519,10 @@ function Timer(props) {
                         {exerciseDbId(exercise)
                             ? <Link to={`/exercises/${exerciseDbId(exercise)}`}>{exercise.name}</Link>
                             : <span>{exercise.name}</span>}
-                        <span>{exercise.sets} × {exercise.work}s, {exercise.rest}s rest</span>
+                        <span>
+                            {exercise.sets} × {formatTime(exercise.work)}
+                            {exercise.rest > 0 ? `, ${formatTime(exercise.rest)} rest` : ', no rest'}
+                        </span>
                     </li>
                 ))}
             </ol>
