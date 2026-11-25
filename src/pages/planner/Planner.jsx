@@ -14,17 +14,12 @@ import {
     INCLUDE_REST_STORAGE_KEY,
     buildTimerDetails,
     saveTimerDetails,
-<<<<<<< HEAD
-    applyThresholdAutoComplete, 
-} from '../../utils/timerAutoComplete'; // AI assisted with this code and how explaind to use it helping me understand so I could manually implement the rest of the code
-=======
     applyThresholdAutoComplete,
     calculateTotalWorkoutDuration,
     resolveExerciseMinutes,
     resolveSets,
     restSecondsFor,
 } from '../../utils/timerAutoComplete';
->>>>>>> 62bf290d10d3ff049004ad5535792d417496d3ec
 import { resolveExerciseGif, resolveExerciseDbId } from '../../utils/exerciseImages';
 import './Planner.css';
 
@@ -437,14 +432,9 @@ function Planner() {
                 id: createUniqueId('build'),
                 muscleGroup: group,
                 name: item.name,
-<<<<<<< HEAD
-                sets: parsedSets,
-                time: parsedTime,
-=======
                 sets: resolveSets(item.sets),
                 time: resolveExerciseMinutes(item),
                 // Builds saved before this have no gif / exerciseId fields
->>>>>>> 62bf290d10d3ff049004ad5535792d417496d3ec
                 ...resolveExerciseMedia(item),
                 completed: false,
             };
