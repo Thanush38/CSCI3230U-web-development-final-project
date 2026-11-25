@@ -478,7 +478,12 @@ function Planner() {
             ...prev,
             [buildName]: snapshotWorkouts,
         }));
-        setStatusMessage(`Saved "${buildName}" to your pre-built workouts.`);
+
+        // Start fresh so the next build can be made from an empty planner
+        setSectionEntries(INITIAL_SECTION_ENTRIES);
+        setRegimeItems([]);
+        setUndoHistory([]);
+        setStatusMessage(`Saved "${buildName}" to your pre-built workouts. Planner cleared for a new build.`);
     };
 
     const handleStartTimer = () => {
