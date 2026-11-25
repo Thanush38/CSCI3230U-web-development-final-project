@@ -1,30 +1,21 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
-import './index.css';
-import App from './App.jsx';
-import Home from './pages/home/Home.jsx';
+import './index.css'
+import App from './App.jsx'
 import Planner from './pages/planner/Planner.jsx';
 import Recommended from './pages/recommended/Recommended.jsx';
 import Timer from './pages/timer/Timer.jsx';
 import Goals from './pages/goals/Goals.jsx';
+import ExerciseList from './ExerciseList.jsx';
 import ExerciseDetail from './ExerciseDetail.jsx';
-import PushUp from './pages/Clickables/PushUp.jsx';
-import Benchpress from './pages/Clickables/BenchPress.jsx';
-import Bentoverrow from './pages/Clickables/BentOverRow.jsx';
-import Bicepcurl from './pages/Clickables/BicepCurl.jsx';
-import Bodyweightsquat from './pages/Clickables/BodyWeightSquat.jsx';
-import Deadlift from './pages/Clickables/Deadlift.jsx';
-import Overheadpress from './pages/Clickables/OverheadPress.jsx';
-import Plank from './pages/Clickables/Plank.jsx';
-import Pullup from './pages/Clickables/PullUp.jsx';
-import Tricepdips from './pages/Clickables/TricepDips.jsx';
 
 const router = createBrowserRouter([
   {
     path: '/',
     element: <App />,
     children: [
+<<<<<<< HEAD
       { index: true, element: <Home /> },
       { path: 'planner', element: <Planner /> },
       { path: 'recommended', element: <Recommended /> },
@@ -43,6 +34,16 @@ const router = createBrowserRouter([
       { path: 'tricepdips', element: <Tricepdips /> },
     ],
   },
+=======
+      { index: true, element: <ExerciseList /> },
+      { path: 'exercises/:id', element: <ExerciseDetail /> },
+      { path: "planner", element: <Planner /> },
+      { path: "recommended", element: <Recommended /> },
+      { path: "timer", element: <Timer /> },
+      { path: "goals", element: <Goals /> }
+    ]
+  }
+>>>>>>> 31d0c553d54c68f29b86455ace4fea9631a17acc
 ]);
 
 createRoot(document.getElementById('root')).render(

@@ -28,3 +28,12 @@ export function toExercise(exercise) {
         gif: exercise.gifUrl
     };
 }
+// Home-page muscle group -> ExerciseDB bodyParts (comma-joined = OR on the API)
+export const categoryToBodyParts = {
+    chest: ["chest"],
+    back: ["back"],
+    legs: ["upper legs", "lower legs"],
+    shoulders: ["shoulders"],
+    arms: ["upper arms", "lower arms"],
+    core: ["waist"]
+};
