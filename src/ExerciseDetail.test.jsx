@@ -1,63 +1,74 @@
-import React from 'react';
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, waitFor } from '@testing-library/react';
+import { describe, it, expect, vi, afterEach } from 'vitest';
+import { render, screen } from '@testing-library/react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import ExerciseDetail from './ExerciseDetail';
-import * as exerciseApi from './services/exerciseApi';
+import { API } from './exercises.js';
 
-const SAMPLE_EXERCISES = [
-  {
-    id: 'ex-101',
-    name: 'Barbell Bench Press',
-    muscleGroup: 'chest',
-    equipment: 'Barbell',
-    sets: 4,
-    time: 12,
-    instructions: ['Lie flat on the bench.', 'Lower the bar to mid-chest and press up.'],
-  },
-];
+// Raw ExerciseDB v1 shape returned by GET /exercises/:id
+const SAMPLE_EXERCISE = {
+  exerciseId: 'ila4NZS',
+  name: 'Barbell Bench Press',
+  bodyParts: ['chest'],
+  targetMuscles: ['pectorals'],
+  secondaryMuscles: ['triceps', 'shoulders'],
+  equipments: ['barbell'],
+  instructions: ['Lie flat on the bench.', 'Lower the bar to mid-chest and press up.'],
+  gifUrl: 'https://example.com/bench.gif',
+};
+
+function mockFetchResponse({ ok = true, status = 200, body = {} } = {}) {
+  return vi.spyOn(globalThis, 'fetch').mockResolvedValue({
+    ok,
+    status,
+    json: async () => body,
+  });
+}
 
 function renderDetailAt(routePath) {
   return render(
     <MemoryRouter initialEntries={[routePath]}>
       <Routes>
         <Route path="/exercises/:id" element={<ExerciseDetail />} />
-        <Route path="/planner" element={<div>Planner Page</div>} />
+        <Route path="/" element={<div>Home Page</div>} />
       </Routes>
     </MemoryRouter>
   );
 }
 
 describe('ExerciseDetail route component', () => {
-  beforeEach(() => {
+  afterEach(() => {
     vi.restoreAllMocks();
   });
 
-  it('loads and displays the exercise matching the :id param', async () => {
-    vi.spyOn(exerciseApi, 'fetchExercises').mockResolvedValue(SAMPLE_EXERCISES);
+  it('fetches the exercise by the :id param and displays its details', async () => {
+    const fetchSpy = mockFetchResponse({ body: { data: SAMPLE_EXERCISE } });
 
-    renderDetailAt('/exercises/ex-101');
+    renderDetailAt('/exercises/ila4NZS');
 
-    expect(screen.getByRole('status')).toHaveTextContent(/loading exercise details/i);
+    expect(screen.getByText(/loading exercise/i)).toBeInTheDocument();
 
-    await waitFor(() => {
-      expect(screen.getByRole('heading', { name: 'Barbell Bench Press' })).toBeInTheDocument();
-    });
+    expect(
+      await screen.findByRole('heading', { name: 'Barbell Bench Press' })
+    ).toBeInTheDocument();
 
-    expect(screen.getAllByText(/chest/i).length).toBeGreaterThan(0);
-    expect(screen.getAllByText(/Barbell/i).length).toBeGreaterThan(0);
+    expect(fetchSpy).toHaveBeenCalledWith(`${API}/ila4NZS`, expect.anything());
+    expect(screen.getByText('pectorals')).toBeInTheDocument();
+    expect(screen.getByText('triceps, shoulders')).toBeInTheDocument();
+    expect(screen.getByText('barbell')).toBeInTheDocument();
     expect(screen.getByText(/Lie flat on the bench\./i)).toBeInTheDocument();
+    expect(screen.getByRole('img', { name: 'Barbell Bench Press' })).toHaveAttribute(
+      'src',
+      SAMPLE_EXERCISE.gifUrl
+    );
+    expect(screen.getByRole('link', { name: /back to exercises/i })).toHaveAttribute('href', '/');
   });
 
-  it('shows a not-found message when no exercise matches :id', async () => {
-    vi.spyOn(exerciseApi, 'fetchExercises').mockResolvedValue(SAMPLE_EXERCISES);
+  it('shows an error message when the API cannot find the exercise', async () => {
+    vi.spyOn(console, 'error').mockImplementation(() => {});
+    mockFetchResponse({ ok: false, status: 404 });
 
     renderDetailAt('/exercises/non-existent-id');
 
-    await waitFor(() => {
-      expect(screen.getByRole('heading', { name: /exercise not found/i })).toBeInTheDocument();
-    });
-
-    expect(screen.getByText(/non-existent-id/i)).toBeInTheDocument();
+    expect(await screen.findByText(/could not load exercise/i)).toBeInTheDocument();
   });
 });
