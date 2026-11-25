@@ -1,4 +1,3 @@
-// Extractable timer configuration variables
 // The ideas of these variable names were ai-assisted
 export const SAVED_WORKOUTS_STORAGE_KEY = 'savedPreBuiltWorkouts';
 export const TIMER_HANDOFF_STORAGE_KEY = 'activeTimerDetails';

@@ -14,7 +14,7 @@ import {
     buildTimerDetails,
     saveTimerDetails,
     applyThresholdAutoComplete, 
-} from '../../utils/timerAutoComplete'; // AI assisted with this code and how to use it
+} from '../../utils/timerAutoComplete'; // AI assisted with this code and how explaind to use it helping me understand so I could manually implement the rest of the code
 import { resolveExerciseGif, resolveExerciseDbId } from '../../utils/exerciseImages';
 import './Planner.css';
 
