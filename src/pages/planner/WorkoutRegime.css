@@ -26,6 +26,19 @@
     text-align: left;
 }
 
+/* Rest toggle + estimated length */
+.regime-rest {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px 16px;
+    font-size: 0.95rem;
+}
+
+.regime-estimate {
+    color: #52606d;
+}
+
 /* Regime action buttons layout */
 .regime-actions {
     display: flex;

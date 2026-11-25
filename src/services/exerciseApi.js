@@ -1,7 +1,6 @@
-const DEFAULT_EXERCISES_URL = 'https://oss.exercisedb.dev/api/v1/exercises?limit=30';
+import { DEFAULT_SETS, defaultExerciseMinutes } from '../utils/timerAutoComplete';
 
-export const DEFAULT_SETS = 3;
-export const DEFAULT_MINUTES = 10;
+const DEFAULT_EXERCISES_URL = 'https://oss.exercisedb.dev/api/v1/exercises?limit=30';
 
 // ExerciseDB body parts (and a few common muscle names) -> planner sections
 const GROUP_ALIASES = {
@@ -97,16 +96,19 @@ export function mapApiExercise(raw, index = 0) {
             ? [raw.instructions.trim()]
             : ['Perform with controlled form and steady breathing.'];
 
+    const sets = Number.isInteger(Number(raw?.sets)) && Number(raw?.sets) > 0
+        ? Number(raw?.sets)
+        : DEFAULT_SETS;
+
     return {
         id: String(raw?.id ?? raw?.exerciseId ?? `api-ex-${index}`),
         name: rawName,
         muscleGroup: normalizeMuscleGroup(rawGroup),
-        sets: Number.isInteger(Number(raw?.sets)) && Number(raw?.sets) > 0
-            ? Number(raw?.sets)
-            : DEFAULT_SETS,
+        sets,
+        // ExerciseDB has no duration, so default to 2 minutes of work per set
         time: Number.isFinite(Number(raw?.time)) && Number(raw?.time) > 0
             ? Number(raw?.time)
-            : DEFAULT_MINUTES,
+            : defaultExerciseMinutes(sets),
         equipment,
         // raw API uses gifUrl; useExerciseSearch's toExercise() renames it to gif
         gif: firstString(raw?.gifUrl) || firstString(raw?.gif),

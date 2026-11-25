@@ -83,8 +83,8 @@ export default function BadgeList(props) {
     return <div id="badges">
         <h4>Badges</h4>
         <div id="badge-display">
-            {loading && <p>Loading Badges</p>}
-            {error ? <p>Error Loading Badges</p> : 
+            {loading ? <p>Loading Badges</p> :
+            error ? <p>Error Loading Badges</p> : 
             badgeData.length === 0 ? <p>No Badges</p> :
             badgeData.map((data) => 
             <Badge 
