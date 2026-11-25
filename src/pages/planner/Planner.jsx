@@ -71,6 +71,10 @@ const EXERCISE_TO_GROUP = {
     Plank: 'core',
 };
 
+function normalizeName(name) {
+    return String(name || '').trim().toLowerCase();
+}
+
 function createUniqueId(prefix = 'item') {
     if (typeof crypto !== 'undefined' && crypto.randomUUID) {
         return `${prefix}-${crypto.randomUUID()}`;
@@ -229,39 +233,63 @@ function Planner() {
 
         const handleWorkoutSync = (event) => {
             const detail = event.detail || {};
-            if (!Array.isArray(detail.exercises)) return;
-
-            const nextSections = {
-                chest: [],
-                back: [],
-                leg: [],
-                shoulder: [],
-                arm: [],
-                core: [],
-            };
-
             const completedSet = new Set(
-                (detail.completedExerciseNames || []).map((n) => String(n).toLowerCase())
+                (detail.completedExerciseNames || []).map(normalizeName)
             );
 
-            const syncedItems = detail.exercises.map((ex, index) => {
-                const group = dynamicGroupMap[ex.name] || 'chest';
-                const entry = {
-                    id: ex.id || createUniqueId(`sync-${index}`),
-                    muscleGroup: group,
-                    name: ex.name,
-                    sets: Number(ex.sets) || 3,
-                    time: Number(ex.time) || 10,
-                    completed: Boolean(ex.completed) || completedSet.has(String(ex.name).toLowerCase()),
+            if (Array.isArray(detail.exercises)) {
+                const nextSections = {
+                    chest: [],
+                    back: [],
+                    leg: [],
+                    shoulder: [],
+                    arm: [],
+                    core: [],
                 };
-                if (nextSections[group]) {
-                    nextSections[group].push(entry);
-                }
-                return entry;
-            });
 
-            setSectionEntries(nextSections);
-            setRegimeItems(syncedItems);
+                const syncedItems = detail.exercises.map((ex, index) => {
+                    const group = dynamicGroupMap[ex.name] || 'chest';
+                    const isCompleted =
+                        detail.completedExerciseNames !== undefined
+                            ? completedSet.has(normalizeName(ex.name))
+                            : Boolean(ex.completed);
+
+                    const entry = {
+                        id: ex.id || createUniqueId(`sync-${index}`),
+                        muscleGroup: group,
+                        name: ex.name,
+                        sets: Number(ex.sets) || 3,
+                        time: Number(ex.time) || 10,
+                        completed: isCompleted,
+                    };
+                    if (nextSections[group]) {
+                        nextSections[group].push(entry);
+                    }
+                    return entry;
+                });
+
+                setSectionEntries(nextSections);
+                setRegimeItems(syncedItems);
+            } else {
+                setRegimeItems((prev) =>
+                    prev.map((item) => ({
+                        ...item,
+                        completed: completedSet.has(normalizeName(item.name)),
+                    }))
+                );
+                setSectionEntries((prev) => {
+                    const next = { ...INITIAL_SECTION_ENTRIES };
+                    for (const group of Object.keys(next)) {
+                        const list = Array.isArray(prev?.[group]) ? prev[group] : [];
+                        next[group] = list.map((entry) => ({
+                            ...entry,
+                            completed: completedSet.has(normalizeName(entry.name)),
+                        }));
+                    }
+                    return next;
+                });
+            }
+
             if (detail.workoutName) {
                 setStatusMessage(`Synced regime with "${detail.workoutName}".`);
             }

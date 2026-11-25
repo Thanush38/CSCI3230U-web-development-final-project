@@ -73,6 +73,16 @@ function normalizeName(name) {
     return String(name || '').trim().toLowerCase()
 }
 
+function areAllRegimeItemsCompleted() {
+    try {
+        const raw = localStorage.getItem(REGIME_STORAGE_KEY)
+        const items = raw ? JSON.parse(raw) : []
+        return Array.isArray(items) && items.length > 0 && items.every(item => Boolean(item.completed))
+    } catch {
+        return false
+    }
+}
+
 function markExerciseCompletedInStorage({ exerciseId, exerciseName }) {
     try {
         const raw = localStorage.getItem(REGIME_STORAGE_KEY)
@@ -357,7 +367,15 @@ function Timer(props) {
     }
 
     function handleToggle() {
-        setIsRunning(running => !running)
+        setIsRunning(running => {
+            if (!running && areAllRegimeItemsCompleted()) {
+                prevIndexRef.current = 0
+                setPosition({ index: 0, elapsed: 0 })
+                dispatchWorkoutSync(workout, [])
+                return true
+            }
+            return !running
+        })
     }
 
     function handleSkip() {
@@ -392,10 +410,11 @@ function Timer(props) {
     }
 
     function handleRestart() {
-        prevIndexRef.current = 0
-        setPosition({ index: 0, elapsed: 0 })
-        setIsRunning(true)
-    }
+    prevIndexRef.current = 0
+    setPosition({ index: 0, elapsed: 0 })
+    dispatchWorkoutSync(workout, [])
+    setIsRunning(true)
+}
 
     const step = steps[position.index]
     const secondsLeft = isDone ? 0 : step.seconds - position.elapsed
