@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import ExerciseImage from '../../ExerciseImage';
+import { DEFAULT_SET_MINUTES, defaultExerciseMinutes } from '../../utils/timerAutoComplete';
 import './WorkoutSection.css';
 
 function WorkoutSection({ title, id, options = [], namePrefix, addedEntries, onAddExercise }) {
@@ -17,7 +18,8 @@ function WorkoutSection({ title, id, options = [], namePrefix, addedEntries, onA
     const handleSubmit = (e) => {
         e.preventDefault();
         const parsedSets = Number(sets);
-        const parsedTime = Number(time);
+        // Blank minutes -> default of 2 minutes per set
+        const parsedTime = time.trim() === '' ? defaultExerciseMinutes(parsedSets) : Number(time);
 
         if (!selectedExercise) {
             setErrorMessage('Make sure to select an exercise.');
@@ -119,7 +121,7 @@ function WorkoutSection({ title, id, options = [], namePrefix, addedEntries, onA
                                         min="1"
                                         step="1"
                                         name={`${namePrefix}Time`}
-                                        placeholder="Minutes"
+                                        placeholder={`Minutes (${DEFAULT_SET_MINUTES}/set)`}
                                         aria-label={`${title} time`}
                                         value={time}
                                         onChange={(e) => setTime(e.target.value)}

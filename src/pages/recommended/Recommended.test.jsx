@@ -55,7 +55,8 @@ describe("toPlannerWorkout", () => {
   it("converts a build into the planner's format", () => {
     const result = toPlannerWorkout(backBuild);
     expect(result).toHaveLength(4);
-    expect(result[0]).toEqual({ name: "Pull-up", sets: 4, time: 10 });
+    // 4 sets x 2 minutes per set
+    expect(result[0]).toEqual({ name: "Pull-up", sets: 4, time: 8 });
   });
 });
 

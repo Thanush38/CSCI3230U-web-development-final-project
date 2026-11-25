@@ -7,6 +7,10 @@ import {
     TIMER_EVENT_SYNC_WORKOUT,
     AUTO_COMPLETE_MODE,
     SECONDS_PER_MINUTE,
+    loadIncludeRest,
+    restSecondsFor,
+    resolveSets,
+    resolveExerciseMinutes,
 } from '../../utils/timerAutoComplete'
 import { LOCAL_EXERCISE_IDS, resolveExerciseGif, resolveExerciseDbId } from '../../utils/exerciseImages'
 import ExerciseImage from '../../ExerciseImage'
@@ -42,7 +46,11 @@ const DEMO_WORKOUTS = [
 const STORAGE_KEY = 'savedPreBuiltWorkouts'
 const REGIME_STORAGE_KEY = 'plannerRegimeItems'
 const SECTIONS_STORAGE_KEY = 'plannerSectionEntries'
-const DEFAULT_REST = 30
+
+// Rest between sets for planner workouts, following the planner's rest toggle
+function plannerRestSeconds() {
+    return restSecondsFor(loadIncludeRest())
+}
 
 // planner exercise names -> ids used for the local gif files and exercise routes
 const EXERCISE_IDS = LOCAL_EXERCISE_IDS
@@ -148,10 +156,10 @@ function syncWorkoutToStorage(targetWorkout, completedNames = []) {
     }
 }
 
-// planner stores time as total minutes for the exercise, so split it across the sets
-function toExercise(item) {
-    const sets = parseInt(item.sets, 10) || 1
-    const minutes = parseInt(item.time, 10) || 1
+// planner stores time as total work minutes for the exercise, so split it across the sets
+function toExercise(item, rest) {
+    const sets = resolveSets(parseInt(item.sets, 10))
+    const minutes = resolveExerciseMinutes({ sets, time: item.time })
     return {
         id: EXERCISE_IDS[item.name] ?? String(item.name).toLowerCase().replace(/[^a-z]/g, ''),
         regimeItemId: item.id ?? null,
@@ -159,12 +167,13 @@ function toExercise(item) {
         gif: resolveExerciseGif(item.name, item.gif),
         exerciseId: resolveExerciseDbId({ name: item.name, exerciseId: item.exerciseId }),
         sets,
-        work: Math.max(1, Math.round((minutes * 60) / sets)),
-        rest: DEFAULT_REST,
+        work: Math.max(1, Math.round((minutes * SECONDS_PER_MINUTE) / sets)),
+        rest,
     }
 }
 
 function loadSavedWorkouts() {
+    const rest = plannerRestSeconds()
     let saved
     try {
         saved = JSON.parse(localStorage.getItem(STORAGE_KEY))
@@ -175,7 +184,7 @@ function loadSavedWorkouts() {
 
     return Object.entries(saved)
         .filter(([, items]) => Array.isArray(items) && items.length > 0)
-        .map(([name, items]) => ({ id: `saved-${name}`, name, exercises: items.map(toExercise) }))
+        .map(([name, items]) => ({ id: `saved-${name}`, name, exercises: items.map(item => toExercise(item, rest)) }))
 }
 
 const RING_LENGTH = 2 * Math.PI * 90
@@ -189,7 +198,8 @@ function buildSteps(exercises) {
     return sets.flatMap(({ exercise, set }, i) => {
         const work = { id: `${exercise.id}-${set}-work`, type: 'Work', exercise, set, seconds: exercise.work }
         const next = sets[i + 1]
-        if (!next) return [work]
+        // no rest after the last set, or when rest is turned off
+        if (!next || !(exercise.rest > 0)) return [work]
 
         const rest = { id: `${exercise.id}-${set}-rest`, type: 'Rest', exercise: next.exercise, set: next.set, seconds: exercise.rest }
         return [work, rest]
@@ -205,7 +215,7 @@ function describeNext(step, nextStep) {
     if (!nextStep) return 'Last set, finish strong!'
     if (nextStep.type === 'Rest') {
         const after = nextStep.exercise === step.exercise ? `set ${nextStep.set}` : nextStep.exercise.name
-        return `Next: ${nextStep.seconds} sec rest, then ${after}`
+        return `Next: ${formatTime(nextStep.seconds)} rest, then ${after}`
     }
     return `Next: ${nextStep.exercise.name}, set ${nextStep.set} of ${nextStep.exercise.sets}`
 }
@@ -227,8 +237,8 @@ function Timer(props) {
             id: 'planner-active-regime',
             name: incomingDetails.workoutName || 'Planner Regime',
             exercises: incomingDetails.exercises.map((ex, i) => {
-                const sets = Math.max(1, Number(ex.sets) || 1)
-                const totalExerciseSeconds = Math.max(1, (Number(ex.time) || 1) * SECONDS_PER_MINUTE)
+                const sets = resolveSets(ex.sets)
+                const totalExerciseSeconds = resolveExerciseMinutes({ sets, time: ex.time }) * SECONDS_PER_MINUTE
                 return {
                     id: EXERCISE_IDS[ex.name] ?? ex.id ?? `regime-ex-${i}`,
                     regimeItemId: ex.id ?? null,
@@ -237,7 +247,7 @@ function Timer(props) {
                     exerciseId: resolveExerciseDbId({ name: ex.name, exerciseId: ex.exerciseId }),
                     sets,
                     work: Math.max(1, Math.round(totalExerciseSeconds / sets)),
-                    rest: incomingDetails.restSeconds ?? DEFAULT_REST,
+                    rest: incomingDetails.restSeconds ?? plannerRestSeconds(),
                 }
             }),
         }
@@ -509,7 +519,10 @@ function Timer(props) {
                         {exerciseDbId(exercise)
                             ? <Link to={`/exercises/${exerciseDbId(exercise)}`}>{exercise.name}</Link>
                             : <span>{exercise.name}</span>}
-                        <span>{exercise.sets} × {exercise.work}s, {exercise.rest}s rest</span>
+                        <span>
+                            {exercise.sets} × {formatTime(exercise.work)}
+                            {exercise.rest > 0 ? `, ${formatTime(exercise.rest)} rest` : ', no rest'}
+                        </span>
                     </li>
                 ))}
             </ol>

@@ -11,9 +11,14 @@ import {
     TIMER_EVENT_TICK,
     TIMER_EVENT_AUTO_COMPLETE,
     TIMER_EVENT_SYNC_WORKOUT,
+    INCLUDE_REST_STORAGE_KEY,
     buildTimerDetails,
     saveTimerDetails,
     applyThresholdAutoComplete,
+    calculateTotalWorkoutDuration,
+    resolveExerciseMinutes,
+    resolveSets,
+    restSecondsFor,
 } from '../../utils/timerAutoComplete';
 import { resolveExerciseGif, resolveExerciseDbId } from '../../utils/exerciseImages';
 import './Planner.css';
@@ -125,6 +130,11 @@ function Planner() {
         'plannerUndoHistory',
         []
     );
+    const [includeRest, setIncludeRest] = useLocalStorageState(
+        INCLUDE_REST_STORAGE_KEY,
+        true
+    );
+    const restSeconds = restSecondsFor(includeRest);
     const [statusMessage, setStatusMessage] = useState('');
 
     const [catalog, setCatalog] = useState([]);
@@ -259,8 +269,8 @@ function Planner() {
                         id: ex.id || createUniqueId(`sync-${index}`),
                         muscleGroup: group,
                         name: ex.name,
-                        sets: Number(ex.sets) || 3,
-                        time: Number(ex.time) || 10,
+                        sets: resolveSets(ex.sets),
+                        time: resolveExerciseMinutes(ex),
                         completed: isCompleted,
                     };
                     if (nextSections[group]) {
@@ -366,8 +376,8 @@ function Planner() {
             id: createUniqueId('ex'),
             muscleGroup,
             name,
-            sets,
-            time,
+            sets: resolveSets(sets),
+            time: resolveExerciseMinutes({ sets, time }),
             ...resolveExerciseMedia({ name, gif, exerciseId }),
             completed: false,
         };
@@ -404,14 +414,12 @@ function Planner() {
 
         const nextRegime = workouts.map((item) => {
             const group = dynamicGroupMap[item.name] || 'chest';
-            const parsedSets = Number(item.sets) || 3;
-            const parsedTime = Number(item.time) || 10;
             const entry = {
                 id: createUniqueId('build'),
                 muscleGroup: group,
                 name: item.name,
-                sets: parsedSets,
-                time: parsedTime,
+                sets: resolveSets(item.sets),
+                time: resolveExerciseMinutes(item),
                 // Builds saved before this have no gif / exerciseId fields
                 ...resolveExerciseMedia(item),
                 completed: false,
@@ -461,7 +469,7 @@ function Planner() {
     };
 
     const handleStartTimer = () => {
-        const timerDetails = buildTimerDetails(regimeItems, 'Full Workout Regime');
+        const timerDetails = buildTimerDetails(regimeItems, 'Full Workout Regime', restSeconds);
         saveTimerDetails(timerDetails);
         navigate('/timer', { state: { timerDetails } });
     };
@@ -473,8 +481,7 @@ function Planner() {
         regimeItems.forEach((item) => {
             if (item.completed) {
                 completedCount += 1;
-                const mins = Number(item.time);
-                totalMinutes += Number.isNaN(mins) ? 10 : mins;
+                totalMinutes += resolveExerciseMinutes(item);
             }
         });
 
@@ -485,6 +492,12 @@ function Planner() {
             caloriesBurned: totalMinutes * 8,
         };
     }, [regimeItems]);
+
+    // What the timer will run for the exercises still to do, rest included
+    const estimatedMinutes = useMemo(
+        () => calculateTotalWorkoutDuration(regimeItems, restSeconds).totalMinutes,
+        [regimeItems, restSeconds]
+    );
 
     const savedBuildNames = useMemo(() => Object.keys(savedBuilds), [savedBuilds]);
     const recommendedBuildNames = useMemo(() => Object.keys(WORKOUT_BUILDS), []);
@@ -574,6 +587,10 @@ function Planner() {
             <WorkoutRegime
                 items={regimeItems}
                 canUndo={undoHistory.length > 0}
+                includeRest={includeRest}
+                restMinutes={restSecondsFor(true) / 60}
+                estimatedMinutes={estimatedMinutes}
+                onToggleRest={() => setIncludeRest((prev) => !prev)}
                 onToggleComplete={handleToggleComplete}
                 onUndo={handleUndo}
                 onStartTimer={handleStartTimer}

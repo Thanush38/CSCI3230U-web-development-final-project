@@ -4,6 +4,10 @@ import './WorkoutRegime.css';
 function WorkoutRegime({
     items = [],
     canUndo = false,
+    includeRest = true,
+    restMinutes = 2,
+    estimatedMinutes = 0,
+    onToggleRest,
     onToggleComplete,
     onUndo,
     onStartTimer,
@@ -44,12 +48,15 @@ function WorkoutRegime({
                                 const workoutName = item.name || item.workout || item.exercise || 'Untitled Exercise';
                                 const setsValue = item.sets ?? item.totalWorkouts ?? 0;
                                 const timeValue = item.time ?? item.minutes ?? item.duration ?? 0;
+                                const perSetMinutes = setsValue > 0
+                                    ? Math.round((timeValue / setsValue) * 10) / 10
+                                    : timeValue;
 
                                 return (
                                     <tr key={item.id}>
                                         <td>{workoutName}</td>
                                         <td>{setsValue} sets</td>
-                                        <td>{timeValue} minutes</td>
+                                        <td>{timeValue} minutes ({perSetMinutes} min/set)</td>
                                         <td>
                                             <label>
                                                 <input
@@ -66,6 +73,22 @@ function WorkoutRegime({
                         )}
                     </tbody>
                 </table>
+            </div>
+
+            <div className="regime-rest">
+                <label>
+                    <input
+                        type="checkbox"
+                        checked={includeRest}
+                        onChange={() => onToggleRest?.()}
+                    />{' '}
+                    {restMinutes} min rest between sets
+                </label>
+                {items.some((item) => !item.completed) && (
+                    <span className="regime-estimate">
+                        Estimated timer length: {estimatedMinutes} min
+                    </span>
+                )}
             </div>
 
             <div className="regime-actions">
