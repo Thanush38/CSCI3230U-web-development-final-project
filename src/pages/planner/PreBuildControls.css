@@ -118,3 +118,18 @@
     outline: 2px solid #1e3a8a;
     outline-offset: 2px;
 }
+
+.control-group select {
+    padding: 6px 8px;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    background-color: #ffffff;
+    color: #1f2933;
+    max-width: 100%;
+}
+
+#links a {
+    color: #475569;
+    text-decoration: none;
+    font-weight: 500;
+}

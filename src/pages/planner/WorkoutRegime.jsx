@@ -24,47 +24,49 @@ function WorkoutRegime({
             <h2 id="regime-heading">Workout Regime</h2>
             <p className="regime-subtitle">Full Workout Regime</p>
 
-            <table className="workout-regime">
-                <thead>
-                    <tr>
-                        <th>Workout</th>
-                        <th>Total Work Outs</th>
-                        <th>Time?</th>
-                        <th>Complete</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {items.length === 0 ? (
+            <div className="regime-table-wrap">
+                <table className="workout-regime">
+                    <thead>
                         <tr>
-                            <td colSpan="4">No exercises in your regime yet.</td>
+                            <th scope="col">Workout</th>
+                            <th scope="col">Total Work Outs</th>
+                            <th scope="col">Time?</th>
+                            <th scope="col">Complete</th>
                         </tr>
-                    ) : (
-                        items.map((item) => {
-                            const workoutName = item.name || item.workout || item.exercise || 'Untitled Exercise';
-                            const setsValue = item.sets ?? item.totalWorkouts ?? 0;
-                            const timeValue = item.time ?? item.minutes ?? item.duration ?? 0;
+                    </thead>
+                    <tbody>
+                        {items.length === 0 ? (
+                            <tr>
+                                <td colSpan="4">No exercises in your regime yet.</td>
+                            </tr>
+                        ) : (
+                            items.map((item) => {
+                                const workoutName = item.name || item.workout || item.exercise || 'Untitled Exercise';
+                                const setsValue = item.sets ?? item.totalWorkouts ?? 0;
+                                const timeValue = item.time ?? item.minutes ?? item.duration ?? 0;
 
-                            return (
-                                <tr key={item.id}>
-                                    <td>{workoutName}</td>
-                                    <td>{setsValue} sets</td>
-                                    <td>{timeValue} minutes</td>
-                                    <td>
-                                        <label>
-                                            <input
-                                                type="checkbox"
-                                                checked={Boolean(item.completed)}
-                                                onChange={() => onToggleComplete?.(item.id)}
-                                            />{' '}
-                                            Complete?
-                                        </label>
-                                    </td>
-                                </tr>
-                            );
-                        })
-                    )}
-                </tbody>
-            </table>
+                                return (
+                                    <tr key={item.id}>
+                                        <td>{workoutName}</td>
+                                        <td>{setsValue} sets</td>
+                                        <td>{timeValue} minutes</td>
+                                        <td>
+                                            <label>
+                                                <input
+                                                    type="checkbox"
+                                                    checked={Boolean(item.completed)}
+                                                    onChange={() => onToggleComplete?.(item.id)}
+                                                />{' '}
+                                                Complete?
+                                            </label>
+                                        </td>
+                                    </tr>
+                                );
+                            })
+                        )}
+                    </tbody>
+                </table>
+            </div>
 
             <div className="regime-actions">
                 <button

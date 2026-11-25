@@ -53,7 +53,6 @@
     min-width: 180px;
 }
 
-/* Standard button styles for Back, Start Timer, and Save Build */
 .regime-actions button {
     padding: 6px 16px;
     font-size: 0.95rem;
@@ -65,4 +64,36 @@
 
 .regime-actions button:hover {
     background-color: #f1f5f9;
+}
+
+.regime-table-wrap {
+    overflow-x: auto;
+    max-width: 100%;
+}
+
+.save-build-group input[type="text"] {
+    padding: 6px 10px;
+    font-size: 0.95rem;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    background-color: #ffffff;
+    color: #1f2933;
+    outline: none;
+    min-width: 0;
+    flex: 1 1 180px;
+    max-width: 100%;
+}
+
+#startTimerBtn,
+#saveBuildBtn {
+    background-color: #1d4ed8;
+    color: #ffffff;
+    border-color: #1d4ed8;
+    font-weight: 600;
+}
+
+#startTimerBtn:hover,
+#saveBuildBtn:hover {
+    background-color: #1e40af;
+    border-color: #1e40af;
 }

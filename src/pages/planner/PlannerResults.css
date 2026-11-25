@@ -90,6 +90,15 @@
     background-color: #1d4ed8;
 }
 
+.planner-results p {
+    margin: 0 0 8px;
+    color: #1f2933;
+}
+
+.planner-results p:last-child {
+    margin-bottom: 0;
+}
+
 /* Phone view adjustments */
 @media (max-width: 600px) {
     .regime-actions,

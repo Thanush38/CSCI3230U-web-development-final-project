@@ -1,15 +1,14 @@
 import { Link, Outlet } from 'react-router-dom';
 
-import './App.css'
+import './App.css';
 
 function App() {
-
   return (
     <div className='body'>
       <header>
         <Link className='logo' to="/">
-            <img src="/dumbbell.png" alt="WorkOnSite logo" />
-            WorkOnSite
+          <img src="/dumbbell.png" alt="WorkOnSite logo" />
+          WorkOnSite
         </Link>
         <h1 id="Title">Workout Builder</h1>
         <nav>
@@ -23,7 +22,7 @@ function App() {
 
       <Outlet />
     </div>
-  )
+  );
 }
 
-export default App
+export default App;
