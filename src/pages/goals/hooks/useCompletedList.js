@@ -25,8 +25,6 @@ export default function useCompletedList() {
 
         const results = await Promise.all(
           exercises.map(async (item) => {
-            console.log(item);
-            
             const response = await fetch(`https://oss.exercisedb.dev/api/v1/exercises/${item.id}`, {
               signal: controller.signal,
             })
