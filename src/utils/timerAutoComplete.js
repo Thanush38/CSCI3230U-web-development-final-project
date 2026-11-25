@@ -1,14 +1,15 @@
 // Extractable timer configuration variables
+// The ideas of these variable names were ai-assisted
 export const SAVED_WORKOUTS_STORAGE_KEY = 'savedPreBuiltWorkouts';
 export const TIMER_HANDOFF_STORAGE_KEY = 'activeTimerDetails';
 export const TIMER_EVENT_TICK = 'workout-timer:tick';
 export const TIMER_EVENT_AUTO_COMPLETE = 'workout-timer:auto-complete';
 export const TIMER_EVENT_SYNC_WORKOUT = 'workout-timer:sync-workout';
-
+// upto here
 export const DEFAULT_EXERCISE_MINUTES = 5;
 export const SECONDS_PER_MINUTE = 60;
 export const DEFAULT_REST_SECONDS = 30;
-export const AUTO_COMPLETE_MODE = 'elapsed-threshold'; // 'elapsed-threshold' | 'remaining-threshold'
+export const AUTO_COMPLETE_MODE = 'elapsed-threshold'; 
 
 export function getActiveTimerItems(items = []) {
     return items.filter((item) => !Boolean(item?.completed));
@@ -18,10 +19,10 @@ export function calculateTotalWorkoutDuration(items = []) {
     const activeItems = getActiveTimerItems(items);
     const totalMinutes = activeItems.reduce((sum, item) => {
         const mins = Number(item?.time);
-        return sum + (Number.isFinite(mins) && mins > 0 ? mins : 0);
+         return sum + (Number.isFinite(mins) && mins > 0 ? mins : 0);
     }, 0);
 
-    const safeMinutes = totalMinutes > 0 ? totalMinutes : DEFAULT_EXERCISE_MINUTES;
+const safeMinutes = totalMinutes > 0 ? totalMinutes : DEFAULT_EXERCISE_MINUTES;
     return {
         totalMinutes: safeMinutes,
         totalSeconds: safeMinutes * SECONDS_PER_MINUTE,
@@ -42,7 +43,7 @@ export function buildTimerDetails(items = [], workoutTitle = 'Current Regime') {
             name: item.name,
             gif: item.gif ?? null,
             exerciseId: item.exerciseId ?? null,
-            sets,
+             sets,
             time: mins,
             durationSeconds,
             thresholdSeconds: durationSeconds,
@@ -55,7 +56,7 @@ export function buildTimerDetails(items = [], workoutTitle = 'Current Regime') {
     return {
         workoutName: workoutTitle,
         totalMinutes,
-        totalSeconds,
+         totalSeconds,
         skippedCount: items.length - activeItems.length,
         targetExerciseId: firstExercise?.id ?? null,
         targetExerciseName: firstExercise?.name ?? null,
@@ -70,7 +71,6 @@ export function saveTimerDetails(details) {
     try {
         window.localStorage.setItem(TIMER_HANDOFF_STORAGE_KEY, JSON.stringify(details));
     } catch {
-        // Ignore storage errors
     }
 }
 

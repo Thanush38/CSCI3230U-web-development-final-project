@@ -5,16 +5,16 @@ import ExerciseCatalog from './ExerciseCatalog';
 import WorkoutSection from './WorkoutSection';
 import WorkoutRegime from './WorkoutRegime';
 import PlannerResults from './PlannerResults';
-import { fetchExercises } from '../../services/exerciseApi';
-import { useLocalStorageState } from '../../hooks/useLocalStorageState';
+import { fetchExercises } from '/src/services/exerciseApi';
+import { useLocalStorageState } from '/src/hooks/useLocalStorageState';
 import {
     TIMER_EVENT_TICK,
     TIMER_EVENT_AUTO_COMPLETE,
     TIMER_EVENT_SYNC_WORKOUT,
     buildTimerDetails,
     saveTimerDetails,
-    applyThresholdAutoComplete,
-} from '../../utils/timerAutoComplete';
+    applyThresholdAutoComplete, 
+} from '../../utils/timerAutoComplete'; // AI assisted with this code and how to use it
 import { resolveExerciseGif, resolveExerciseDbId } from '../../utils/exerciseImages';
 import './Planner.css';
 
@@ -296,6 +296,8 @@ function Planner() {
             }
         };
 
+
+        // Ai taught me how to use timer based event listeners
         window.addEventListener(TIMER_EVENT_TICK, handleTimerProgress);
         window.addEventListener(TIMER_EVENT_AUTO_COMPLETE, handleTimerProgress);
         window.addEventListener(TIMER_EVENT_SYNC_WORKOUT, handleWorkoutSync);
@@ -304,11 +306,9 @@ function Planner() {
             window.removeEventListener(TIMER_EVENT_TICK, handleTimerProgress);
             window.removeEventListener(TIMER_EVENT_AUTO_COMPLETE, handleTimerProgress);
             window.removeEventListener(TIMER_EVENT_SYNC_WORKOUT, handleWorkoutSync);
-        };
+        }; // upto here
     }, [dynamicGroupMap, setRegimeItems, setSectionEntries]);
 
-    // Exercises picked from a section dropdown or loaded from an older build
-    // only carry a name, so look their GIF / ExerciseDB id up in the catalog.
     const catalogByName = useMemo(() => {
         const map = {};
         catalog.forEach((ex) => {
@@ -319,7 +319,22 @@ function Planner() {
         return map;
     }, [catalog]);
 
-    // Fills in the image and real ExerciseDB id for a regime entry
+    const gifByName = useMemo(() => {
+        const map = {};
+
+        Object.keys(EXERCISE_TO_GROUP).forEach((name) => {
+            map[name] = resolveExerciseGif(name, '');
+        });
+
+        catalog.forEach((ex) => {
+            if (ex.name) {
+                map[ex.name] = resolveExerciseGif(ex.name, ex.gif ?? map[ex.name] ?? '');
+            }
+        });
+
+        return map;
+    }, [catalog]);
+
     const resolveExerciseMedia = ({ name, gif, exerciseId }) => {
         const match = catalogByName[name];
         return {
@@ -372,7 +387,6 @@ function Planner() {
             completed: false,
         };
 
-        // Groups without a section (e.g. cardio) only go into the regime
         if (muscleGroup in INITIAL_SECTION_ENTRIES) {
             setSectionEntries((prev) => ({
                 ...prev,
@@ -412,11 +426,9 @@ function Planner() {
                 name: item.name,
                 sets: parsedSets,
                 time: parsedTime,
-                // Builds saved before this have no gif / exerciseId fields
                 ...resolveExerciseMedia(item),
                 completed: false,
             };
-            // Groups without a section (e.g. cardio) still go into the regime
             nextSections[group]?.push(entry);
             return entry;
         });
@@ -529,6 +541,7 @@ function Planner() {
                 namePrefix="chest"
                 addedEntries={sectionEntries.chest}
                 onAddExercise={handleAddExercise}
+                exerciseGifMap={gifByName}
             />
             <WorkoutSection
                 title="Back"
@@ -537,6 +550,7 @@ function Planner() {
                 namePrefix="back"
                 addedEntries={sectionEntries.back}
                 onAddExercise={handleAddExercise}
+                exerciseGifMap={gifByName}
             />
             <WorkoutSection
                 title="Leg"
@@ -545,6 +559,7 @@ function Planner() {
                 namePrefix="leg"
                 addedEntries={sectionEntries.leg}
                 onAddExercise={handleAddExercise}
+                exerciseGifMap={gifByName}
             />
             <WorkoutSection
                 title="Shoulder"
@@ -553,6 +568,7 @@ function Planner() {
                 namePrefix="shoulder"
                 addedEntries={sectionEntries.shoulder}
                 onAddExercise={handleAddExercise}
+                exerciseGifMap={gifByName}
             />
             <WorkoutSection
                 title="Arm"
@@ -561,6 +577,7 @@ function Planner() {
                 namePrefix="arm"
                 addedEntries={sectionEntries.arm}
                 onAddExercise={handleAddExercise}
+                exerciseGifMap={gifByName}
             />
             <WorkoutSection
                 title="Core"
@@ -569,6 +586,7 @@ function Planner() {
                 namePrefix="core"
                 addedEntries={sectionEntries.core}
                 onAddExercise={handleAddExercise}
+                exerciseGifMap={gifByName}
             />
 
             <WorkoutRegime
